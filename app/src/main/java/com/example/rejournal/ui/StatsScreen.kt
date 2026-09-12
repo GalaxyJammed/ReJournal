@@ -1,0 +1,381 @@
+package com.example.rejournal.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.example.rejournal.data.ActivityInsight
+import com.example.rejournal.data.StatsCalculator
+import com.example.rejournal.data.StatsPeriod
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
+import com.example.rejournal.data.ActivityFrequency
+
+private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
+private val moodColors = listOf(
+    androidx.compose.ui.graphics.Color(0xFFE57373),
+    androidx.compose.ui.graphics.Color(0xFFFFB74D),
+    androidx.compose.ui.graphics.Color(0xFFFFF176),
+    androidx.compose.ui.graphics.Color(0xFFAED581),
+    androidx.compose.ui.graphics.Color(0xFF81C784)
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StatsScreen(viewModel: MoodViewModel) {
+    val entries by viewModel.allEntries.collectAsState()
+
+    var period by remember { mutableStateOf(StatsPeriod.MONTH) }
+    var referenceDate by remember { mutableStateOf(LocalDate.now()) }
+    var showInsights by remember { mutableStateOf(false) }
+
+    val stats = remember(entries, period, referenceDate) {
+        StatsCalculator.calculate(entries, period, referenceDate)
+    }
+    val (rangeStart, rangeEnd) = remember(period, referenceDate) {
+        StatsCalculator.rangeFor(period, referenceDate)
+    }
+
+    fun shiftPeriod(forward: Boolean) {
+        val amount = if (forward) 1L else -1L
+        referenceDate = when (period) {
+            StatsPeriod.WEEK -> referenceDate.plusWeeks(amount)
+            StatsPeriod.MONTH -> referenceDate.plusMonths(amount)
+            StatsPeriod.YEAR -> referenceDate.plusYears(amount)
+        }
+    }
+
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("Stats") }) }
+    ) { padding: PaddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatsPeriod.entries.forEach { option ->
+                    FilterChip(
+                        selected = period == option,
+                        onClick = {
+                            period = option
+                            referenceDate = LocalDate.now()
+                        },
+                        label = { Text(option.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { shiftPeriod(forward = false) }) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Previous period")
+                }
+                Text(
+                    periodLabel(period, rangeStart, rangeEnd),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                IconButton(onClick = { shiftPeriod(forward = true) }) {
+                    Icon(Icons.Filled.ArrowForward, contentDescription = "Next period")
+                }
+            }
+
+            if (stats.totalEntries == 0) {
+                Text("No entries logged in this period yet.")
+            } else {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "${stats.totalEntries} day${if (stats.totalEntries == 1) "" else "s"} logged",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            "Average mood: ${String.format("%.1f", stats.averageMood)} / 5",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            "Average energy: ${String.format("%.1f", stats.averageEnergy)} / 5",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            "Average productivity: ${String.format("%.1f", stats.averageProductivity)} / 5",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            "Average stress: ${String.format("%.1f", stats.averageStress)} / 5",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            "Average sleep: ${String.format("%.1f", stats.averageSleep)} / 5",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+                Text("Mood breakdown", style = MaterialTheme.typography.titleMedium)
+                MoodDistributionChart(stats.moodCounts)
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            "Best day of the ${periodNoun(period)}: ${stats.bestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            "Toughest day of the ${periodNoun(period)}: ${stats.toughestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = { showInsights = !showInsights },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(if (showInsights) "Hide Additional Stats" else "Show Additional Stats")
+                    Icon(
+                        imageVector = if (showInsights) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = null,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+
+                if (showInsights) {
+                    InsightsSection(
+                        activityInsights = stats.activityInsights,
+                        energyCorrelation = stats.energyMoodCorrelation,
+                        productivityCorrelation = stats.productivityMoodCorrelation,
+                        stressCorrelation = stats.stressMoodCorrelation,
+                        sleepCorrelation = stats.sleepMoodCorrelation,
+                        mostLoggedActivities = stats.mostLoggedActivities,
+                        bestDayActivities = stats.bestDayActivities,
+                        worstDayActivities = stats.worstDayActivities
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InsightsSection(
+    activityInsights: List<ActivityInsight>,
+    energyCorrelation: Double?,
+    productivityCorrelation: Double?,
+    stressCorrelation: Double?,
+    sleepCorrelation: Double?,
+    mostLoggedActivities: List<ActivityFrequency>,
+    bestDayActivities: List<ActivityFrequency>,
+    worstDayActivities: List<ActivityFrequency>
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+
+        if (mostLoggedActivities.isNotEmpty()) {
+            Text("Most logged activities", style = MaterialTheme.typography.titleMedium)
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    mostLoggedActivities.take(5).forEach { freq ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(freq.tag, style = MaterialTheme.typography.bodyMedium)
+                            Text("${freq.count}x", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (activityInsights.isNotEmpty()) {
+            Text("Mood by activity", style = MaterialTheme.typography.titleMedium)
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    activityInsights.forEach { insight ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("${insight.tag} (${insight.count}x)", style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                "avg ${String.format("%.1f", insight.averageMood)} ${moodEmojis[(insight.averageMood.toInt() - 1).coerceIn(0, 4)]}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                }
+            }
+            Text(
+                "Sorted best to worst. Only shows tags logged 2+ times.",
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+
+        if (bestDayActivities.isNotEmpty() || worstDayActivities.isNotEmpty()) {
+            Text("Activities on your extreme days", style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (bestDayActivities.isNotEmpty()) {
+                    Card(modifier = Modifier.weight(1f)) {
+                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("On your best day(s)", style = MaterialTheme.typography.labelMedium)
+                            bestDayActivities.take(4).forEach { freq ->
+                                Text("${freq.tag} (${freq.count}x)", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                }
+                if (worstDayActivities.isNotEmpty()) {
+                    Card(modifier = Modifier.weight(1f)) {
+                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("On your toughest day(s)", style = MaterialTheme.typography.labelMedium)
+                            worstDayActivities.take(4).forEach { freq ->
+                                Text("${freq.tag} (${freq.count}x)", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val correlationLines = listOfNotNull(
+            correlationLine("Energy", energyCorrelation),
+            correlationLine("Productivity", productivityCorrelation),
+            correlationLine("Stress", stressCorrelation),
+            correlationLine("Sleep", sleepCorrelation)
+        )
+
+        if (correlationLines.isNotEmpty()) {
+            Text("Mood patterns", style = MaterialTheme.typography.titleMedium)
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    correlationLines.forEach { line ->
+                        Text(line, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+            Text(
+                "These reflect patterns in your own logged data, not medical conclusions - small samples can be noisy.",
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+
+        if (mostLoggedActivities.isEmpty() && activityInsights.isEmpty() && correlationLines.isEmpty()) {
+            Text(
+                "Not enough data yet for additional insights. Log a few more days (with activity tags) to unlock this.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+private fun correlationLine(label: String, correlation: Double?): String? {
+    if (correlation == null) return null
+    return when {
+        correlation >= 0.3 -> "Higher $label tends to line up with better mood days."
+        correlation <= -0.3 -> "Higher $label tends to line up with lower mood days."
+        else -> "$label doesn't show a clear link to mood yet."
+    }
+}
+
+@Composable
+private fun MoodDistributionChart(moodCounts: Map<Int, Int>) {
+    val maxCount = (moodCounts.values.maxOrNull() ?: 0).coerceAtLeast(1)
+    val barTrackHeight = 100.dp
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        (1..5).forEach { mood ->
+            val count = moodCounts[mood] ?: 0
+            val fraction = (count.toFloat() / maxCount).coerceIn(0f, 1f)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(count.toString(), style = MaterialTheme.typography.labelSmall)
+                Spacer(modifier = Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .width(28.dp)
+                        .height(barTrackHeight),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(if (count > 0) fraction.coerceAtLeast(0.04f) else 0f)
+                            .background(moodColors[mood - 1], RoundedCornerShape(4.dp))
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(moodEmojis[mood - 1], style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+    }
+}
+
+private fun java.time.DayOfWeek.displayName(): String =
+    getDisplayName(TextStyle.FULL, Locale.getDefault())
+
+private fun periodNoun(period: StatsPeriod): String = when (period) {
+    StatsPeriod.WEEK -> "Week"
+    StatsPeriod.MONTH -> "Month"
+    StatsPeriod.YEAR -> "Year"
+}
+
+private fun periodLabel(period: StatsPeriod, start: LocalDate, end: LocalDate): String {
+    return when (period) {
+        StatsPeriod.WEEK -> {
+            val formatter = DateTimeFormatter.ofPattern("MMM d")
+            "${start.format(formatter)} – ${end.format(formatter)}"
+        }
+        StatsPeriod.MONTH -> start.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+        StatsPeriod.YEAR -> start.year.toString()
+    }
+}
