@@ -90,4 +90,5 @@ Simple and easy!
 
 ## Currently working on
 - Cloud storage to export/import data (incase you want to move it)
+- Custom mood color icons
 - Smoother response times
