@@ -89,3 +89,10 @@ Simple and easy!
 - Images on README.md by [FlatIcon](https://flaticon)
 - Inspired by apps of the same nature that log mood entries
 - This project is not affiliated with any of the websites/pieces of media mentioned above
+
+---
+
+## Currently working on
+- Fingerpring/password access
+- Cloud storage to export/import
+- App Icon
