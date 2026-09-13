@@ -60,4 +60,5 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.fragment.ktx)
 }

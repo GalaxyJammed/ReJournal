@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.rejournal.data.MediaFileHelper
 import com.example.rejournal.data.MoodEntry
 import com.example.rejournal.data.MoodRepository
 import com.example.rejournal.data.StreakCalculator
@@ -42,7 +43,9 @@ class MoodViewModel(
         energy: Int = 3,
         productivity: Int = 3,
         stress: Int = 3,
-        sleep: Int = 3
+        sleep: Int = 3,
+        photoPaths: List<String> = emptyList(),
+        audioPaths: List<String> = emptyList()
     ) {
         viewModelScope.launch {
             repository.saveEntry(
@@ -54,7 +57,9 @@ class MoodViewModel(
                     energy = energy,
                     productivity = productivity,
                     stress = stress,
-                    sleep = sleep
+                    sleep = sleep,
+                    photoPaths = photoPaths,
+                    audioPaths = audioPaths
                 )
             )
             MoodWidgetUpdater.update(appContext)
@@ -63,6 +68,8 @@ class MoodViewModel(
 
     fun deleteEntry(entry: MoodEntry) {
         viewModelScope.launch {
+            entry.photoPaths.forEach { MediaFileHelper.deleteFile(it) }
+            entry.audioPaths.forEach { MediaFileHelper.deleteFile(it) }
             repository.deleteEntry(entry)
             MoodWidgetUpdater.update(appContext)
         }

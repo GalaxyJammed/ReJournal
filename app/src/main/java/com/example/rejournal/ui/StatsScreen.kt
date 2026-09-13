@@ -49,6 +49,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 import com.example.rejournal.data.ActivityFrequency
+import androidx.compose.foundation.layout.WindowInsets
 
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 private val moodColors = listOf(
@@ -85,6 +86,7 @@ fun StatsScreen(viewModel: MoodViewModel) {
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { TopAppBar(title = { Text("Stats") }) }
     ) { padding: PaddingValues ->
         Column(

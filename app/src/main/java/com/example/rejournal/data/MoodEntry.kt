@@ -13,11 +13,13 @@ data class MoodEntry(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val date: LocalDate,
-    val mood: Int, // 1 = worst, 5 = best
+    val mood: Int,
     val activities: List<String>,
     val note: String,
     val energy: Int = 3,
     val productivity: Int = 3,
     val stress: Int = 3,
-    val sleep: Int = 3
+    val sleep: Int = 3,
+    val photoPaths: List<String> = emptyList(),
+    val audioPaths: List<String> = emptyList()
 )

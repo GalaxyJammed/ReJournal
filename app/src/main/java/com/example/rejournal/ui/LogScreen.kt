@@ -18,17 +18,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,13 +50,14 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.foundation.layout.WindowInsets
 
 private val moodColors = listOf(
-    Color(0xFFE57373),
-    Color(0xFFFFB74D),
-    Color(0xFFFFF176),
-    Color(0xFFAED581),
-    Color(0xFF81C784)
+    Color(0xFFE57373), // 1 - worst
+    Color(0xFFFFB74D), // 2
+    Color(0xFFFFF176), // 3
+    Color(0xFFAED581), // 4
+    Color(0xFF81C784)  // 5 - best
 )
 
 private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
@@ -71,10 +67,7 @@ private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 fun LogScreen(
     viewModel: MoodViewModel,
     onDayClick: (LocalDate) -> Unit,
-    onTrendClick: () -> Unit,
-    onStatsClick: () -> Unit,
-    onSearchClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSearchClick: () -> Unit
 ) {
     val entries by viewModel.allEntries.collectAsState()
     val streak by viewModel.streakInfo.collectAsState()
@@ -99,6 +92,7 @@ fun LogScreen(
     var currentYear by remember { mutableStateOf(LocalDate.now().year) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("Your Mood Log") },
@@ -106,22 +100,8 @@ fun LogScreen(
                     IconButton(onClick = onSearchClick) {
                         Icon(Icons.Filled.Search, contentDescription = "Search entries")
                     }
-                    IconButton(onClick = onStatsClick) {
-                        Icon(Icons.Filled.BarChart, contentDescription = "View stats")
-                    }
-                    IconButton(onClick = onTrendClick) {
-                        Icon(Icons.Filled.ShowChart, contentDescription = "View trend")
-                    }
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
-                    }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { onDayClick(LocalDate.now()) }) {
-                Icon(Icons.Filled.Add, contentDescription = "Add entry")
-            }
         }
     ) { padding: PaddingValues ->
         Column(

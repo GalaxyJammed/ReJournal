@@ -50,6 +50,7 @@ import com.example.rejournal.data.LockPrefs
 import com.example.rejournal.notifications.ReminderPrefs
 import com.example.rejournal.notifications.ReminderScheduler
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,6 +98,7 @@ fun SettingsScreen(viewModel: MoodViewModel) {
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { TopAppBar(title = { Text("Settings") }) }
     ) { padding: PaddingValues ->
         Column(
