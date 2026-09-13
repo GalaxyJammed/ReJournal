@@ -42,11 +42,6 @@ This project was created as a way to let people freely use mental health journal
 - **Year pixel view** - your entire year at a glance, one tiny colored square per day
 - **Trend chart** - a 30-day mood line graph, properly spaced by real calendar dates (not just entry count)
 
-### 🗂️ App Categories & Exclusions
-- Assign any installed app to **Messages/Calls** or **Calendar**, or leave it untouched (doesn't trigger the popup)
-- **Exclusions** - mark specific apps (games, sensitive apps, etc.) to be silently tracked with a small on-screen flower badge, with no popup or sound at all
-- Both screens support live search across every installed app
-
 ### 📊 Stats & Insights
 - Switch between **Week / Month / Year** views
 - Mood breakdown chart, average mood/energy/productivity/stress/sleep
