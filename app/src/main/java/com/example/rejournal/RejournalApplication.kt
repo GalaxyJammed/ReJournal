@@ -4,10 +4,16 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.example.rejournal.data.AppDatabase
 
 class RejournalApplication : Application() {
     val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
+
+
+    var isUnlockedThisSession by mutableStateOf(false)
 
     override fun onCreate() {
         super.onCreate()

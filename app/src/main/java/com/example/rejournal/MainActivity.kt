@@ -1,7 +1,6 @@
 package com.example.rejournal
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
@@ -9,14 +8,19 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.rejournal.data.LockPrefs
 import com.example.rejournal.data.MoodRepository
+import com.example.rejournal.ui.LockScreen
 import com.example.rejournal.ui.LogScreen
 import com.example.rejournal.ui.MoodViewModel
 import com.example.rejournal.ui.QuestionnaireScreen
@@ -27,8 +31,9 @@ import com.example.rejournal.ui.StatsScreen
 import com.example.rejournal.ui.TrendScreen
 import com.example.rejournal.ui.theme.ReJournalTheme
 import java.time.LocalDate
+import androidx.compose.runtime.remember
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -37,16 +42,30 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ReJournalTheme {
-                AppNavHost(repository = repository)
+                AppRoot(repository = repository, activity = this)
             }
         }
     }
 }
 
 @Composable
+fun AppRoot(repository: MoodRepository, activity: FragmentActivity) {
+    val context = LocalContext.current
+    val app = context.applicationContext as RejournalApplication
+    val lockEnabled = remember { LockPrefs.isEnabled(context) }
+
+    if (lockEnabled && !app.isUnlockedThisSession) {
+        LockScreen(activity = activity, onUnlocked = { app.isUnlockedThisSession = true })
+    } else {
+        AppNavHost(repository = repository)
+    }
+}
+
+@Composable
 fun AppNavHost(repository: MoodRepository) {
     val navController = rememberNavController()
-    val viewModel: MoodViewModel = viewModel(factory = MoodViewModel.Factory(repository))
+    val appContext = LocalContext.current.applicationContext
+    val viewModel: MoodViewModel = viewModel(factory = MoodViewModel.Factory(repository, appContext))
 
     val animationSpec = tween<androidx.compose.ui.unit.IntOffset>(durationMillis = 300)
 

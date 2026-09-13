@@ -1,5 +1,6 @@
 package com.example.rejournal.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -7,6 +8,7 @@ import com.example.rejournal.data.MoodEntry
 import com.example.rejournal.data.MoodRepository
 import com.example.rejournal.data.StreakCalculator
 import com.example.rejournal.data.StreakInfo
+import com.example.rejournal.widget.MoodWidgetUpdater
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -14,7 +16,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class MoodViewModel(private val repository: MoodRepository) : ViewModel() {
+class MoodViewModel(
+    private val repository: MoodRepository,
+    private val appContext: Context
+) : ViewModel() {
 
     val allEntries: StateFlow<List<MoodEntry>> = repository.allEntries.stateIn(
         scope = viewModelScope,
@@ -52,12 +57,14 @@ class MoodViewModel(private val repository: MoodRepository) : ViewModel() {
                     sleep = sleep
                 )
             )
+            MoodWidgetUpdater.update(appContext)
         }
     }
 
     fun deleteEntry(entry: MoodEntry) {
         viewModelScope.launch {
             repository.deleteEntry(entry)
+            MoodWidgetUpdater.update(appContext)
         }
     }
 
@@ -69,10 +76,13 @@ class MoodViewModel(private val repository: MoodRepository) : ViewModel() {
 
     suspend fun getEntryForDate(date: LocalDate): MoodEntry? = repository.getEntryForDate(date)
 
-    class Factory(private val repository: MoodRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val repository: MoodRepository,
+        private val appContext: Context
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return MoodViewModel(repository) as T
+            return MoodViewModel(repository, appContext) as T
         }
     }
 }
