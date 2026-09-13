@@ -93,6 +93,6 @@ Simple and easy!
 ---
 
 ## Currently working on
-- Fingerpring/password access
-- Cloud storage to export/import
+- Fingerprint/password access
+- Cloud storage to export/import data (incase you want to move it)
 - App Icon
