@@ -91,3 +91,4 @@ Simple and easy!
 - Fingerprint/password access
 - Cloud storage to export/import data (incase you want to move it)
 - App Icon
+- Smoother response times
