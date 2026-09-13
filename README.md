@@ -82,13 +82,12 @@ Simple and easy!
 - This project focuses on databases, charts and the newest Jetpack Compose style of design instead of .xml
 - Quotes/Naming inspiration by [Pokemon Rejuvenation](https://rejuvenation.wiki.gg/)
 - Images on README.md by [FlatIcon](https://flaticon)
+- Icon by [istockphoto](https://www.istockphoto.com/)
 - Inspired by apps of the same nature that log mood entries
 - This project is not affiliated with any of the websites/pieces of media mentioned above
 
 ---
 
 ## Currently working on
-- Fingerprint/password access
 - Cloud storage to export/import data (incase you want to move it)
-- App Icon
 - Smoother response times
