@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,6 +28,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ExtrasScreen(
     onGoalsClick: () -> Unit,
+    onPhotoAlbumClick: () -> Unit,
+    onVoiceMemoAlbumClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
     Scaffold(
@@ -45,6 +49,20 @@ fun ExtrasScreen(
             ) {
                 Icon(Icons.Filled.EmojiEvents, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
                 Text("Goals", style = MaterialTheme.typography.titleMedium)
+            }
+            Button(
+                onClick = onPhotoAlbumClick,
+                modifier = Modifier.fillMaxWidth().height(64.dp)
+            ) {
+                Icon(Icons.Filled.PhotoLibrary, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+                Text("Photo Album", style = MaterialTheme.typography.titleMedium)
+            }
+            Button(
+                onClick = onVoiceMemoAlbumClick,
+                modifier = Modifier.fillMaxWidth().height(64.dp)
+            ) {
+                Icon(Icons.Filled.Mic, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+                Text("Voice Memos", style = MaterialTheme.typography.titleMedium)
             }
             Button(
                 onClick = onSettingsClick,

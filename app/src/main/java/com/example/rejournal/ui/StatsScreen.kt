@@ -50,6 +50,7 @@ import java.time.format.TextStyle
 import java.util.Locale
 import com.example.rejournal.data.ActivityFrequency
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.clickable
 
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 private val moodColors = listOf(
@@ -62,7 +63,7 @@ private val moodColors = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsScreen(viewModel: MoodViewModel) {
+fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
     val entries by viewModel.allEntries.collectAsState()
 
     var period by remember { mutableStateOf(StatsPeriod.MONTH) }
@@ -159,8 +160,8 @@ fun StatsScreen(viewModel: MoodViewModel) {
                     }
                 }
 
-                Text("Mood breakdown", style = MaterialTheme.typography.titleMedium)
-                MoodDistributionChart(stats.moodCounts)
+                Text("Mood breakdown (tap a mood for details)", style = MaterialTheme.typography.titleMedium)
+                MoodDistributionChart(stats.moodCounts, onMoodClick = onMoodClick)
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -328,7 +329,7 @@ private fun correlationLine(label: String, correlation: Double?): String? {
 }
 
 @Composable
-private fun MoodDistributionChart(moodCounts: Map<Int, Int>) {
+private fun MoodDistributionChart(moodCounts: Map<Int, Int>, onMoodClick: (Int) -> Unit) {
     val maxCount = (moodCounts.values.maxOrNull() ?: 0).coerceAtLeast(1)
     val barTrackHeight = 100.dp
 
@@ -339,7 +340,10 @@ private fun MoodDistributionChart(moodCounts: Map<Int, Int>) {
         (1..5).forEach { mood ->
             val count = moodCounts[mood] ?: 0
             val fraction = (count.toFloat() / maxCount).coerceIn(0f, 1f)
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable { onMoodClick(mood) }
+            ) {
                 Text(count.toString(), style = MaterialTheme.typography.labelSmall)
                 Spacer(modifier = Modifier.height(4.dp))
                 Box(

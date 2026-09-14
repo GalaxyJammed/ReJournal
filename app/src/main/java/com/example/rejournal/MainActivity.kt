@@ -31,6 +31,9 @@ import com.example.rejournal.ui.GoalDetailScreen
 import com.example.rejournal.ui.GoalsScreen
 import com.example.rejournal.ui.LockScreen
 import com.example.rejournal.ui.LogScreen
+import com.example.rejournal.ui.PhotoAlbumScreen
+import com.example.rejournal.ui.PhotoDetailScreen
+import com.example.rejournal.ui.VoiceMemoAlbumScreen
 import com.example.rejournal.ui.MainBottomBar
 import com.example.rejournal.ui.MoodViewModel
 import com.example.rejournal.ui.QuestionnaireScreen
@@ -41,6 +44,7 @@ import com.example.rejournal.ui.StatsScreen
 import com.example.rejournal.ui.TrendScreen
 import com.example.rejournal.ui.theme.ReJournalTheme
 import java.time.LocalDate
+import com.example.rejournal.ui.MoodDetailScreen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,7 +92,10 @@ fun AppNavHost(repository: MoodRepository) {
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
-    val bottomBarRoutes = setOf(Screen.Log.route, Screen.Stats.route, Screen.Trend.route, Screen.Extras.route, Screen.Goals.route)
+    val bottomBarRoutes = setOf(
+        Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
+        Screen.Extras.route, Screen.Goals.route, Screen.PhotoAlbum.route, Screen.VoiceMemoAlbum.route
+    )
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -135,7 +142,17 @@ fun AppNavHost(repository: MoodRepository) {
                 TrendScreen(viewModel = viewModel)
             }
             composable(Screen.Stats.route) {
-                StatsScreen(viewModel = viewModel)
+                StatsScreen(
+                    viewModel = viewModel,
+                    onMoodClick = { mood -> navController.navigate(Screen.MoodDetail.createRoute(mood)) }
+                )
+            }
+            composable(
+                route = Screen.MoodDetail.route,
+                arguments = listOf(navArgument("moodValue") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val moodValue = backStackEntry.arguments?.getInt("moodValue") ?: 3
+                MoodDetailScreen(viewModel = viewModel, moodValue = moodValue)
             }
             composable(Screen.Search.route) {
                 SearchScreen(
@@ -146,7 +163,38 @@ fun AppNavHost(repository: MoodRepository) {
             composable(Screen.Extras.route) {
                 ExtrasScreen(
                     onGoalsClick = { navController.navigate(Screen.Goals.route) },
+                    onPhotoAlbumClick = { navController.navigate(Screen.PhotoAlbum.route) },
+                    onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
                     onSettingsClick = { navController.navigate(Screen.Settings.route) }
+                )
+            }
+            composable(Screen.PhotoAlbum.route) {
+                PhotoAlbumScreen(
+                    viewModel = viewModel,
+                    onPhotoClick = { item ->
+                        viewModel.selectedPhoto = item
+                        navController.navigate(Screen.PhotoDetail.route)
+                    }
+                )
+            }
+            composable(Screen.PhotoDetail.route) {
+                val item = viewModel.selectedPhoto
+                if (item != null) {
+                    PhotoDetailScreen(
+                        path = item.path,
+                        date = item.date,
+                        onGoToDay = { date ->
+                            navController.navigate(Screen.Questionnaire.createRoute(date))
+                        }
+                    )
+                }
+            }
+            composable(Screen.VoiceMemoAlbum.route) {
+                VoiceMemoAlbumScreen(
+                    viewModel = viewModel,
+                    onGoToDay = { date ->
+                        navController.navigate(Screen.Questionnaire.createRoute(date))
+                    }
                 )
             }
             composable(Screen.Goals.route) {

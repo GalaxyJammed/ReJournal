@@ -42,8 +42,9 @@ fun MainBottomBar(
     val extrasSelected = currentRoute == Screen.Extras.route ||
             currentRoute == Screen.Goals.route ||
             currentRoute?.startsWith("goalDetail") == true ||
+            currentRoute == Screen.PhotoAlbum.route ||
+            currentRoute == Screen.VoiceMemoAlbum.route ||
             currentRoute == Screen.Settings.route
-
     Box(
         modifier = Modifier
             .fillMaxWidth()

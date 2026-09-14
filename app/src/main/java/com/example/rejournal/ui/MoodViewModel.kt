@@ -22,6 +22,8 @@ class MoodViewModel(
     private val appContext: Context
 ) : ViewModel() {
 
+    var selectedPhoto: com.example.rejournal.data.MediaItem? = null
+
     val allEntries: StateFlow<List<MoodEntry>> = repository.allEntries.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),

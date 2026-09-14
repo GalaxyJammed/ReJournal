@@ -6,17 +6,17 @@ import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.MediaRecorder
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +34,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
@@ -59,6 +61,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -71,6 +74,7 @@ import java.io.File
 import java.time.LocalDate
 
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
+private const val TOP_TAG_COUNT = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,6 +84,7 @@ fun QuestionnaireScreen(
     onDone: () -> Unit
 ) {
     val context = LocalContext.current
+    val allEntries by viewModel.allEntries.collectAsState()
 
     var existingEntry by remember { mutableStateOf<MoodEntry?>(null) }
     var hasLoaded by remember { mutableStateOf(false) }
@@ -95,6 +100,7 @@ fun QuestionnaireScreen(
     var showAddTagDialog by remember { mutableStateOf(false) }
     var newTagText by remember { mutableStateOf("") }
     var tagPendingDeletion by remember { mutableStateOf<String?>(null) }
+    var tagsExpanded by remember { mutableStateOf(false) }
 
     var photoPaths by remember { mutableStateOf(listOf<String>()) }
     var audioPaths by remember { mutableStateOf(listOf<String>()) }
@@ -115,6 +121,19 @@ fun QuestionnaireScreen(
             audioPaths = entry.audioPaths
         }
         hasLoaded = true
+    }
+
+    val tagUsageCounts = remember(allEntries) {
+        allEntries.flatMap { it.activities }.groupingBy { it }.eachCount()
+    }
+    val topTags = remember(availableTags, tagUsageCounts) {
+        availableTags.sortedByDescending { tagUsageCounts[it] ?: 0 }.take(TOP_TAG_COUNT)
+    }
+    val collapsedTags = remember(topTags, selectedActivities) {
+        (topTags + selectedActivities.filter { it in availableTags }).distinct()
+    }
+    val remainingTags = remember(availableTags, collapsedTags) {
+        availableTags.filterNot { it in collapsedTags }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -169,31 +188,67 @@ fun QuestionnaireScreen(
             SliderRow(label = "Sleep", value = sleep, onValueChange = { sleep = it })
 
             Column {
-                Text("What did you do today?", style = MaterialTheme.typography.titleMedium)
-                Text("Tip: hold a tag to delete it", style = MaterialTheme.typography.labelSmall)
-            }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(availableTags) { activity ->
-                    DeletableActivityChip(
-                        label = activity,
-                        selected = activity in selectedActivities,
-                        onClick = {
-                            selectedActivities = if (activity in selectedActivities) {
-                                selectedActivities - activity
-                            } else {
-                                selectedActivities + activity
-                            }
-                        },
-                        onLongClick = { tagPendingDeletion = activity }
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("What did you do today?", style = MaterialTheme.typography.titleMedium)
+                    IconButton(onClick = { tagsExpanded = !tagsExpanded }) {
+                        Icon(
+                            if (tagsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                            contentDescription = if (tagsExpanded) "Show fewer tags" else "Show more tags"
+                        )
+                    }
                 }
-                item {
-                    FilterChip(
-                        selected = false,
-                        onClick = { showAddTagDialog = true },
-                        label = { Text("Add") },
-                        leadingIcon = { Icon(Icons.Filled.Add, contentDescription = "Add custom tag") }
-                    )
+                Text("Tip: hold a tag to delete it", style = MaterialTheme.typography.labelSmall)
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    collapsedTags.forEach { activity ->
+                        DeletableActivityChip(
+                            label = activity,
+                            selected = activity in selectedActivities,
+                            onClick = {
+                                selectedActivities = if (activity in selectedActivities) {
+                                    selectedActivities - activity
+                                } else {
+                                    selectedActivities + activity
+                                }
+                            },
+                            onLongClick = { tagPendingDeletion = activity }
+                        )
+                    }
+                }
+
+                if (tagsExpanded) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        remainingTags.forEach { activity ->
+                            DeletableActivityChip(
+                                label = activity,
+                                selected = activity in selectedActivities,
+                                onClick = {
+                                    selectedActivities = if (activity in selectedActivities) {
+                                        selectedActivities - activity
+                                    } else {
+                                        selectedActivities + activity
+                                    }
+                                },
+                                onLongClick = { tagPendingDeletion = activity }
+                            )
+                        }
+                        FilterChip(
+                            selected = false,
+                            onClick = { showAddTagDialog = true },
+                            label = { Text("Add") },
+                            leadingIcon = { Icon(Icons.Filled.Add, contentDescription = "Add custom tag") }
+                        )
+                    }
                 }
             }
 

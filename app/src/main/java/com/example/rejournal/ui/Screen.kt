@@ -12,6 +12,12 @@ sealed class Screen(val route: String) {
     object GoalDetail : Screen("goalDetail/{goalId}") {
         fun createRoute(goalId: String) = "goalDetail/$goalId"
     }
+    object PhotoAlbum : Screen("photoAlbum")
+    object PhotoDetail : Screen("photoDetail")
+    object VoiceMemoAlbum : Screen("voiceMemoAlbum")
+    object MoodDetail : Screen("moodDetail/{moodValue}") {
+        fun createRoute(moodValue: Int) = "moodDetail/$moodValue"
+    }
     object Settings : Screen("settings")
     object Questionnaire : Screen("questionnaire/{date}") {
         fun createRoute(date: LocalDate): String = "questionnaire/$date"
