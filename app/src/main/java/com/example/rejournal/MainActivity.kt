@@ -27,7 +27,10 @@ import androidx.navigation.navArgument
 import com.example.rejournal.data.LockPrefs
 import com.example.rejournal.data.MoodRepository
 import com.example.rejournal.ui.ExtrasScreen
+import com.example.rejournal.data.GoalCategory
+import com.example.rejournal.ui.GoalCategoryScreen
 import com.example.rejournal.ui.GoalDetailScreen
+import com.example.rejournal.ui.GoalSuggestionsScreen
 import com.example.rejournal.ui.GoalsScreen
 import com.example.rejournal.ui.LockScreen
 import com.example.rejournal.ui.LogScreen
@@ -50,6 +53,9 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        com.example.rejournal.ui.theme.ThemeState.current.value = com.example.rejournal.data.ThemePrefs.getTheme(this)
+        com.example.rejournal.ui.theme.ThemeState.darkMode.value = com.example.rejournal.data.ThemePrefs.isDarkMode(this)
 
         val repository = MoodRepository((application as RejournalApplication).database.moodDao())
 
@@ -200,7 +206,26 @@ fun AppNavHost(repository: MoodRepository) {
             composable(Screen.Goals.route) {
                 GoalsScreen(
                     viewModel = viewModel,
-                    onGoalClick = { id -> navController.navigate(Screen.GoalDetail.createRoute(id)) }
+                    onGoalClick = { id -> navController.navigate(Screen.GoalDetail.createRoute(id)) },
+                    onFindGoalClick = { navController.navigate(Screen.GoalCategories.route) }
+                )
+            }
+            composable(Screen.GoalCategories.route) {
+                GoalCategoryScreen(
+                    onCategoryClick = { category ->
+                        navController.navigate(Screen.GoalSuggestions.createRoute(category.name))
+                    }
+                )
+            }
+            composable(
+                route = Screen.GoalSuggestions.route,
+                arguments = listOf(navArgument("category") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val categoryName = backStackEntry.arguments?.getString("category") ?: GoalCategory.HABITS.name
+                val category = GoalCategory.entries.find { it.name == categoryName } ?: GoalCategory.HABITS
+                GoalSuggestionsScreen(
+                    category = category,
+                    onGoalSelected = { navController.popBackStack(Screen.Goals.route, inclusive = false) }
                 )
             }
             composable(

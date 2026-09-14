@@ -205,6 +205,7 @@ fun QuestionnaireScreen(
 
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
                     collapsedTags.forEach { activity ->
@@ -226,6 +227,7 @@ fun QuestionnaireScreen(
                 if (tagsExpanded) {
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(top = 8.dp)
                     ) {
                         remainingTags.forEach { activity ->
@@ -242,12 +244,28 @@ fun QuestionnaireScreen(
                                 onLongClick = { tagPendingDeletion = activity }
                             )
                         }
-                        FilterChip(
-                            selected = false,
-                            onClick = { showAddTagDialog = true },
-                            label = { Text("Add") },
-                            leadingIcon = { Icon(Icons.Filled.Add, contentDescription = "Add custom tag") }
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                            modifier = Modifier.clickable { showAddTagDialog = true }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Filled.Add,
+                                    contentDescription = "Add custom tag",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Text(
+                                    "Add",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }

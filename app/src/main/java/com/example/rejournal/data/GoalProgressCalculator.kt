@@ -13,6 +13,9 @@ object GoalProgressCalculator {
             GoalMetric.ENTRIES_LOGGED -> sinceStart.size
             GoalMetric.STREAK -> StreakCalculator.calculate(entries).currentStreak
             GoalMetric.ACTIVITY_TAG -> sinceStart.count { definition.activityTag in it.activities }
+            GoalMetric.HIGH_ENERGY_DAYS -> sinceStart.count { it.energy >= 4 }
+            GoalMetric.LOW_STRESS_DAYS -> sinceStart.count { it.stress <= 2 }
+            GoalMetric.GOOD_SLEEP_DAYS -> sinceStart.count { it.sleep >= 4 }
         }
     }
 

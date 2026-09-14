@@ -12,6 +12,7 @@ data class GoalState(
 
 object GoalProgressPrefs {
     private const val PREFS_NAME = "goal_progress_prefs"
+    const val MAX_ACTIVE_GOALS = 3
 
     private fun keyActive(id: String) = "${id}_active"
     private fun keyStart(id: String) = "${id}_start"
@@ -30,6 +31,13 @@ object GoalProgressPrefs {
             attempts = prefs.getInt(keyAttempts(id), 0)
         )
     }
+
+    fun activeGoals(context: Context): List<GoalDefinition> =
+        GoalDefinitions.all.filter { getState(context, it.id).isActive }
+
+    fun activeCount(context: Context): Int = activeGoals(context).size
+
+    fun canStartNewGoal(context: Context): Boolean = activeCount(context) < MAX_ACTIVE_GOALS
 
     fun startGoal(context: Context, id: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()

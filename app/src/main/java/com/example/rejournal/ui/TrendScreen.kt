@@ -51,6 +51,7 @@ import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MoodEntry
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.compose.ui.graphics.Brush
 
 private val moodColors = listOf(
     Color(0xFFE57373),
@@ -229,8 +230,14 @@ private fun MoodLineChart(entries: List<MoodEntry>) {
         }
 
         for (i in 0 until points.size - 1) {
+            val startColor = moodColors[entries[i].mood - 1]
+            val endColor = moodColors[entries[i + 1].mood - 1]
             drawLine(
-                color = Color(0xFF6750A4),
+                brush = Brush.linearGradient(
+                    colors = listOf(startColor, endColor),
+                    start = points[i],
+                    end = points[i + 1]
+                ),
                 start = points[i],
                 end = points[i + 1],
                 strokeWidth = 3.dp.toPx()

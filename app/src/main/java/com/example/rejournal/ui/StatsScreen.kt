@@ -51,6 +51,9 @@ import java.util.Locale
 import com.example.rejournal.data.ActivityFrequency
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 private val moodColors = listOf(
@@ -98,16 +101,18 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatsPeriod.entries.forEach { option ->
-                    FilterChip(
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                StatsPeriod.entries.forEachIndexed { index, option ->
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = StatsPeriod.entries.size),
                         selected = period == option,
                         onClick = {
                             period = option
                             referenceDate = LocalDate.now()
-                        },
-                        label = { Text(option.name.lowercase().replaceFirstChar { it.uppercase() }) }
-                    )
+                        }
+                    ) {
+                        Text(option.name.lowercase().replaceFirstChar { it.uppercase() })
+                    }
                 }
             }
 

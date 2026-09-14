@@ -51,13 +51,29 @@ import com.example.rejournal.notifications.ReminderPrefs
 import com.example.rejournal.notifications.ReminderScheduler
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Color
+import com.example.rejournal.data.AppTheme
+import com.example.rejournal.data.ThemePrefs
+import com.example.rejournal.ui.theme.ThemeState
+import com.example.rejournal.ui.theme.previewColorFor
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(viewModel: MoodViewModel) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
-
+    var selectedTheme by remember { mutableStateOf(ThemePrefs.getTheme(context)) }
+    var darkMode by remember { mutableStateOf(ThemePrefs.isDarkMode(context)) }
     var enabled by remember { mutableStateOf(ReminderPrefs.isEnabled(context)) }
     var hour by remember { mutableStateOf(ReminderPrefs.getHour(context)) }
     var minute by remember { mutableStateOf(ReminderPrefs.getMinute(context)) }
@@ -105,6 +121,7 @@ fun SettingsScreen(viewModel: MoodViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -206,6 +223,39 @@ fun SettingsScreen(viewModel: MoodViewModel) {
                     }
                 }
             }
+
+            CategoryLabel("Appearance", topPadding = 20.dp)
+            SettingsCard {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    items(AppTheme.entries) { theme ->
+                        ThemeSwatch(
+                            theme = theme,
+                            selected = theme == selectedTheme,
+                            onClick = {
+                                selectedTheme = theme
+                                ThemePrefs.setTheme(context, theme)
+                                ThemeState.current.value = theme
+                            }
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Dark Mode", style = MaterialTheme.typography.titleMedium)
+                    Switch(
+                        checked = darkMode,
+                        onCheckedChange = { checked ->
+                            darkMode = checked
+                            ThemePrefs.setDarkMode(context, checked)
+                            ThemeState.darkMode.value = checked
+                        }
+                    )
+                }
+            }
+
 
             CategoryLabel("Backup", topPadding = 20.dp)
             SettingsCard {
@@ -338,6 +388,30 @@ private fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             content = content
+        )
+    }
+}
+
+@Composable
+private fun ThemeSwatch(theme: AppTheme, selected: Boolean, onClick: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(previewColorFor(theme), CircleShape)
+                .border(
+                    width = if (selected) 3.dp else 0.dp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    shape = CircleShape
+                )
+        )
+        Text(
+            theme.displayName,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(top = 4.dp)
         )
     }
 }

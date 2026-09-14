@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,25 +33,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.GoalDefinition
-import com.example.rejournal.data.GoalDefinitions
 import com.example.rejournal.data.GoalProgressCalculator
 import com.example.rejournal.data.GoalProgressPrefs
-import androidx.compose.material3.HorizontalDivider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalsScreen(
     viewModel: MoodViewModel,
-    onGoalClick: (String) -> Unit
+    onGoalClick: (String) -> Unit,
+    onFindGoalClick: () -> Unit
 ) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
 
     var totalCompletions by remember { mutableStateOf(GoalProgressPrefs.totalCompletions(context)) }
+    var activeGoals by remember { mutableStateOf(GoalProgressPrefs.activeGoals(context)) }
 
     LaunchedEffect(entries) {
         GoalProgressCalculator.checkAndCompleteActiveGoals(context, entries)
         totalCompletions = GoalProgressPrefs.totalCompletions(context)
+        activeGoals = GoalProgressPrefs.activeGoals(context)
     }
 
     Scaffold(
@@ -59,7 +63,9 @@ fun GoalsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -76,13 +82,34 @@ fun GoalsScreen(
                 }
             }
 
-            LazyColumn(
-                modifier = Modifier.padding(top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(GoalDefinitions.all) { definition ->
-                    GoalRow(definition = definition, context = context, onClick = { onGoalClick(definition.id) })
+            Text(
+                "Current Goals (${activeGoals.size}/${GoalProgressPrefs.MAX_ACTIVE_GOALS})",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            if (activeGoals.isEmpty()) {
+                Text("You don't have any active goals yet.", style = MaterialTheme.typography.bodyMedium)
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    activeGoals.forEach { definition ->
+                        GoalRow(definition = definition, context = context, onClick = { onGoalClick(definition.id) })
+                    }
                 }
+            }
+
+            if (activeGoals.size < GoalProgressPrefs.MAX_ACTIVE_GOALS) {
+                Button(
+                    onClick = onFindGoalClick,
+                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                ) {
+                    Text("Find a goal that suits you")
+                }
+            } else {
+                Text(
+                    "Complete or cancel a goal to pick a new one.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
