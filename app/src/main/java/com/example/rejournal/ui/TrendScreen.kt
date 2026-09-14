@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -75,7 +76,6 @@ fun TrendScreen(viewModel: MoodViewModel) {
     val hasFilters = selectedTags.isNotEmpty() ||
             energyFilter != null || productivityFilter != null || stressFilter != null || sleepFilter != null
 
-    // Last 30 days, oldest to newest, matching any active filters
     val cutoff = LocalDate.now().minusDays(29)
     val recentEntries: List<MoodEntry> = remember(entries, energyFilter, productivityFilter, stressFilter, sleepFilter, selectedTags) {
         entries.filter { entry ->
@@ -89,7 +89,8 @@ fun TrendScreen(viewModel: MoodViewModel) {
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Mood Trend (last 30 days)") }) }
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        topBar = { TopAppBar(title = { Text("Trend") }) }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier

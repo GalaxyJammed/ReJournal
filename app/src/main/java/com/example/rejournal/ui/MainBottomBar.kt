@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,7 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarViewMonth
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -28,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.navigationBarsPadding
 
 @Composable
 fun MainBottomBar(
@@ -37,8 +37,13 @@ fun MainBottomBar(
     onStatsClick: () -> Unit,
     onAddClick: () -> Unit,
     onTrendClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onExtrasClick: () -> Unit
 ) {
+    val extrasSelected = currentRoute == Screen.Extras.route ||
+            currentRoute == Screen.Goals.route ||
+            currentRoute?.startsWith("goalDetail") == true ||
+            currentRoute == Screen.Settings.route
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -73,7 +78,7 @@ fun MainBottomBar(
                         onClick = onStatsClick
                     )
                 }
-                Spacer(modifier = Modifier.width(64.dp)) // reserved space so icons don't sit under the FAB
+                Spacer(modifier = Modifier.width(64.dp))
                 Row(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -85,10 +90,10 @@ fun MainBottomBar(
                         onClick = onTrendClick
                     )
                     BottomBarIcon(
-                        icon = Icons.Filled.Settings,
-                        label = "Settings",
-                        selected = currentRoute == Screen.Settings.route,
-                        onClick = onSettingsClick
+                        icon = Icons.Filled.MoreHoriz,
+                        label = "More",
+                        selected = extrasSelected,
+                        onClick = onExtrasClick
                     )
                 }
             }

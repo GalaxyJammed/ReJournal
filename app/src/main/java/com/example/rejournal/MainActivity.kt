@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -25,6 +26,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.rejournal.data.LockPrefs
 import com.example.rejournal.data.MoodRepository
+import com.example.rejournal.ui.ExtrasScreen
+import com.example.rejournal.ui.GoalDetailScreen
+import com.example.rejournal.ui.GoalsScreen
 import com.example.rejournal.ui.LockScreen
 import com.example.rejournal.ui.LogScreen
 import com.example.rejournal.ui.MainBottomBar
@@ -37,7 +41,6 @@ import com.example.rejournal.ui.StatsScreen
 import com.example.rejournal.ui.TrendScreen
 import com.example.rejournal.ui.theme.ReJournalTheme
 import java.time.LocalDate
-import androidx.compose.foundation.layout.WindowInsets
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +88,7 @@ fun AppNavHost(repository: MoodRepository) {
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
-    val bottomBarRoutes = setOf(Screen.Log.route, Screen.Stats.route, Screen.Trend.route, Screen.Settings.route)
+    val bottomBarRoutes = setOf(Screen.Log.route, Screen.Stats.route, Screen.Trend.route, Screen.Extras.route, Screen.Goals.route)
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -97,7 +100,7 @@ fun AppNavHost(repository: MoodRepository) {
                     onStatsClick = { navController.navigateToBottomDestination(Screen.Stats.route) },
                     onAddClick = { navController.navigate(Screen.Questionnaire.createRoute(LocalDate.now())) },
                     onTrendClick = { navController.navigateToBottomDestination(Screen.Trend.route) },
-                    onSettingsClick = { navController.navigateToBottomDestination(Screen.Settings.route) }
+                    onExtrasClick = { navController.navigateToBottomDestination(Screen.Extras.route) }
                 )
             }
         }
@@ -139,6 +142,25 @@ fun AppNavHost(repository: MoodRepository) {
                     viewModel = viewModel,
                     onResultClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) }
                 )
+            }
+            composable(Screen.Extras.route) {
+                ExtrasScreen(
+                    onGoalsClick = { navController.navigate(Screen.Goals.route) },
+                    onSettingsClick = { navController.navigate(Screen.Settings.route) }
+                )
+            }
+            composable(Screen.Goals.route) {
+                GoalsScreen(
+                    viewModel = viewModel,
+                    onGoalClick = { id -> navController.navigate(Screen.GoalDetail.createRoute(id)) }
+                )
+            }
+            composable(
+                route = Screen.GoalDetail.route,
+                arguments = listOf(navArgument("goalId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val goalId = backStackEntry.arguments?.getString("goalId")!!
+                GoalDetailScreen(viewModel = viewModel, goalId = goalId)
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(viewModel = viewModel)
