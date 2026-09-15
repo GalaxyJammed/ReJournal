@@ -9,7 +9,7 @@ import com.example.rejournal.data.MoodEntry
 import com.example.rejournal.data.MoodRepository
 import com.example.rejournal.data.StreakCalculator
 import com.example.rejournal.data.StreakInfo
-import com.example.rejournal.widget.MoodWidgetUpdater
+import com.example.rejournal.widget.AppWidgetsUpdater
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -67,7 +67,7 @@ class MoodViewModel(
                     audioPaths = audioPaths
                 )
             )
-            MoodWidgetUpdater.update(appContext)
+            AppWidgetsUpdater.updateAll(appContext)
         }
     }
 
@@ -76,7 +76,7 @@ class MoodViewModel(
             entry.photoPaths.forEach { MediaFileHelper.deleteFile(it) }
             entry.audioPaths.forEach { MediaFileHelper.deleteFile(it) }
             repository.deleteEntry(entry)
-            MoodWidgetUpdater.update(appContext)
+            AppWidgetsUpdater.updateAll(appContext)
         }
     }
 
@@ -86,7 +86,7 @@ class MoodViewModel(
                 BackupHelper.importFromZip(appContext, uri)
             }
             imported.forEach { repository.saveEntry(it) }
-            MoodWidgetUpdater.update(appContext)
+            AppWidgetsUpdater.updateAll(appContext)
             onResult(imported.size)
         }
     }

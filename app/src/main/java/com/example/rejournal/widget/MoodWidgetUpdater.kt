@@ -3,8 +3,10 @@ package com.example.rejournal.widget
 import android.content.Context
 import androidx.glance.appwidget.updateAll
 
-object MoodWidgetUpdater {
-    suspend fun update(context: Context) {
-        MoodWidget().updateAll(context)
+object AppWidgetsUpdater {
+    suspend fun updateAll(context: Context) {
+        TodayMoodWidget().updateAll(context)
+        AverageMoodWidget().updateAll(context)
+        GoalsWidget().updateAll(context)
     }
 }

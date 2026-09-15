@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MoodEntry
+import com.example.rejournal.data.moodEmojis
 import java.time.LocalDate
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -49,8 +50,6 @@ import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.ui.Alignment
-
-private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,8 +105,7 @@ fun SearchScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        moodEmojis.forEachIndexed { index, emoji ->
-                            val moodValue = index + 1
+                        (1..5).forEach { moodValue ->
                             FilterChip(
                                 selected = moodValue in selectedMoods,
                                 onClick = {
@@ -117,7 +115,7 @@ fun SearchScreen(
                                         selectedMoods + moodValue
                                     }
                                 },
-                                label = { Text(emoji, style = MaterialTheme.typography.headlineSmall) }
+                                label = { MoodGlyph(moodValue) }
                             )
                         }
                     }

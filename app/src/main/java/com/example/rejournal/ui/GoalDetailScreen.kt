@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.GoalDefinitions
 import com.example.rejournal.data.GoalProgressCalculator
 import com.example.rejournal.data.GoalProgressPrefs
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.rejournal.widget.AppWidgetsUpdater
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +43,7 @@ fun GoalDetailScreen(
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
     val definition = remember(goalId) { GoalDefinitions.byId(goalId) }
+    val scope = rememberCoroutineScope()
 
     var state by remember(goalId) { mutableStateOf(GoalProgressPrefs.getState(context, goalId)) }
 
@@ -105,6 +109,7 @@ fun GoalDetailScreen(
                         GoalProgressPrefs.startGoal(context, goalId)
                     }
                     state = GoalProgressPrefs.getState(context, goalId)
+                    scope.launch { AppWidgetsUpdater.updateAll(context) }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

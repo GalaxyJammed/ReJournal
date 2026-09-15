@@ -62,14 +62,6 @@ import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.ui.graphics.vector.ImageVector
 
-private val moodColors = listOf(
-    Color(0xFFE57373),
-    Color(0xFFFFB74D),
-    Color(0xFFFFF176),
-    Color(0xFFAED581),
-    Color(0xFF81C784)
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrendScreen(viewModel: MoodViewModel) {
@@ -217,6 +209,7 @@ private fun TrendSliderFilter(
 
 @Composable
 private fun MoodLineChart(entries: List<MoodEntry>) {
+    val moodColors = moodColorList()
     val textMeasurer = rememberTextMeasurer()
     val dateFormatter = DateTimeFormatter.ofPattern("M/d")
     val axisLabelStyle = TextStyle(fontSize = 10.sp, color = Color.Gray)

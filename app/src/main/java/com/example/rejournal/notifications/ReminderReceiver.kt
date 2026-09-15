@@ -8,10 +8,8 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.example.rejournal.MainActivity
 import com.example.rejournal.R
+import android.graphics.BitmapFactory
 
-// This fires once when the alarm goes off. Android's exact alarms are
-// one-shot, so after showing the notification, we immediately schedule
-// tomorrow's alarm too — this keeps the daily reminder going indefinitely.
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         showNotification(context)
@@ -36,7 +34,8 @@ class ReminderReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_notification)
+            .setSmallIcon(R.drawable.ic_stat_name)
+            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
             .setContentTitle("How are you feeling today?")
             .setContentText("Take a moment to log your mood.")
             .setContentIntent(pendingIntent)

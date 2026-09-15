@@ -37,6 +37,40 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".widget.TodayMoodWidgetReceiver"
+            android:exported="false"
+            android:label="Mood Selector">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_mood_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widget.AverageMoodWidgetReceiver"
+            android:exported="false"
+            android:label="Average Mood">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/average_mood_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widget.GoalsWidgetReceiver"
+            android:exported="false"
+            android:label="Goals">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/goals_widget_info" />
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -47,16 +81,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <receiver
-            android:name=".widget.MoodWidgetReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/mood_widget_info" />
-        </receiver>
     </application>
 
 </manifest>

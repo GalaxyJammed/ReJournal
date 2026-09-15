@@ -87,8 +87,8 @@ import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rejournal.data.ActivityIcons
+import com.example.rejournal.data.moodEmojis
 
-private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 private const val TOP_TAG_COUNT = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -187,12 +187,11 @@ fun QuestionnaireScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                moodEmojis.forEachIndexed { index, emoji ->
-                    val moodValue = index + 1
+                (1..5).forEach { moodValue ->
                     FilterChip(
                         selected = selectedMood == moodValue,
                         onClick = { selectedMood = moodValue },
-                        label = { Text(emoji, style = MaterialTheme.typography.headlineSmall) }
+                        label = { MoodGlyph(moodValue) }
                     )
                 }
             }

@@ -56,6 +56,8 @@ class MainActivity : FragmentActivity() {
 
         com.example.rejournal.ui.theme.ThemeState.current.value = com.example.rejournal.data.ThemePrefs.getTheme(this)
         com.example.rejournal.ui.theme.ThemeState.darkMode.value = com.example.rejournal.data.ThemePrefs.isDarkMode(this)
+        com.example.rejournal.ui.theme.MoodVisualsState.mode.value = com.example.rejournal.data.MoodAppearancePrefs.getMode(this)
+        com.example.rejournal.ui.theme.MoodVisualsState.colors.value = com.example.rejournal.data.MoodAppearancePrefs.getActiveColors(this)
 
         val repository = MoodRepository((application as RejournalApplication).database.moodDao())
 

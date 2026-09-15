@@ -26,7 +26,6 @@ import com.example.rejournal.data.MoodDetailStatsCalculator
 import java.time.format.TextStyle
 import java.util.Locale
 
-private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 private val moodLabels = listOf("Rough", "Meh", "Neutral", "Good", "Great")
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +39,12 @@ fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int) {
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            TopAppBar(title = { Text("${moodEmojis[moodValue - 1]} ${moodLabels[moodValue - 1]} Days") })
+            TopAppBar(title = {
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    MoodGlyph(moodValue, size = 20.dp)
+                    Text(" ${moodLabels[moodValue - 1]} Days", style = MaterialTheme.typography.titleLarge)
+                }
+            })
         }
     ) { padding: PaddingValues ->
         Column(

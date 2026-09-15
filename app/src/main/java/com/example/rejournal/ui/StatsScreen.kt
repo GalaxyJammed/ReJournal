@@ -63,21 +63,14 @@ import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.SentimentVerySatisfied
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.WorkOutline
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-
-private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
-private val moodColors = listOf(
-    androidx.compose.ui.graphics.Color(0xFFE57373),
-    androidx.compose.ui.graphics.Color(0xFFFFB74D),
-    androidx.compose.ui.graphics.Color(0xFFFFF176),
-    androidx.compose.ui.graphics.Color(0xFFAED581),
-    androidx.compose.ui.graphics.Color(0xFF81C784)
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
     val entries by viewModel.allEntries.collectAsState()
+    val moodColors = moodColorList()
 
     var period by remember { mutableStateOf(StatsPeriod.MONTH) }
     var referenceDate by remember { mutableStateOf(LocalDate.now()) }
@@ -161,7 +154,7 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                 }
 
                 Text("Mood breakdown (tap a mood for details)", style = MaterialTheme.typography.titleMedium)
-                MoodDistributionChart(stats.moodCounts, onMoodClick = onMoodClick)
+                MoodDistributionChart(stats.moodCounts, moodColors = moodColors, onMoodClick = onMoodClick)
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -256,10 +249,18 @@ private fun InsightsSection(
                                 )
                                 Text("${insight.tag} (${insight.count}x)", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
                             }
-                            Text(
-                                "avg ${String.format("%.1f", insight.averageMood)} ${moodEmojis[(insight.averageMood.toInt() - 1).coerceIn(0, 4)]}",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    "avg ${String.format("%.1f", insight.averageMood)}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(end = 4.dp)
+                                )
+                                MoodGlyph(
+                                    moodValue = insight.averageMood.toInt().coerceIn(1, 5),
+                                    size = 20.dp,
+                                    textStyle = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                         }
                     }
                 }
@@ -337,7 +338,7 @@ private fun correlationLine(label: String, correlation: Double?): String? {
 }
 
 @Composable
-private fun MoodDistributionChart(moodCounts: Map<Int, Int>, onMoodClick: (Int) -> Unit) {
+private fun MoodDistributionChart(moodCounts: Map<Int, Int>, moodColors: List<Color>, onMoodClick: (Int) -> Unit) {
     val maxCount = (moodCounts.values.maxOrNull() ?: 0).coerceAtLeast(1)
     val barTrackHeight = 100.dp
 
@@ -368,7 +369,7 @@ private fun MoodDistributionChart(moodCounts: Map<Int, Int>, onMoodClick: (Int) 
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(moodEmojis[mood - 1], style = MaterialTheme.typography.bodyLarge)
+                MoodGlyph(mood, size = 20.dp, textStyle = MaterialTheme.typography.bodyLarge)
             }
         }
     }

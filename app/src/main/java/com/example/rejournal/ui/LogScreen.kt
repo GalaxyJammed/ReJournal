@@ -52,14 +52,6 @@ import java.time.format.TextStyle
 import java.util.Locale
 import androidx.compose.foundation.layout.WindowInsets
 
-private val moodColors = listOf(
-    Color(0xFFE57373), // 1 - worst
-    Color(0xFFFFB74D), // 2
-    Color(0xFFFFF176), // 3
-    Color(0xFFAED581), // 4
-    Color(0xFF81C784)  // 5 - best
-)
-
 private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,6 +67,8 @@ fun LogScreen(
 
     val context = LocalContext.current
     var motivationalMessage by remember { mutableStateOf<String?>(null) }
+
+    val moodColors = moodColorList()
 
     LaunchedEffect(entries) {
         val cutoff = LocalDate.now().minusDays(29)
@@ -160,6 +154,7 @@ fun LogScreen(
 
             if (viewMode == LogViewMode.CALENDAR) {
                 CalendarMonthView(
+                    moodColors = moodColors,
                     currentMonth = currentMonth,
                     entriesByDate = entriesByDate,
                     onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
@@ -168,6 +163,7 @@ fun LogScreen(
                 )
             } else {
                 YearPixelsView(
+                    moodColors = moodColors,
                     year = currentYear,
                     entriesByDate = entriesByDate,
                     onPreviousYear = { currentYear -= 1 },
@@ -199,6 +195,7 @@ fun LogScreen(
 
 @Composable
 private fun CalendarMonthView(
+    moodColors: List<Color>,
     currentMonth: YearMonth,
     entriesByDate: Map<LocalDate, MoodEntry>,
     onPreviousMonth: () -> Unit,
@@ -278,6 +275,7 @@ private fun CalendarMonthView(
 
 @Composable
 private fun YearPixelsView(
+    moodColors: List<Color>,
     year: Int,
     entriesByDate: Map<LocalDate, MoodEntry>,
     onPreviousYear: () -> Unit,

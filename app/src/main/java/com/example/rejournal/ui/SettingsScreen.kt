@@ -18,10 +18,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -67,6 +70,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.example.rejournal.data.BackupHelper
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.foundation.border
+import com.example.rejournal.data.MoodAppearancePrefs
+import com.example.rejournal.data.MoodDisplayMode
+import com.example.rejournal.data.MoodPalettes
+import com.example.rejournal.ui.theme.MoodVisualsState
+import androidx.compose.material.icons.filled.Check
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,6 +103,19 @@ fun SettingsScreen(viewModel: MoodViewModel) {
     var showImportConfirmDialog by remember { mutableStateOf(false) }
     var pendingImportUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var importResultCount by remember { mutableStateOf<Int?>(null) }
+
+    var moodMode by remember { mutableStateOf(MoodAppearancePrefs.getMode(context)) }
+    var paletteName by remember { mutableStateOf(MoodAppearancePrefs.getPaletteName(context)) }
+    var customColors by remember { mutableStateOf(MoodAppearancePrefs.getCustomColors(context)) }
+    var editingColorIndex by remember { mutableStateOf<Int?>(null) }
+    var hexInput by remember { mutableStateOf("") }
+
+    fun applyPalette(name: String) {
+        paletteName = name
+        MoodAppearancePrefs.setPaletteName(context, name)
+        val colors = if (name == "Custom") customColors else MoodPalettes.presets[name] ?: MoodPalettes.default
+        MoodVisualsState.colors.value = colors
+    }
 
     val importLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -238,7 +263,74 @@ fun SettingsScreen(viewModel: MoodViewModel) {
                 }
             }
 
-            CategoryLabel("Appearance", topPadding = 20.dp)
+            CategoryLabel("Mood Appearance", topPadding = 20.dp)
+            SettingsCard {
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    MoodDisplayMode.entries.forEachIndexed { index, mode ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = MoodDisplayMode.entries.size),
+                            selected = moodMode == mode,
+                            onClick = {
+                                moodMode = mode
+                                MoodAppearancePrefs.setMode(context, mode)
+                                MoodVisualsState.mode.value = mode
+                            }
+                        ) {
+                            Text(if (mode == MoodDisplayMode.EMOJI) "Emoji" else "Circle")
+                        }
+                    }
+                }
+
+                if (moodMode == MoodDisplayMode.CIRCLE) {
+                    Text("Color palette", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 12.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        (MoodPalettes.presets.keys + "Custom").forEach { name ->
+                            val previewColors = if (name == "Custom") customColors else MoodPalettes.presets[name]!!
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { applyPalette(name) },
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    previewColors.forEach { colorLong ->
+                                        Box(
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                                .background(Color(colorLong), CircleShape)
+                                        )
+                                    }
+                                }
+                                Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                                if (paletteName == name) {
+                                    Icon(Icons.Filled.Check, contentDescription = "Selected")
+                                }
+                            }
+                        }
+                    }
+
+                    if (paletteName == "Custom") {
+                        Text("Tap a color to set a hex value", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 8.dp)) {
+                            customColors.forEachIndexed { index, colorLong ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .background(Color(colorLong), CircleShape)
+                                        .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                                        .clickable {
+                                            editingColorIndex = index
+                                            hexInput = String.format("%06X", colorLong and 0xFFFFFF)
+                                        }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            CategoryLabel("App Appearance", topPadding = 20.dp)
             SettingsCard {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(AppTheme.entries) { theme ->
@@ -435,6 +527,37 @@ fun SettingsScreen(viewModel: MoodViewModel) {
             },
             title = { Text("Import complete") },
             text = { Text("Imported $count entr${if (count == 1) "y" else "ies"}.") }
+        )
+    }
+
+    editingColorIndex?.let { index ->
+        AlertDialog(
+            onDismissRequest = { editingColorIndex = null },
+            confirmButton = {
+                TextButton(onClick = {
+                    val cleaned = hexInput.removePrefix("#").trim()
+                    val parsed = cleaned.toLongOrNull(16)
+                    if (parsed != null && cleaned.length == 6) {
+                        val colorLong = 0xFF000000L or parsed
+                        MoodAppearancePrefs.setCustomColor(context, index, colorLong)
+                        customColors = MoodAppearancePrefs.getCustomColors(context)
+                        if (paletteName == "Custom") MoodVisualsState.colors.value = customColors
+                    }
+                    editingColorIndex = null
+                }) { Text("Save") }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingColorIndex = null }) { Text("Cancel") }
+            },
+            title = { Text("Mood ${index + 1} color") },
+            text = {
+                OutlinedTextField(
+                    value = hexInput,
+                    onValueChange = { hexInput = it },
+                    label = { Text("Hex (e.g. FF7043)") },
+                    singleLine = true
+                )
+            }
         )
     }
 }

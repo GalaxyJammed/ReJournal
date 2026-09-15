@@ -212,6 +212,12 @@ private fun colorSchemeFor(theme: AppTheme, darkMode: Boolean) = when (theme) {
 
 fun previewColorFor(theme: AppTheme): Color = colorSchemeFor(theme, darkMode = false).primary
 
+fun resolvedPrimaryColor(context: android.content.Context): Color {
+    val theme = com.example.rejournal.data.ThemePrefs.getTheme(context)
+    val darkMode = com.example.rejournal.data.ThemePrefs.isDarkMode(context)
+    return colorSchemeFor(theme, darkMode).primary
+}
+
 @Composable
 fun ReJournalTheme(
     content: @Composable () -> Unit
