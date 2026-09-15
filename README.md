@@ -85,3 +85,4 @@ Simple and easy!
 - Icon by [istockphoto](https://www.istockphoto.com/)
 - Inspired by apps of the same nature that log mood entries
 - This project is not affiliated with any of the websites/pieces of media mentioned above
+- The README will be updated with additional features once the project is finished
