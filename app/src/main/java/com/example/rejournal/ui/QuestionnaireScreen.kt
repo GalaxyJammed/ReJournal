@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
@@ -57,16 +58,19 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import com.example.rejournal.data.CharStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MediaFileHelper
 import com.example.rejournal.data.MoodEntry
@@ -95,7 +99,8 @@ fun QuestionnaireScreen(
     var stress by remember { mutableStateOf(3f) }
     var sleep by remember { mutableStateOf(3f) }
     var selectedActivities by remember { mutableStateOf(setOf<String>()) }
-    var note by remember { mutableStateOf("") }
+    var noteValue by remember { mutableStateOf(RichNoteValue()) }
+    var showExpandedNote by remember { mutableStateOf(false) }
     var availableTags by remember { mutableStateOf(ActivityTagsPrefs.getAllTags(context)) }
     var showAddTagDialog by remember { mutableStateOf(false) }
     var newTagText by remember { mutableStateOf("") }
@@ -116,7 +121,7 @@ fun QuestionnaireScreen(
             stress = entry.stress.toFloat()
             sleep = entry.sleep.toFloat()
             selectedActivities = entry.activities.toSet()
-            note = entry.note
+            noteValue = richNoteValueFromRaw(entry.note)
             photoPaths = entry.photoPaths
             audioPaths = entry.audioPaths
         }
@@ -288,15 +293,28 @@ fun QuestionnaireScreen(
                 }
             )
 
-            Text("Notes (optional)", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(
-                value = note,
-                onValueChange = { note = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                placeholder = { Text("Anything on your mind...") }
-            )
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Notes (optional)", style = MaterialTheme.typography.titleMedium)
+                    TextButton(onClick = { showExpandedNote = true }) {
+                        Icon(
+                            Icons.Filled.OpenInFull,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 4.dp).size(16.dp)
+                        )
+                        Text("Expand Note")
+                    }
+                }
+                RichNoteEditor(
+                    value = noteValue,
+                    onValueChange = { noteValue = it },
+                    minHeight = 120.dp
+                )
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -324,7 +342,7 @@ fun QuestionnaireScreen(
                                 date = date,
                                 mood = mood,
                                 activities = selectedActivities.toList(),
-                                note = note,
+                                note = noteValue.toRawText(),
                                 energy = energy.toInt(),
                                 productivity = productivity.toInt(),
                                 stress = stress.toInt(),
@@ -338,6 +356,38 @@ fun QuestionnaireScreen(
                     enabled = selectedMood != null,
                     modifier = Modifier.weight(1f)
                 ) { Text("Save") }
+            }
+        }
+    }
+
+    if (showExpandedNote) {
+        Dialog(
+            onDismissRequest = { showExpandedNote = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text("Edit Note") },
+                        actions = {
+                            TextButton(onClick = { showExpandedNote = false }) { Text("Done") }
+                        }
+                    )
+                }
+            ) { dialogPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(dialogPadding)
+                        .padding(16.dp)
+                ) {
+                    RichNoteEditor(
+                        value = noteValue,
+                        onValueChange = { noteValue = it },
+                        modifier = Modifier.fillMaxSize(),
+                        fillAvailableSpace = true
+                    )
+                }
             }
         }
     }
@@ -568,6 +618,7 @@ private fun stopRecording(recorder: MediaRecorder?) {
     try {
         recorder?.stop()
     } catch (e: Exception) {
+        // Recording was too short or failed.
     }
     recorder?.release()
 }
