@@ -76,6 +76,17 @@ import com.example.rejournal.data.MediaFileHelper
 import com.example.rejournal.data.MoodEntry
 import java.io.File
 import java.time.LocalDate
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.MoodBad
+import androidx.compose.material.icons.filled.NoteAlt
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.WorkOutline
+import androidx.compose.material.icons.filled.AddReaction
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.rejournal.data.ActivityIcons
 
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 private const val TOP_TAG_COUNT = 3
@@ -103,7 +114,6 @@ fun QuestionnaireScreen(
     var showExpandedNote by remember { mutableStateOf(false) }
     var availableTags by remember { mutableStateOf(ActivityTagsPrefs.getAllTags(context)) }
     var showAddTagDialog by remember { mutableStateOf(false) }
-    var newTagText by remember { mutableStateOf("") }
     var tagPendingDeletion by remember { mutableStateOf<String?>(null) }
     var tagsExpanded by remember { mutableStateOf(false) }
 
@@ -172,7 +182,7 @@ fun QuestionnaireScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Text("Mood", style = MaterialTheme.typography.titleMedium)
+            SectionHeader(Icons.Filled.AddReaction, "Mood")
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -187,10 +197,10 @@ fun QuestionnaireScreen(
                 }
             }
 
-            SliderRow(label = "Energy", value = energy, onValueChange = { energy = it })
-            SliderRow(label = "Productivity", value = productivity, onValueChange = { productivity = it })
-            SliderRow(label = "Stress", value = stress, onValueChange = { stress = it })
-            SliderRow(label = "Sleep", value = sleep, onValueChange = { sleep = it })
+            SliderRow(icon = Icons.Filled.TrendingUp, label = "Energy", value = energy, onValueChange = { energy = it })
+            SliderRow(icon = Icons.Filled.WorkOutline, label = "Productivity", value = productivity, onValueChange = { productivity = it })
+            SliderRow(icon = Icons.Filled.Psychology, label = "Stress", value = stress, onValueChange = { stress = it })
+            SliderRow(icon = Icons.Filled.Hotel, label = "Sleep", value = sleep, onValueChange = { sleep = it })
 
             Column {
                 Row(
@@ -198,7 +208,7 @@ fun QuestionnaireScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("What did you do today?", style = MaterialTheme.typography.titleMedium)
+                    SectionHeader(Icons.Filled.DirectionsRun, "What did you do today?")
                     IconButton(onClick = { tagsExpanded = !tagsExpanded }) {
                         Icon(
                             if (tagsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
@@ -216,6 +226,7 @@ fun QuestionnaireScreen(
                     collapsedTags.forEach { activity ->
                         DeletableActivityChip(
                             label = activity,
+                            icon = ActivityIcons.resolve(activity, ActivityTagsPrefs.getIconIdForTag(context, activity)),
                             selected = activity in selectedActivities,
                             onClick = {
                                 selectedActivities = if (activity in selectedActivities) {
@@ -238,6 +249,7 @@ fun QuestionnaireScreen(
                         remainingTags.forEach { activity ->
                             DeletableActivityChip(
                                 label = activity,
+                                icon = ActivityIcons.resolve(activity, ActivityTagsPrefs.getIconIdForTag(context, activity)),
                                 selected = activity in selectedActivities,
                                 onClick = {
                                     selectedActivities = if (activity in selectedActivities) {
@@ -299,7 +311,7 @@ fun QuestionnaireScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Notes (optional)", style = MaterialTheme.typography.titleMedium)
+                    SectionHeader(Icons.Filled.NoteAlt, "Notes (optional)")
                     TextButton(onClick = { showExpandedNote = true }) {
                         Icon(
                             Icons.Filled.OpenInFull,
@@ -393,34 +405,15 @@ fun QuestionnaireScreen(
     }
 
     if (showAddTagDialog) {
-        AlertDialog(
-            onDismissRequest = { showAddTagDialog = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    val tag = newTagText.trim()
-                    if (tag.isNotEmpty()) {
-                        ActivityTagsPrefs.addCustomTag(context, tag)
-                        availableTags = ActivityTagsPrefs.getAllTags(context)
-                        selectedActivities = selectedActivities + tag
-                    }
-                    newTagText = ""
-                    showAddTagDialog = false
-                }) { Text("Add") }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    newTagText = ""
-                    showAddTagDialog = false
-                }) { Text("Cancel") }
-            },
-            title = { Text("New activity tag") },
-            text = {
-                OutlinedTextField(
-                    value = newTagText,
-                    onValueChange = { newTagText = it },
-                    placeholder = { Text("e.g. Meditation") },
-                    singleLine = true
-                )
+        AddActivityDialog(
+            onDismiss = { showAddTagDialog = false },
+            onConfirm = { name, iconId ->
+                if (name.isNotEmpty()) {
+                    ActivityTagsPrefs.addCustomTag(context, name, iconId)
+                    availableTags = ActivityTagsPrefs.getAllTags(context)
+                    selectedActivities = selectedActivities + name
+                }
+                showAddTagDialog = false
             }
         )
     }
@@ -453,7 +446,7 @@ private fun PhotosSection(
     onRemove: (String) -> Unit
 ) {
     Column {
-        Text("Photos", style = MaterialTheme.typography.titleMedium)
+        SectionHeader(Icons.Filled.PhotoLibrary, "Photos")
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(top = 8.dp)
@@ -555,7 +548,7 @@ private fun VoiceMemosSection(
     }
 
     Column {
-        Text("Voice Memos", style = MaterialTheme.typography.titleMedium)
+        SectionHeader(Icons.Filled.Mic, "Voice Memos")
         Column(
             modifier = Modifier.padding(top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -673,6 +666,7 @@ private fun VoiceMemoRow(
 @Composable
 private fun DeletableActivityChip(
     label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     selected: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit
@@ -693,22 +687,32 @@ private fun DeletableActivityChip(
             onLongClick = onLongClick
         )
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(start = 6.dp)
+            )
+        }
     }
 }
 
 @Composable
-private fun SliderRow(label: String, value: Float, onValueChange: (Float) -> Unit) {
+private fun SliderRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: Float, onValueChange: (Float) -> Unit) {
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(label, style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+                Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+            }
             Text(value.toInt().toString(), style = MaterialTheme.typography.titleMedium)
         }
         Slider(
@@ -717,5 +721,13 @@ private fun SliderRow(label: String, value: Float, onValueChange: (Float) -> Uni
             valueRange = 1f..5f,
             steps = 3
         )
+    }
+}
+
+@Composable
+fun SectionHeader(icon: ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+        Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
     }
 }

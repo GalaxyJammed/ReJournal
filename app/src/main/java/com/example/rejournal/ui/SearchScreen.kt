@@ -38,6 +38,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.MoodBad
+import androidx.compose.material.icons.filled.NoteAlt
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.WorkOutline
+import androidx.compose.material.icons.filled.AddReaction
+import androidx.compose.ui.Alignment
 
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 
@@ -90,7 +101,7 @@ fun SearchScreen(
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Mood", style = MaterialTheme.typography.titleMedium)
+                    SectionHeader(Icons.Filled.AddReaction, "Mood")
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -111,24 +122,27 @@ fun SearchScreen(
                         }
                     }
 
-                    SingleValueFilter(label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
-                    SingleValueFilter(label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
-                    SingleValueFilter(label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
-                    SingleValueFilter(label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
+                    SingleValueFilter(icon = Icons.Filled.TrendingUp, label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
+                    SingleValueFilter(icon = Icons.Filled.WorkOutline, label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
+                    SingleValueFilter(icon = Icons.Filled.Psychology, label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
+                    SingleValueFilter(icon = Icons.Filled.Hotel, label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
 
-                    Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium)
+                    SectionHeader(Icons.Filled.DirectionsRun, "Activities (All selected must match)")
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(availableTags) { tag ->
                             FilterChip(
                                 selected = tag in selectedTags,
                                 onClick = {
-                                    selectedTags = if (tag in selectedTags) {
-                                        selectedTags - tag
-                                    } else {
-                                        selectedTags + tag
-                                    }
+                                    selectedTags = if (tag in selectedTags) selectedTags - tag else selectedTags + tag
                                 },
-                                label = { Text(tag) }
+                                label = { Text(tag) },
+                                leadingIcon = {
+                                    androidx.compose.material3.Icon(
+                                        com.example.rejournal.data.ActivityIcons.resolve(tag, com.example.rejournal.data.ActivityTagsPrefs.getIconIdForTag(context, tag)),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
                             )
                         }
                     }
@@ -187,6 +201,7 @@ fun SearchScreen(
 
 @Composable
 private fun SingleValueFilter(
+    icon: ImageVector,
     label: String,
     value: Int?,
     onValueChange: (Int?) -> Unit
@@ -197,7 +212,14 @@ private fun SingleValueFilter(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
         ) {
-            Text(label, style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+                Text(
+                    label,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
             Row(
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

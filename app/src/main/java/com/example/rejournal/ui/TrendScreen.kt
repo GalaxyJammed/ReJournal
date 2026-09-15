@@ -52,6 +52,15 @@ import com.example.rejournal.data.MoodEntry
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.MoodBad
+import androidx.compose.material.icons.filled.NoteAlt
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.WorkOutline
+import androidx.compose.ui.graphics.vector.ImageVector
 
 private val moodColors = listOf(
     Color(0xFFE57373),
@@ -101,12 +110,12 @@ fun TrendScreen(viewModel: MoodViewModel) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            TrendSliderFilter(label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
-            TrendSliderFilter(label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
-            TrendSliderFilter(label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
-            TrendSliderFilter(label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
+            TrendSliderFilter(icon = Icons.Filled.TrendingUp, label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
+            TrendSliderFilter(icon = Icons.Filled.WorkOutline, label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
+            TrendSliderFilter(icon = Icons.Filled.Psychology, label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
+            TrendSliderFilter(icon = Icons.Filled.Hotel, label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
 
-            Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium)
+            SectionHeader(Icons.Filled.DirectionsRun, "Activities (All selected must match")
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(availableTags) { tag ->
                     FilterChip(
@@ -114,7 +123,14 @@ fun TrendScreen(viewModel: MoodViewModel) {
                         onClick = {
                             selectedTags = if (tag in selectedTags) selectedTags - tag else selectedTags + tag
                         },
-                        label = { Text(tag) }
+                        label = { Text(tag) },
+                        leadingIcon = {
+                            androidx.compose.material3.Icon(
+                                com.example.rejournal.data.ActivityIcons.resolve(tag, com.example.rejournal.data.ActivityTagsPrefs.getIconIdForTag(context, tag)),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     )
                 }
             }
@@ -149,6 +165,7 @@ fun TrendScreen(viewModel: MoodViewModel) {
 
 @Composable
 private fun TrendSliderFilter(
+    icon: ImageVector,
     label: String,
     value: Int?,
     onValueChange: (Int?) -> Unit
@@ -159,7 +176,17 @@ private fun TrendSliderFilter(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(label, style = MaterialTheme.typography.titleMedium)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(label, style = MaterialTheme.typography.titleMedium)
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

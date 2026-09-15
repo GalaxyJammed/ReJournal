@@ -16,7 +16,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-
+import android.net.Uri
+import com.example.rejournal.data.BackupHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 class MoodViewModel(
     private val repository: MoodRepository,
     private val appContext: Context
@@ -74,6 +77,17 @@ class MoodViewModel(
             entry.audioPaths.forEach { MediaFileHelper.deleteFile(it) }
             repository.deleteEntry(entry)
             MoodWidgetUpdater.update(appContext)
+        }
+    }
+
+    fun importBackup(uri: Uri, onResult: (Int) -> Unit) {
+        viewModelScope.launch {
+            val imported = withContext(Dispatchers.IO) {
+                BackupHelper.importFromZip(appContext, uri)
+            }
+            imported.forEach { repository.saveEntry(it) }
+            MoodWidgetUpdater.update(appContext)
+            onResult(imported.size)
         }
     }
 

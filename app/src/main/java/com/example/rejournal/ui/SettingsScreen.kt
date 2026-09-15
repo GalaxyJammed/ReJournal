@@ -66,6 +66,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import com.example.rejournal.data.BackupHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +87,19 @@ fun SettingsScreen(viewModel: MoodViewModel) {
     var pinInput by remember { mutableStateOf("") }
     var pinConfirmInput by remember { mutableStateOf("") }
     var pinError by remember { mutableStateOf<String?>(null) }
+
+    var showImportConfirmDialog by remember { mutableStateOf(false) }
+    var pendingImportUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var importResultCount by remember { mutableStateOf<Int?>(null) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            pendingImportUri = uri
+            showImportConfirmDialog = true
+        }
+    }
 
     val biometricAvailable = remember {
         BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) ==
@@ -261,6 +275,22 @@ fun SettingsScreen(viewModel: MoodViewModel) {
             SettingsCard {
                 Button(
                     onClick = {
+                        val intent = BackupHelper.exportFullBackup(context, entries)
+                        context.startActivity(Intent.createChooser(intent, "Export full backup"))
+                    },
+                    enabled = entries.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(if (entries.isEmpty()) "No entries to back up" else "Export Full Backup (.zip)")
+                }
+                Button(
+                    onClick = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Import Backup")
+                }
+                Button(
+                    onClick = {
                         val intent = ExportHelper.exportToCsv(context, entries)
                         context.startActivity(Intent.createChooser(intent, "Export mood data"))
                     },
@@ -366,6 +396,45 @@ fun SettingsScreen(viewModel: MoodViewModel) {
                     }
                 }
             }
+        )
+    }
+
+    if (showImportConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showImportConfirmDialog = false
+                pendingImportUri = null
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val uri = pendingImportUri
+                    showImportConfirmDialog = false
+                    if (uri != null) {
+                        viewModel.importBackup(uri) { count ->
+                            importResultCount = count
+                        }
+                    }
+                }) { Text("Import") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showImportConfirmDialog = false
+                    pendingImportUri = null
+                }) { Text("Cancel") }
+            },
+            title = { Text("Import backup?") },
+            text = { Text("Entries for dates that already exist will be overwritten with the imported version. This can't be undone.") }
+        )
+    }
+
+    importResultCount?.let { count ->
+        AlertDialog(
+            onDismissRequest = { importResultCount = null },
+            confirmButton = {
+                TextButton(onClick = { importResultCount = null }) { Text("OK") }
+            },
+            title = { Text("Import complete") },
+            text = { Text("Imported $count entr${if (count == 1) "y" else "ies"}.") }
         )
     }
 }

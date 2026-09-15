@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,6 +55,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.SentimentDissatisfied
+import androidx.compose.material.icons.filled.SentimentVerySatisfied
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.WorkOutline
+import androidx.compose.ui.platform.LocalContext
 
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 private val moodColors = listOf(
@@ -142,26 +152,11 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                             "${stats.totalEntries} day${if (stats.totalEntries == 1) "" else "s"} logged",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Text(
-                            "Average mood: ${String.format("%.1f", stats.averageMood)} / 5",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            "Average energy: ${String.format("%.1f", stats.averageEnergy)} / 5",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            "Average productivity: ${String.format("%.1f", stats.averageProductivity)} / 5",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            "Average stress: ${String.format("%.1f", stats.averageStress)} / 5",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            "Average sleep: ${String.format("%.1f", stats.averageSleep)} / 5",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        StatLine(Icons.Filled.EmojiEmotions, "Average mood: ${String.format("%.1f", stats.averageMood)} / 5")
+                        StatLine(Icons.Filled.TrendingUp, "Average energy: ${String.format("%.1f", stats.averageEnergy)} / 5")
+                        StatLine(Icons.Filled.WorkOutline, "Average productivity: ${String.format("%.1f", stats.averageProductivity)} / 5")
+                        StatLine(Icons.Filled.Psychology, "Average stress: ${String.format("%.1f", stats.averageStress)} / 5")
+                        StatLine(Icons.Filled.Bedtime, "Average sleep: ${String.format("%.1f", stats.averageSleep)} / 5")
                     }
                 }
 
@@ -173,14 +168,8 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            "Best day of the ${periodNoun(period)}: ${stats.bestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            "Toughest day of the ${periodNoun(period)}: ${stats.toughestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        StatLine(Icons.Filled.SentimentVerySatisfied, "Best day of the ${periodNoun(period)}: ${stats.bestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}")
+                        StatLine(Icons.Filled.SentimentDissatisfied, "Toughest day of the ${periodNoun(period)}: ${stats.toughestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}")
                     }
                 }
 
@@ -235,7 +224,14 @@ private fun InsightsSection(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(freq.tag, style = MaterialTheme.typography.bodyMedium)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    com.example.rejournal.data.ActivityIcons.resolve(freq.tag, com.example.rejournal.data.ActivityTagsPrefs.getIconIdForTag(LocalContext.current, freq.tag)),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(freq.tag, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
+                            }
                             Text("${freq.count}x", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
@@ -252,7 +248,14 @@ private fun InsightsSection(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("${insight.tag} (${insight.count}x)", style = MaterialTheme.typography.bodyMedium)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    com.example.rejournal.data.ActivityIcons.resolve(insight.tag, com.example.rejournal.data.ActivityTagsPrefs.getIconIdForTag(LocalContext.current, insight.tag)),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text("${insight.tag} (${insight.count}x)", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
+                            }
                             Text(
                                 "avg ${String.format("%.1f", insight.averageMood)} ${moodEmojis[(insight.averageMood.toInt() - 1).coerceIn(0, 4)]}",
                                 style = MaterialTheme.typography.bodyMedium
@@ -388,5 +391,13 @@ private fun periodLabel(period: StatsPeriod, start: LocalDate, end: LocalDate): 
         }
         StatsPeriod.MONTH -> start.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
         StatsPeriod.YEAR -> start.year.toString()
+    }
+}
+
+@Composable
+private fun StatLine(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        Text(text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 8.dp))
     }
 }
