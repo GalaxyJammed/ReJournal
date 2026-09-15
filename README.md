@@ -37,6 +37,24 @@ This project was created as a way to let people freely use mental health journal
 - Optional notes for extra context
 - Edit or delete any past entry, or back-fill a day you forgot to log
 
+<div align="center">
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/0d352f9b-a2c3-4f1d-b108-1592fc80fc45" width="400" alt="Image 1"/>
+      <br>
+      <sub>Day Logger 1 (The theme can be adjusted in settings!)</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/9e40fc73-eacd-471a-b534-962640e6d468" width="400" alt="Image 2">
+      <br>
+      <sub>Day Logger 2 (Log your day in every way possible!)</sub>
+    </td>
+  </tr>
+</table>
+</table>
+</div>
+
 ### 😌 Visualize your mood
 - **Month calendar view** - each day colored by mood, depending on the emoji you picked
 - **Year pixel view** - your entire year at a glance, one tiny colored square per day
@@ -48,10 +66,29 @@ This project was created as a way to let people freely use mental health journal
 - Best & toughest day of the week/month/year (based on your averages)
 - **Additional Stats**: most-logged activities, mood-by-activity ranking, activities on your best/worst days, and simple correlation insights (e.g. "Higher Sleep tends to line up with better mood days")
 
+<div align="center">
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/0e560ef7-8538-4663-83dc-2b2f32134c6b" width="400" alt="Img1"/>
+      <br>
+      <sub>Main Calendar Screen</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/a80db9e7-9dea-4ef1-b4b2-55e9b8f4d158" width="400" alt="Image 2 description">
+      <br>
+      <sub>Stats Screen (Has more features than shown!)</sub>
+    </td>
+  </tr>
+</table>
+</table>
+</div>
+
 ### 🔄 Habit building
 - **Streak tracking** - current streak and personal best, shown right on the main screen
 - **Daily reminder notifications** at a time you choose (exact alarm scheduling)
-- Rotating supportive messages based on your recent mood trend (regardless if your mood is bad or not)
+- **Rotating supportive messages** based on your recent mood trend (regardless if your mood is bad or not)
+- **Widgets** to help you keep track of your mood at all times
 
 ### 🔍 Search
 - Filter your entire history by mood, activity tags (AND logic), or exact slider values (Energy/Productivity/Stress/Sleep)
@@ -60,6 +97,7 @@ This project was created as a way to let people freely use mental health journal
 ### 💾 Your data, your control
 - Everything is stored **locally** in a Room (SQLite) database - nothing leaves your device unless you choose to
 - **Export to CSV** anytime, ready to open in Excel/Sheets or attach to an email/back it up to cloud storage of your choice
+- Export/Import your data in case you want to move it (or just keep a copy of it)
 - This app will never ask for any usage data. Everything from logging is only available to the user that downloaded the app. Nothing is shared.
 
 ---
