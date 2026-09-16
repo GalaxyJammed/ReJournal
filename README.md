@@ -20,7 +20,7 @@
 A simple, private mood journaling app for Android — inspired by other mental health journal apps. Log how you're feeling each day, track patterns over time, and build a habit of daily check-ins, all with your data stored locally on your device.
 
 <div align="center">
-  <img width="100" height="100" alt="monarch-butterfly" src="https://github.com/user-attachments/assets/971d7cd0-434d-4186-bbb3-20ecc1a10031" />
+  <img width="100" height="100" alt="monarch-butterfly" src="https://github.com/user-attachments/assets/b54b264f-cc0d-4fde-acda-894b3faa9e54" />
   <br>
   <em>"Your soul will feel rejuvenated"</em>
 </div>
@@ -119,8 +119,6 @@ Simple and easy!
 ## Project Notes
 - This project focuses on databases, charts and the newest Jetpack Compose style of design instead of .xml
 - Quotes/Naming inspiration by [Pokemon Rejuvenation](https://rejuvenation.wiki.gg/)
-- Images on README.md by [FlatIcon](https://flaticon)
-- Icon by [istockphoto](https://www.istockphoto.com/)
 - Inspired by apps of the same nature that log mood entries
 - This project is not affiliated with any of the websites/pieces of media mentioned above
 - The README will be updated with additional features once the project is finished
