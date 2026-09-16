@@ -1,6 +1,6 @@
 <div align="center">
 
-# ReJournal
+# ReJournal - Mood Logger
 
 **An Android mental health journal app**
 
