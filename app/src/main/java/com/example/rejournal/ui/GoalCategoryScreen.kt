@@ -16,12 +16,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.GoalCategory
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GoalCategoryScreen(onCategoryClick: (GoalCategory) -> Unit) {
+fun GoalCategoryScreen(
+    onCategoryClick: (GoalCategory) -> Unit,
+    onBack: () -> Unit
+) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Find a Goal") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Find a Goal") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier

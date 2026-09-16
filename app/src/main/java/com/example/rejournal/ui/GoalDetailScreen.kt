@@ -33,12 +33,14 @@ import com.example.rejournal.data.GoalProgressPrefs
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.rejournal.widget.AppWidgetsUpdater
 import kotlinx.coroutines.launch
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalDetailScreen(
     viewModel: MoodViewModel,
-    goalId: String
+    goalId: String,
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
@@ -61,7 +63,7 @@ fun GoalDetailScreen(
     val successRate = if (state.attempts > 0) (state.completions * 100 / state.attempts) else null
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(definition.title) }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text(definition.title) }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier

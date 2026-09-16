@@ -23,18 +23,16 @@ class RejournalApplication : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(
-                NotificationChannel(
-                    "daily_reminder",
-                    "Daily Mood Reminder",
-                    NotificationManager.IMPORTANCE_DEFAULT
-                ).apply { description = "Reminds you to log your mood each day" }
+                NotificationChannel("daily_reminder", "Daily Mood Reminder", NotificationManager.IMPORTANCE_DEFAULT)
+                    .apply { description = "Reminds you to log your mood each day" }
             )
             manager.createNotificationChannel(
-                NotificationChannel(
-                    "important_days",
-                    "Important Days",
-                    NotificationManager.IMPORTANCE_HIGH
-                ).apply { description = "Notifies you on days you've marked as important" }
+                NotificationChannel("important_days", "Important Days", NotificationManager.IMPORTANCE_HIGH)
+                    .apply { description = "Notifies you on days you've marked as important" }
+            )
+            manager.createNotificationChannel(
+                NotificationChannel("time_capsules", "Time Capsules", NotificationManager.IMPORTANCE_HIGH)
+                    .apply { description = "Notifies you when a scheduled time capsule arrives" }
             )
         }
     }

@@ -37,12 +37,14 @@ import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.MediaGalleryHelper
 import com.example.rejournal.data.MediaItem
 import java.time.LocalDate
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoiceMemoAlbumScreen(
     viewModel: MoodViewModel,
-    onGoToDay: (LocalDate) -> Unit
+    onGoToDay: (LocalDate) -> Unit,
+    onBack: () -> Unit
 ) {
     val entries by viewModel.allEntries.collectAsState()
     val memos = remember(entries) { MediaGalleryHelper.allAudioMemos(entries) }
@@ -74,7 +76,7 @@ fun VoiceMemoAlbumScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("Voice Memos") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Voice Memos") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         if (memos.isEmpty()) {
             Text(

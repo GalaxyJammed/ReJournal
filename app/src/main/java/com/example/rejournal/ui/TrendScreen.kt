@@ -61,6 +61,7 @@ import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,7 +93,7 @@ fun TrendScreen(viewModel: MoodViewModel) {
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("Trend") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Mood Trend (Last 30 days)") }) }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier
@@ -107,7 +108,7 @@ fun TrendScreen(viewModel: MoodViewModel) {
             TrendSliderFilter(icon = Icons.Filled.Psychology, label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
             TrendSliderFilter(icon = Icons.Filled.Hotel, label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
 
-            SectionHeader(Icons.Filled.DirectionsRun, "Activities (All selected must match")
+            SectionHeader(Icons.Filled.DirectionsRun, "Activities (All selected must match)")
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(availableTags) { tag ->
                     FilterChip(

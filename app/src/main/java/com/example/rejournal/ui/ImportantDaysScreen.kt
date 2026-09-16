@@ -35,17 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.ImportantDay
 import java.time.LocalDate
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImportantDaysScreen(viewModel: MoodViewModel) {
+fun ImportantDaysScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val importantDays by viewModel.allImportantDays.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var dayPendingDeletion by remember { mutableStateOf<ImportantDay?>(null) }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("Important Days") }) },
+        topBar = { CenterAlignedTopAppBar(title = { Text("Important Days") }, navigationIcon = { BackButton(onBack) }) },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddDialog = true }) {
                 Icon(Icons.Filled.Add, contentDescription = "Add important day")

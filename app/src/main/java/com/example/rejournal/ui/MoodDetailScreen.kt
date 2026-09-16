@@ -23,14 +23,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.MoodDetailStatsCalculator
+import com.example.rejournal.data.moodEmojis
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 private val moodLabels = listOf("Rough", "Meh", "Neutral", "Good", "Great")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int) {
+fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int, onBack: () -> Unit) {
     val entries by viewModel.allEntries.collectAsState()
     val stats = remember(entries, moodValue) {
         MoodDetailStatsCalculator.calculate(entries, moodValue)
@@ -39,12 +41,7 @@ fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int) {
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            TopAppBar(title = {
-                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    MoodGlyph(moodValue, size = 20.dp)
-                    Text(" ${moodLabels[moodValue - 1]} Days", style = MaterialTheme.typography.titleLarge)
-                }
-            })
+            CenterAlignedTopAppBar(title = { Text("${moodEmojis[moodValue - 1]} ${moodLabels[moodValue - 1]} Days") }, navigationIcon = { BackButton(onBack) })
         }
     ) { padding: PaddingValues ->
         Column(

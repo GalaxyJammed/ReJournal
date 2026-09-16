@@ -21,5 +21,6 @@ data class MoodEntry(
     val stress: Int = 3,
     val sleep: Int = 3,
     val photoPaths: List<String> = emptyList(),
-    val audioPaths: List<String> = emptyList()
+    val audioPaths: List<String> = emptyList(),
+    val isFavorite: Boolean = false
 )

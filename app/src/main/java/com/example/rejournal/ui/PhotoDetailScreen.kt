@@ -24,13 +24,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhotoDetailScreen(
     path: String,
     date: LocalDate,
-    onGoToDay: (LocalDate) -> Unit
+    onGoToDay: (LocalDate) -> Unit,
+    onBack: () -> Unit
 ) {
     val bitmap = remember(path) {
         BitmapFactory.decodeFile(path)
@@ -39,7 +41,7 @@ fun PhotoDetailScreen(
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text(date.format(DateTimeFormatter.ofPattern("MMMM d, yyyy"))) },
                 actions = {
                     Button(

@@ -8,9 +8,9 @@ import android.os.Build
 import java.time.LocalDate
 import java.util.Calendar
 
-object ImportantDayScheduler {
+object TimeCapsuleScheduler {
 
-    fun schedule(context: Context, date: LocalDate, message: String) {
+    fun schedule(context: Context, capsuleId: Long, date: LocalDate) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) return
 
@@ -20,23 +20,20 @@ object ImportantDayScheduler {
         }
         if (trigger.timeInMillis <= System.currentTimeMillis()) return
 
-        val pendingIntent = buildPendingIntent(context, date, message)
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger.timeInMillis, pendingIntent)
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger.timeInMillis, buildPendingIntent(context, capsuleId))
     }
 
-    fun cancel(context: Context, date: LocalDate) {
+    fun cancel(context: Context, capsuleId: Long) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(buildPendingIntent(context, date, ""))
+        alarmManager.cancel(buildPendingIntent(context, capsuleId))
     }
 
-    private fun buildPendingIntent(context: Context, date: LocalDate, message: String): PendingIntent {
-        val intent = Intent(context, ImportantDayReceiver::class.java).apply {
-            putExtra("message", message)
-            putExtra("date", date.toString())
+    private fun buildPendingIntent(context: Context, capsuleId: Long): PendingIntent {
+        val intent = Intent(context, TimeCapsuleReceiver::class.java).apply {
+            putExtra("capsuleId", capsuleId)
         }
-        val requestCode = date.toEpochDay().toInt()
         return PendingIntent.getBroadcast(
-            context, requestCode, intent,
+            context, capsuleId.toInt(), intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }

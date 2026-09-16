@@ -29,19 +29,21 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.MediaGalleryHelper
 import com.example.rejournal.data.MediaItem
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhotoAlbumScreen(
     viewModel: MoodViewModel,
-    onPhotoClick: (MediaItem) -> Unit
+    onPhotoClick: (MediaItem) -> Unit,
+    onBack: () -> Unit
 ) {
     val entries by viewModel.allEntries.collectAsState()
     val photos = remember(entries) { MediaGalleryHelper.allPhotos(entries) }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("Photo Album") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Photo Album") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         if (photos.isEmpty()) {
             Text(

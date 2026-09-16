@@ -89,6 +89,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rejournal.data.ActivityIcons
 import com.example.rejournal.data.moodEmojis
 import com.example.rejournal.data.ImportantDay
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.LocalContentColor
 
 private const val TOP_TAG_COUNT = 3
 
@@ -97,7 +101,8 @@ private const val TOP_TAG_COUNT = 3
 fun QuestionnaireScreen(
     viewModel: MoodViewModel,
     date: LocalDate,
-    onDone: () -> Unit
+    onDone: () -> Unit,
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val allEntries by viewModel.allEntries.collectAsState()
@@ -125,6 +130,8 @@ fun QuestionnaireScreen(
     val isFutureDate = date.isAfter(LocalDate.now())
     var existingImportantDay by remember { mutableStateOf<ImportantDay?>(null) }
 
+    var isFavorite by remember { mutableStateOf(false) }
+
     LaunchedEffect(date) {
         val entry = viewModel.getEntryForDate(date)
         existingEntry = entry
@@ -138,6 +145,7 @@ fun QuestionnaireScreen(
             noteValue = richNoteValueFromRaw(entry.note)
             photoPaths = entry.photoPaths
             audioPaths = entry.audioPaths
+            isFavorite = entry.isFavorite
         }
         hasLoaded = true
         if (isFutureDate) {
@@ -180,7 +188,12 @@ fun QuestionnaireScreen(
 
     if (isFutureDate) {
         Scaffold(
-            topBar = { TopAppBar(title = { Text("$date") }) }
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text("$date") },
+                    navigationIcon = { BackButton(onBack) }
+                )
+            }
         ) { padding: PaddingValues ->
             Box(modifier = Modifier.fillMaxSize().padding(padding)) {
                 ImportantDayPrompt(
@@ -202,7 +215,21 @@ fun QuestionnaireScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("$date") }) }
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("$date") },
+                navigationIcon = { BackButton(onBack) },
+                actions = {
+                    IconButton(onClick = { isFavorite = !isFavorite }) {
+                        Icon(
+                            if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = "Favorite this day",
+                            tint = if (isFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                        )
+                    }
+                }
+            )
+        }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier
@@ -389,7 +416,8 @@ fun QuestionnaireScreen(
                                 stress = stress.toInt(),
                                 sleep = sleep.toInt(),
                                 photoPaths = photoPaths,
-                                audioPaths = audioPaths
+                                audioPaths = audioPaths,
+                                isFavorite = isFavorite
                             )
                             onDone()
                         }

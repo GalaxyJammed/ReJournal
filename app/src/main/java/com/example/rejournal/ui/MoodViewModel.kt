@@ -4,13 +4,16 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.rejournal.data.CapsuleType
 import com.example.rejournal.data.ImportantDay
 import com.example.rejournal.data.MediaFileHelper
 import com.example.rejournal.data.MoodEntry
 import com.example.rejournal.data.MoodRepository
 import com.example.rejournal.data.StreakCalculator
 import com.example.rejournal.data.StreakInfo
+import com.example.rejournal.data.TimeCapsule
 import com.example.rejournal.notifications.ImportantDayScheduler
+import com.example.rejournal.notifications.TimeCapsuleScheduler
 import com.example.rejournal.widget.AppWidgetsUpdater
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +39,21 @@ class MoodViewModel(
         initialValue = emptyList()
     )
 
+    val allTimeCapsules: StateFlow<List<TimeCapsule>> = repository.allTimeCapsules.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    // Delivered but not yet shown/dismissed on the main screen.
+    val pendingCapsules: StateFlow<List<TimeCapsule>> = allTimeCapsules.map { list ->
+        list.filter { it.delivered && !it.opened }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
     val streakInfo: StateFlow<StreakInfo> = allEntries.map { StreakCalculator.calculate(it) }
         .stateIn(
             scope = viewModelScope,
@@ -55,18 +73,28 @@ class MoodViewModel(
         stress: Int = 3,
         sleep: Int = 3,
         photoPaths: List<String> = emptyList(),
-        audioPaths: List<String> = emptyList()
+        audioPaths: List<String> = emptyList(),
+        isFavorite: Boolean = false
     ) {
         viewModelScope.launch {
             repository.saveEntry(
                 MoodEntry(
                     date = date, mood = mood, activities = activities, note = note,
                     energy = energy, productivity = productivity, stress = stress, sleep = sleep,
-                    photoPaths = photoPaths, audioPaths = audioPaths
+                    photoPaths = photoPaths, audioPaths = audioPaths, isFavorite = isFavorite
                 )
             )
+            checkMoodCapsules(mood)
             AppWidgetsUpdater.updateAll(appContext)
         }
+    }
+
+    private suspend fun checkMoodCapsules(loggedMood: Int) {
+        val undelivered = repository.getUndeliveredCapsulesOnce()
+        undelivered.filter { it.type == CapsuleType.MOOD && it.targetMood == loggedMood }
+            .forEach { capsule ->
+                repository.saveTimeCapsule(capsule.copy(delivered = true, deliveredDate = LocalDate.now()))
+            }
     }
 
     fun deleteEntry(entry: MoodEntry) {
@@ -95,6 +123,52 @@ class MoodViewModel(
         viewModelScope.launch {
             ImportantDayScheduler.cancel(appContext, day.date)
             repository.deleteImportantDay(day)
+        }
+    }
+
+    fun createMoodCapsule(targetMood: Int, message: String) {
+        viewModelScope.launch {
+            repository.saveTimeCapsule(
+                TimeCapsule(
+                    type = CapsuleType.MOOD,
+                    targetMood = targetMood,
+                    message = message,
+                    createdDate = LocalDate.now()
+                )
+            )
+        }
+    }
+
+    fun createTimeCapsule(daysFromNow: Int, message: String) {
+        viewModelScope.launch {
+            val targetDate = LocalDate.now().plusDays(daysFromNow.toLong())
+            val capsule = TimeCapsule(
+                type = CapsuleType.TIME,
+                targetDate = targetDate,
+                message = message,
+                createdDate = LocalDate.now()
+            )
+            repository.saveTimeCapsule(capsule)
+            // Re-fetch to get the row's real generated id before scheduling.
+            val saved = repository.getUndeliveredCapsulesOnce()
+                .filter { it.type == CapsuleType.TIME && it.targetDate == targetDate }
+                .maxByOrNull { it.id }
+            saved?.let { TimeCapsuleScheduler.schedule(appContext, it.id, targetDate) }
+        }
+    }
+
+    fun deleteTimeCapsule(capsule: TimeCapsule) {
+        viewModelScope.launch {
+            if (capsule.type == CapsuleType.TIME) {
+                TimeCapsuleScheduler.cancel(appContext, capsule.id)
+            }
+            repository.deleteTimeCapsule(capsule)
+        }
+    }
+
+    fun dismissCapsule(capsule: TimeCapsule) {
+        viewModelScope.launch {
+            repository.saveTimeCapsule(capsule.copy(opened = true))
         }
     }
 

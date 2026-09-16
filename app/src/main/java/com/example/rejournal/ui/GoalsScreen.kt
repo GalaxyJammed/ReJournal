@@ -35,13 +35,15 @@ import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.GoalDefinition
 import com.example.rejournal.data.GoalProgressCalculator
 import com.example.rejournal.data.GoalProgressPrefs
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalsScreen(
     viewModel: MoodViewModel,
     onGoalClick: (String) -> Unit,
-    onFindGoalClick: () -> Unit
+    onFindGoalClick: () -> Unit,
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
@@ -57,7 +59,7 @@ fun GoalsScreen(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("Goals") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Goals") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier

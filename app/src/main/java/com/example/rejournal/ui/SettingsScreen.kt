@@ -79,10 +79,11 @@ import com.example.rejournal.data.MoodDisplayMode
 import com.example.rejournal.data.MoodPalettes
 import com.example.rejournal.ui.theme.MoodVisualsState
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: MoodViewModel) {
+fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
     var selectedTheme by remember { mutableStateOf(ThemePrefs.getTheme(context)) }
@@ -153,7 +154,7 @@ fun SettingsScreen(viewModel: MoodViewModel) {
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Settings") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Settings") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier

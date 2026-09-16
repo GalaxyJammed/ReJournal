@@ -16,4 +16,16 @@ class Converters {
     @TypeConverter
     fun toActivities(value: String): List<String> =
         if (value.isBlank()) emptyList() else value.split(",")
+
+    @TypeConverter
+    fun fromNullableLocalDate(date: LocalDate?): String? = date?.toString()
+
+    @TypeConverter
+    fun toNullableLocalDate(value: String?): LocalDate? = value?.let { LocalDate.parse(it) }
+
+    @TypeConverter
+    fun fromCapsuleType(type: CapsuleType): String = type.name
+
+    @TypeConverter
+    fun toCapsuleType(value: String): CapsuleType = CapsuleType.valueOf(value)
 }

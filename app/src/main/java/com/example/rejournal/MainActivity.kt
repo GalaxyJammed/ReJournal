@@ -49,6 +49,9 @@ import com.example.rejournal.ui.theme.ReJournalTheme
 import java.time.LocalDate
 import com.example.rejournal.ui.MoodDetailScreen
 import com.example.rejournal.ui.ImportantDaysScreen
+import com.example.rejournal.ui.FavoriteDaysScreen
+import com.example.rejournal.ui.TimeCapsulesScreen
+import com.example.rejournal.ui.CreateTimeCapsuleScreen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +64,7 @@ class MainActivity : FragmentActivity() {
         com.example.rejournal.ui.theme.MoodVisualsState.colors.value = com.example.rejournal.data.MoodAppearancePrefs.getActiveColors(this)
 
         val database = (application as RejournalApplication).database
-        val repository = MoodRepository(database.moodDao(), database.importantDayDao())
+        val repository = MoodRepository(database.moodDao(), database.importantDayDao(), database.timeCapsuleDao())
 
         setContent {
             ReJournalTheme {
@@ -105,7 +108,8 @@ fun AppNavHost(repository: MoodRepository) {
     val bottomBarRoutes = setOf(
         Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
         Screen.Extras.route, Screen.Goals.route, Screen.PhotoAlbum.route,
-        Screen.VoiceMemoAlbum.route, Screen.ImportantDays.route
+        Screen.VoiceMemoAlbum.route, Screen.ImportantDays.route,
+        Screen.FavoriteDays.route, Screen.TimeCapsules.route
     )
 
     Scaffold(
@@ -149,26 +153,33 @@ fun AppNavHost(repository: MoodRepository) {
                     onSearchClick = { navController.navigate(Screen.Search.route) }
                 )
             }
-            composable(Screen.Trend.route) {
-                TrendScreen(viewModel = viewModel)
-            }
             composable(Screen.Stats.route) {
                 StatsScreen(
                     viewModel = viewModel,
                     onMoodClick = { mood -> navController.navigate(Screen.MoodDetail.createRoute(mood)) }
                 )
             }
-            composable(
-                route = Screen.MoodDetail.route,
-                arguments = listOf(navArgument("moodValue") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val moodValue = backStackEntry.arguments?.getInt("moodValue") ?: 3
-                MoodDetailScreen(viewModel = viewModel, moodValue = moodValue)
+            composable(Screen.Trend.route) {
+                TrendScreen(viewModel = viewModel)
             }
             composable(Screen.Search.route) {
                 SearchScreen(
                     viewModel = viewModel,
-                    onResultClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) }
+                    onResultClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = Screen.Questionnaire.route,
+                arguments = listOf(navArgument("date") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val dateString = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
+                val date = LocalDate.parse(dateString)
+                QuestionnaireScreen(
+                    viewModel = viewModel,
+                    date = date,
+                    onDone = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(Screen.Extras.route) {
@@ -177,53 +188,26 @@ fun AppNavHost(repository: MoodRepository) {
                     onPhotoAlbumClick = { navController.navigate(Screen.PhotoAlbum.route) },
                     onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
                     onImportantDaysClick = { navController.navigate(Screen.ImportantDays.route) },
-                    onSettingsClick = { navController.navigate(Screen.Settings.route) }
-                )
-            }
-            composable(Screen.ImportantDays.route) {
-                ImportantDaysScreen(viewModel = viewModel)
-            }
-            composable(Screen.PhotoAlbum.route) {
-                PhotoAlbumScreen(
-                    viewModel = viewModel,
-                    onPhotoClick = { item ->
-                        viewModel.selectedPhoto = item
-                        navController.navigate(Screen.PhotoDetail.route)
-                    }
-                )
-            }
-            composable(Screen.PhotoDetail.route) {
-                val item = viewModel.selectedPhoto
-                if (item != null) {
-                    PhotoDetailScreen(
-                        path = item.path,
-                        date = item.date,
-                        onGoToDay = { date ->
-                            navController.navigate(Screen.Questionnaire.createRoute(date))
-                        }
-                    )
-                }
-            }
-            composable(Screen.VoiceMemoAlbum.route) {
-                VoiceMemoAlbumScreen(
-                    viewModel = viewModel,
-                    onGoToDay = { date ->
-                        navController.navigate(Screen.Questionnaire.createRoute(date))
-                    }
+                    onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                    onBack = { navController.popBackStack() },
+                    onFavoriteDaysClick = { navController.navigate(Screen.FavoriteDays.route) },
+                    onTimeCapsulesClick = { navController.navigate(Screen.TimeCapsules.route) },
                 )
             }
             composable(Screen.Goals.route) {
                 GoalsScreen(
                     viewModel = viewModel,
                     onGoalClick = { id -> navController.navigate(Screen.GoalDetail.createRoute(id)) },
-                    onFindGoalClick = { navController.navigate(Screen.GoalCategories.route) }
+                    onFindGoalClick = { navController.navigate(Screen.GoalCategories.route) },
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(Screen.GoalCategories.route) {
                 GoalCategoryScreen(
                     onCategoryClick = { category ->
                         navController.navigate(Screen.GoalSuggestions.createRoute(category.name))
-                    }
+                    },
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(
@@ -234,7 +218,8 @@ fun AppNavHost(repository: MoodRepository) {
                 val category = GoalCategory.entries.find { it.name == categoryName } ?: GoalCategory.HABITS
                 GoalSuggestionsScreen(
                     category = category,
-                    onGoalSelected = { navController.popBackStack(Screen.Goals.route, inclusive = false) }
+                    onGoalSelected = { navController.popBackStack(Screen.Goals.route, inclusive = false) },
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(
@@ -242,20 +227,68 @@ fun AppNavHost(repository: MoodRepository) {
                 arguments = listOf(navArgument("goalId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val goalId = backStackEntry.arguments?.getString("goalId")!!
-                GoalDetailScreen(viewModel = viewModel, goalId = goalId)
+                GoalDetailScreen(viewModel = viewModel, goalId = goalId, onBack = { navController.popBackStack() })
+            }
+            composable(Screen.PhotoAlbum.route) {
+                PhotoAlbumScreen(
+                    viewModel = viewModel,
+                    onPhotoClick = { item ->
+                        viewModel.selectedPhoto = item
+                        navController.navigate(Screen.PhotoDetail.route)
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.PhotoDetail.route) {
+                val item = viewModel.selectedPhoto
+                if (item != null) {
+                    PhotoDetailScreen(
+                        path = item.path,
+                        date = item.date,
+                        onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+            }
+            composable(Screen.VoiceMemoAlbum.route) {
+                VoiceMemoAlbumScreen(
+                    viewModel = viewModel,
+                    onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.ImportantDays.route) {
+                ImportantDaysScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
             composable(Screen.Settings.route) {
-                SettingsScreen(viewModel = viewModel)
+                SettingsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
             composable(
-                route = Screen.Questionnaire.route,
-                arguments = listOf(navArgument("date") { type = NavType.StringType })
+                route = Screen.MoodDetail.route,
+                arguments = listOf(navArgument("moodValue") { type = NavType.IntType })
             ) { backStackEntry ->
-                val dateArg = backStackEntry.arguments?.getString("date")!!
-                QuestionnaireScreen(
+                val moodValue = backStackEntry.arguments?.getInt("moodValue") ?: 3
+                MoodDetailScreen(viewModel = viewModel, moodValue = moodValue, onBack = { navController.popBackStack() })
+            }
+            composable(Screen.FavoriteDays.route) {
+                FavoriteDaysScreen(
                     viewModel = viewModel,
-                    date = LocalDate.parse(dateArg),
-                    onDone = { navController.popBackStack() }
+                    onDayClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.TimeCapsules.route) {
+                TimeCapsulesScreen(
+                    viewModel = viewModel,
+                    onCreateClick = { navController.navigate(Screen.CreateTimeCapsule.route) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.CreateTimeCapsule.route) {
+                CreateTimeCapsuleScreen(
+                    viewModel = viewModel,
+                    onDone = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

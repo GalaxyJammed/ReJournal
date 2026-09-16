@@ -52,6 +52,10 @@ import java.time.format.TextStyle
 import java.util.Locale
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import com.example.rejournal.data.TimeCapsule
 
 private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 
@@ -74,6 +78,15 @@ fun LogScreen(
     val importantDays by viewModel.allImportantDays.collectAsState()
     val importantDates = remember(importantDays) { importantDays.map { it.date }.toSet() }
 
+    val pendingCapsules by viewModel.pendingCapsules.collectAsState()
+    var capsuleBeingShown by remember { mutableStateOf<TimeCapsule?>(null) }
+
+    LaunchedEffect(pendingCapsules) {
+        if (capsuleBeingShown == null) {
+            capsuleBeingShown = pendingCapsules.firstOrNull()
+        }
+    }
+
     LaunchedEffect(entries) {
         val cutoff = LocalDate.now().minusDays(29)
         val recent = entries.filter { !it.date.isBefore(cutoff) }
@@ -92,7 +105,7 @@ fun LogScreen(
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text("Your Mood Log") },
                 actions = {
                     IconButton(onClick = onSearchClick) {
@@ -195,6 +208,19 @@ fun LogScreen(
                 }
             }
         }
+    }
+    capsuleBeingShown?.let { capsule ->
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.dismissCapsule(capsule)
+                    capsuleBeingShown = null
+                }) { Text("Got it") }
+            },
+            title = { Text("📬 A message from your past self") },
+            text = { Text(capsule.message) }
+        )
     }
 }
 

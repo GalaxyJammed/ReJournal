@@ -1,61 +1,54 @@
 package com.example.rejournal.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MoodEntry
-import com.example.rejournal.data.moodEmojis
 import java.time.LocalDate
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.material.icons.filled.DirectionsRun
-import androidx.compose.material.icons.filled.Hotel
-import androidx.compose.material.icons.filled.MoodBad
-import androidx.compose.material.icons.filled.NoteAlt
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.Psychology
-import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material.icons.filled.WorkOutline
-import androidx.compose.material.icons.filled.AddReaction
-import androidx.compose.ui.Alignment
+
+private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     viewModel: MoodViewModel,
-    onResultClick: (LocalDate) -> Unit
+    onResultClick: (LocalDate) -> Unit,
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
@@ -67,45 +60,53 @@ fun SearchScreen(
     var stressFilter by remember { mutableStateOf<Int?>(null) }
     var sleepFilter by remember { mutableStateOf<Int?>(null) }
     var selectedTags by remember { mutableStateOf(setOf<String>()) }
-
-    val results: List<MoodEntry> = remember(
-        entries, selectedMoods, energyFilter, productivityFilter, stressFilter, sleepFilter, selectedTags
-    ) {
-        entries.filter { entry ->
-            (selectedMoods.isEmpty() || entry.mood in selectedMoods) &&
-                    (energyFilter == null || entry.energy == energyFilter) &&
-                    (productivityFilter == null || entry.productivity == productivityFilter) &&
-                    (stressFilter == null || entry.stress == stressFilter) &&
-                    (sleepFilter == null || entry.sleep == sleepFilter) &&
-                    (selectedTags.isEmpty() || selectedTags.all { it in entry.activities })
-        }.sortedByDescending { it.date }
-    }
+    var favoritesOnly by remember { mutableStateOf(false) }
 
     val hasFilters = selectedMoods.isNotEmpty() ||
             selectedTags.isNotEmpty() ||
+            favoritesOnly ||
             energyFilter != null ||
             productivityFilter != null ||
             stressFilter != null ||
             sleepFilter != null
 
+    val results: List<MoodEntry> = remember(
+        entries, selectedMoods, energyFilter, productivityFilter, stressFilter, sleepFilter, selectedTags, favoritesOnly
+    ) {
+        if (!hasFilters) {
+            emptyList()
+        } else {
+            entries.filter { entry ->
+                (selectedMoods.isEmpty() || entry.mood in selectedMoods) &&
+                        (energyFilter == null || entry.energy == energyFilter) &&
+                        (productivityFilter == null || entry.productivity == productivityFilter) &&
+                        (stressFilter == null || entry.stress == stressFilter) &&
+                        (sleepFilter == null || entry.sleep == sleepFilter) &&
+                        (!favoritesOnly || entry.isFavorite) &&
+                        (selectedTags.isEmpty() || selectedTags.all { it in entry.activities })
+            }.sortedByDescending { it.date }
+        }
+    }
+
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Search") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Search") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(padding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    SectionHeader(Icons.Filled.AddReaction, "Mood")
+                    Text("Mood", style = MaterialTheme.typography.titleMedium)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        (1..5).forEach { moodValue ->
+                        moodEmojis.forEachIndexed { index, emoji ->
+                            val moodValue = index + 1
                             FilterChip(
                                 selected = moodValue in selectedMoods,
                                 onClick = {
@@ -115,17 +116,30 @@ fun SearchScreen(
                                         selectedMoods + moodValue
                                     }
                                 },
-                                label = { MoodGlyph(moodValue) }
+                                label = { Text(emoji, style = MaterialTheme.typography.headlineSmall) }
                             )
                         }
                     }
 
-                    SingleValueFilter(icon = Icons.Filled.TrendingUp, label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
-                    SingleValueFilter(icon = Icons.Filled.WorkOutline, label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
-                    SingleValueFilter(icon = Icons.Filled.Psychology, label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
-                    SingleValueFilter(icon = Icons.Filled.Hotel, label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
+                    FilterChip(
+                        selected = favoritesOnly,
+                        onClick = { favoritesOnly = !favoritesOnly },
+                        label = { Text("Favorites") },
+                        leadingIcon = {
+                            Icon(
+                                if (favoritesOnly) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    )
 
-                    SectionHeader(Icons.Filled.DirectionsRun, "Activities (All selected must match)")
+                    SingleValueFilter(label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
+                    SingleValueFilter(label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
+                    SingleValueFilter(label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
+                    SingleValueFilter(label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
+
+                    Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium)
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(availableTags) { tag ->
                             FilterChip(
@@ -135,7 +149,7 @@ fun SearchScreen(
                                 },
                                 label = { Text(tag) },
                                 leadingIcon = {
-                                    androidx.compose.material3.Icon(
+                                    Icon(
                                         com.example.rejournal.data.ActivityIcons.resolve(tag, com.example.rejournal.data.ActivityTagsPrefs.getIconIdForTag(context, tag)),
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
@@ -149,6 +163,7 @@ fun SearchScreen(
                         TextButton(onClick = {
                             selectedMoods = emptySet()
                             selectedTags = emptySet()
+                            favoritesOnly = false
                             energyFilter = null
                             productivityFilter = null
                             stressFilter = null
@@ -158,14 +173,15 @@ fun SearchScreen(
                         }
                     }
 
-                    Text(
-                        "${results.size} result${if (results.size == 1) "" else "s"}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    if (hasFilters && results.isEmpty()) {
-                        Text("No days match these filters.")
-                    } else if (!hasFilters) {
+                    if (hasFilters) {
+                        Text(
+                            "${results.size} result${if (results.size == 1) "" else "s"}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        if (results.isEmpty()) {
+                            Text("No days match these filters.")
+                        }
+                    } else {
                         Text("Select a filter above to search your entries.")
                     }
                 }
@@ -177,10 +193,19 @@ fun SearchScreen(
                     onClick = { onResultClick(entry.date) }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            "${moodEmojis[entry.mood - 1]}  ${entry.date}",
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "${moodEmojis[entry.mood - 1]}  ${entry.date}",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            if (entry.isFavorite) {
+                                Icon(Icons.Filled.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            }
+                        }
                         if (entry.activities.isNotEmpty()) {
                             Text(
                                 entry.activities.joinToString(", "),
@@ -199,7 +224,6 @@ fun SearchScreen(
 
 @Composable
 private fun SingleValueFilter(
-    icon: ImageVector,
     label: String,
     value: Int?,
     onValueChange: (Int?) -> Unit
@@ -208,34 +232,21 @@ private fun SingleValueFilter(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
-                Text(
-                    label,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
+            Text(label, style = MaterialTheme.typography.titleMedium)
             Row(
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    value?.toString() ?: "Off",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Text(value?.toString() ?: "Off", style = MaterialTheme.typography.titleMedium)
                 if (value != null) {
                     Icon(
                         Icons.Filled.Close,
                         contentDescription = "Clear $label filter",
                         modifier = Modifier
                             .size(20.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                CircleShape
-                            )
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                             .clickable { onValueChange(null) }
                             .padding(3.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant

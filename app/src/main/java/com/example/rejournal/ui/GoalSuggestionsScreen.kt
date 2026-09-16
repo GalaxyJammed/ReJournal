@@ -25,12 +25,14 @@ import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.GoalCategory
 import com.example.rejournal.data.GoalDefinitions
 import com.example.rejournal.data.GoalProgressPrefs
+import androidx.compose.material3.CenterAlignedTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalSuggestionsScreen(
     category: GoalCategory,
-    onGoalSelected: () -> Unit
+    onGoalSelected: () -> Unit,
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val suggestions = remember {
@@ -39,7 +41,7 @@ fun GoalSuggestionsScreen(
     var showFullDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(category.displayName) }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text(category.displayName) }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier
