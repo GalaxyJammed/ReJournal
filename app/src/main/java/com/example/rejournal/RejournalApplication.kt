@@ -12,25 +12,30 @@ import com.example.rejournal.data.AppDatabase
 class RejournalApplication : Application() {
     val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
 
-
     var isUnlockedThisSession by mutableStateOf(false)
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
+        createNotificationChannels()
     }
 
-    private fun createNotificationChannel() {
+    private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "daily_reminder",
-                "Daily Mood Reminder",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "Reminds you to log your mood each day"
-            }
             val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    "daily_reminder",
+                    "Daily Mood Reminder",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply { description = "Reminds you to log your mood each day" }
+            )
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    "important_days",
+                    "Important Days",
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply { description = "Notifies you on days you've marked as important" }
+            )
         }
     }
 }

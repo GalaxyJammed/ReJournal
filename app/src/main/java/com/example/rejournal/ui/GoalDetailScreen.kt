@@ -61,7 +61,6 @@ fun GoalDetailScreen(
     val successRate = if (state.attempts > 0) (state.completions * 100 / state.attempts) else null
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { TopAppBar(title = { Text(definition.title) }) }
     ) { padding: PaddingValues ->
         Column(

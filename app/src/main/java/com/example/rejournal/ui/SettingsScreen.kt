@@ -153,7 +153,6 @@ fun SettingsScreen(viewModel: MoodViewModel) {
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { TopAppBar(title = { Text("Settings") }) }
     ) { padding: PaddingValues ->
         Column(

@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.Star
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +31,8 @@ fun ExtrasScreen(
     onGoalsClick: () -> Unit,
     onPhotoAlbumClick: () -> Unit,
     onVoiceMemoAlbumClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onImportantDaysClick: () -> Unit
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -63,6 +65,13 @@ fun ExtrasScreen(
             ) {
                 Icon(Icons.Filled.Mic, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
                 Text("Voice Memos", style = MaterialTheme.typography.titleMedium)
+            }
+            Button(
+                onClick = onImportantDaysClick,
+                modifier = Modifier.fillMaxWidth().height(64.dp)
+            ) {
+                Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+                Text("Important Days", style = MaterialTheme.typography.titleMedium)
             }
             Button(
                 onClick = onSettingsClick,

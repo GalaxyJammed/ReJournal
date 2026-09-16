@@ -71,6 +71,8 @@
                 android:resource="@xml/goals_widget_info" />
         </receiver>
 
+        <receiver android:name=".notifications.ImportantDayReceiver" android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

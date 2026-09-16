@@ -48,6 +48,7 @@ import com.example.rejournal.ui.TrendScreen
 import com.example.rejournal.ui.theme.ReJournalTheme
 import java.time.LocalDate
 import com.example.rejournal.ui.MoodDetailScreen
+import com.example.rejournal.ui.ImportantDaysScreen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +60,8 @@ class MainActivity : FragmentActivity() {
         com.example.rejournal.ui.theme.MoodVisualsState.mode.value = com.example.rejournal.data.MoodAppearancePrefs.getMode(this)
         com.example.rejournal.ui.theme.MoodVisualsState.colors.value = com.example.rejournal.data.MoodAppearancePrefs.getActiveColors(this)
 
-        val repository = MoodRepository((application as RejournalApplication).database.moodDao())
+        val database = (application as RejournalApplication).database
+        val repository = MoodRepository(database.moodDao(), database.importantDayDao())
 
         setContent {
             ReJournalTheme {
@@ -102,7 +104,8 @@ fun AppNavHost(repository: MoodRepository) {
     val currentRoute = backStackEntry?.destination?.route
     val bottomBarRoutes = setOf(
         Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
-        Screen.Extras.route, Screen.Goals.route, Screen.PhotoAlbum.route, Screen.VoiceMemoAlbum.route
+        Screen.Extras.route, Screen.Goals.route, Screen.PhotoAlbum.route,
+        Screen.VoiceMemoAlbum.route, Screen.ImportantDays.route
     )
 
     Scaffold(
@@ -173,8 +176,12 @@ fun AppNavHost(repository: MoodRepository) {
                     onGoalsClick = { navController.navigate(Screen.Goals.route) },
                     onPhotoAlbumClick = { navController.navigate(Screen.PhotoAlbum.route) },
                     onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
+                    onImportantDaysClick = { navController.navigate(Screen.ImportantDays.route) },
                     onSettingsClick = { navController.navigate(Screen.Settings.route) }
                 )
+            }
+            composable(Screen.ImportantDays.route) {
+                ImportantDaysScreen(viewModel = viewModel)
             }
             composable(Screen.PhotoAlbum.route) {
                 PhotoAlbumScreen(

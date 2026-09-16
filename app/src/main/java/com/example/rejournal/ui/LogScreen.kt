@@ -51,6 +51,7 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.material.icons.filled.Star
 
 private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 
@@ -69,6 +70,9 @@ fun LogScreen(
     var motivationalMessage by remember { mutableStateOf<String?>(null) }
 
     val moodColors = moodColorList()
+
+    val importantDays by viewModel.allImportantDays.collectAsState()
+    val importantDates = remember(importantDays) { importantDays.map { it.date }.toSet() }
 
     LaunchedEffect(entries) {
         val cutoff = LocalDate.now().minusDays(29)
@@ -157,6 +161,7 @@ fun LogScreen(
                     moodColors = moodColors,
                     currentMonth = currentMonth,
                     entriesByDate = entriesByDate,
+                    importantDates = importantDates,
                     onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
                     onNextMonth = { currentMonth = currentMonth.plusMonths(1) },
                     onDayClick = onDayClick
@@ -198,6 +203,7 @@ private fun CalendarMonthView(
     moodColors: List<Color>,
     currentMonth: YearMonth,
     entriesByDate: Map<LocalDate, MoodEntry>,
+    importantDates: Set<LocalDate>,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onDayClick: (LocalDate) -> Unit
@@ -261,6 +267,18 @@ private fun CalendarMonthView(
                                     style = MaterialTheme.typography.bodyMedium,
                                     textAlign = TextAlign.Center
                                 )
+
+                                if (date in importantDates) {
+                                    Icon(
+                                        Icons.Filled.Star,
+                                        contentDescription = "Important day",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .padding(4.dp)
+                                            .size(12.dp)
+                                    )
+                                }
                             }
                         }
                     }

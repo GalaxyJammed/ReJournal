@@ -88,6 +88,7 @@ import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rejournal.data.ActivityIcons
 import com.example.rejournal.data.moodEmojis
+import com.example.rejournal.data.ImportantDay
 
 private const val TOP_TAG_COUNT = 3
 
@@ -121,6 +122,9 @@ fun QuestionnaireScreen(
     var audioPaths by remember { mutableStateOf(listOf<String>()) }
     var pendingPhotoFile by remember { mutableStateOf<File?>(null) }
 
+    val isFutureDate = date.isAfter(LocalDate.now())
+    var existingImportantDay by remember { mutableStateOf<ImportantDay?>(null) }
+
     LaunchedEffect(date) {
         val entry = viewModel.getEntryForDate(date)
         existingEntry = entry
@@ -136,6 +140,9 @@ fun QuestionnaireScreen(
             audioPaths = entry.audioPaths
         }
         hasLoaded = true
+        if (isFutureDate) {
+            existingImportantDay = viewModel.getImportantDayForDate(date)
+        }
     }
 
     val tagUsageCounts = remember(allEntries) {
@@ -170,6 +177,29 @@ fun QuestionnaireScreen(
     }
 
     if (!hasLoaded) return
+
+    if (isFutureDate) {
+        Scaffold(
+            topBar = { TopAppBar(title = { Text("$date") }) }
+        ) { padding: PaddingValues ->
+            Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+                ImportantDayPrompt(
+                    date = date,
+                    existing = existingImportantDay,
+                    onMark = { message ->
+                        viewModel.saveImportantDay(date, message)
+                        onDone()
+                    },
+                    onRemove = {
+                        existingImportantDay?.let { viewModel.deleteImportantDay(it) }
+                        onDone()
+                    },
+                    onCancel = onDone
+                )
+            }
+        }
+        return
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("$date") }) }

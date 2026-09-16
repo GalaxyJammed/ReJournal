@@ -26,4 +26,5 @@ sealed class Screen(val route: String) {
     object Questionnaire : Screen("questionnaire/{date}") {
         fun createRoute(date: LocalDate): String = "questionnaire/$date"
     }
+    object ImportantDays : Screen("importantDays")
 }
