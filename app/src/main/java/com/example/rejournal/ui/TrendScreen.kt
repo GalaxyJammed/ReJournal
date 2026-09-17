@@ -23,6 +23,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +55,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -58,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.rejournal.data.ActivityIcons
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.ImageSaveHelper
 import com.example.rejournal.data.MoodEntry
@@ -148,12 +155,15 @@ fun TrendScreen(viewModel: MoodViewModel) {
                 Text("Create Constellation")
             }
 
-            TrendSliderFilter(label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
-            TrendSliderFilter(label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
-            TrendSliderFilter(label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
-            TrendSliderFilter(label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
+            TrendSliderFilter(icon = Icons.Filled.TrendingUp, label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
+            TrendSliderFilter(icon = Icons.Filled.WorkOutline, label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
+            TrendSliderFilter(icon = Icons.Filled.Psychology, label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
+            TrendSliderFilter(icon = Icons.Filled.Hotel, label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
 
-            Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.DirectionsRun, contentDescription = null, modifier = Modifier.size(20.dp))
+                Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+            }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(availableTags) { tag ->
                     FilterChip(
@@ -161,7 +171,14 @@ fun TrendScreen(viewModel: MoodViewModel) {
                         onClick = {
                             selectedTags = if (tag in selectedTags) selectedTags - tag else selectedTags + tag
                         },
-                        label = { Text(tag) }
+                        label = { Text(tag) },
+                        leadingIcon = {
+                            Icon(
+                                ActivityIcons.resolve(tag, ActivityTagsPrefs.getIconIdForTag(context, tag)),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     )
                 }
             }
@@ -178,6 +195,7 @@ fun TrendScreen(viewModel: MoodViewModel) {
 
 @Composable
 private fun TrendSliderFilter(
+    icon: ImageVector,
     label: String,
     value: Int?,
     onValueChange: (Int?) -> Unit
@@ -188,7 +206,10 @@ private fun TrendSliderFilter(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(label, style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+                Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

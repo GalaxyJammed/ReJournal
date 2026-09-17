@@ -37,6 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.AddReaction
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.WorkOutline
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MoodEntry
 import java.time.LocalDate
@@ -119,7 +126,10 @@ fun SearchScreen(
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Mood", style = MaterialTheme.typography.titleMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.AddReaction, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Text("Mood", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+                    }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -153,12 +163,15 @@ fun SearchScreen(
                         }
                     )
 
-                    SingleValueFilter(label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
-                    SingleValueFilter(label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
-                    SingleValueFilter(label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
-                    SingleValueFilter(label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
+                    SingleValueFilter(icon = Icons.Filled.TrendingUp, label = "Energy", value = energyFilter, onValueChange = { energyFilter = it })
+                    SingleValueFilter(icon = Icons.Filled.WorkOutline, label = "Productivity", value = productivityFilter, onValueChange = { productivityFilter = it })
+                    SingleValueFilter(icon = Icons.Filled.Psychology, label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
+                    SingleValueFilter(icon = Icons.Filled.Hotel, label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
 
-                    Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.DirectionsRun, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+                    }
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(availableTags) { tag ->
                             FilterChip(
@@ -229,6 +242,7 @@ fun SearchScreen(
 
 @Composable
 private fun SingleValueFilter(
+    icon: ImageVector,
     label: String,
     value: Int?,
     onValueChange: (Int?) -> Unit
@@ -239,7 +253,10 @@ private fun SingleValueFilter(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(label, style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+                Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
