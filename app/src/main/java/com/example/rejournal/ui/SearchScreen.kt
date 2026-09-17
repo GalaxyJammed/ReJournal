@@ -89,7 +89,26 @@ fun SearchScreen(
     }
 
     Scaffold(
-        topBar = { CenterAlignedTopAppBar(title = { Text("Search") }, navigationIcon = { BackButton(onBack) }) }
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Search") },
+                actions = {
+                    if (hasFilters) {
+                        TextButton(onClick = {
+                            selectedMoods = emptySet()
+                            selectedTags = emptySet()
+                            favoritesOnly = false
+                            energyFilter = null
+                            productivityFilter = null
+                            stressFilter = null
+                            sleepFilter = null
+                        }) {
+                            Text("Clear")
+                        }
+                    }
+                }
+            )
+        }
     ) { padding: PaddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -156,20 +175,6 @@ fun SearchScreen(
                                     )
                                 }
                             )
-                        }
-                    }
-
-                    if (hasFilters) {
-                        TextButton(onClick = {
-                            selectedMoods = emptySet()
-                            selectedTags = emptySet()
-                            favoritesOnly = false
-                            energyFilter = null
-                            productivityFilter = null
-                            stressFilter = null
-                            sleepFilter = null
-                        }) {
-                            Text("Clear filters")
                         }
                     }
 
