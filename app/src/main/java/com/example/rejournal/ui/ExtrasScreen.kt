@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.MilitaryTech
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +44,8 @@ fun ExtrasScreen(
     onFavoriteDaysClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onBack: () -> Unit,
-    onTimeCapsulesClick: () -> Unit
+    onTimeCapsulesClick: () -> Unit,
+    onAchievementsClick: () -> Unit
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -60,6 +62,8 @@ fun ExtrasScreen(
                 ExtrasRow(Icons.Filled.EmojiEvents, "Goals", onGoalsClick)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.History, "Time Capsules", onTimeCapsulesClick)
+                HorizontalDivider()
+                ExtrasRow(Icons.Filled.MilitaryTech, "Achievements", onAchievementsClick)
             }
 
             ExtrasCard {

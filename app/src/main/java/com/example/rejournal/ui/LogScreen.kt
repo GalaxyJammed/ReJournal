@@ -56,6 +56,16 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import com.example.rejournal.data.TimeCapsule
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import com.example.rejournal.data.ReflectionPrefs
+import kotlin.random.Random
+import com.example.rejournal.data.AchievementCalculator
+import com.example.rejournal.data.AchievementDefinitions
+import com.example.rejournal.data.AchievementPrefs
+import com.example.rejournal.data.AchievementTier
+import com.example.rejournal.data.GoalProgressPrefs
+import androidx.compose.material.icons.filled.Favorite
 
 private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 
@@ -64,7 +74,8 @@ private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 fun LogScreen(
     viewModel: MoodViewModel,
     onDayClick: (LocalDate) -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    onVisitPositiveMemory: (MoodEntry) -> Unit
 ) {
     val entries by viewModel.allEntries.collectAsState()
     val streak by viewModel.streakInfo.collectAsState()
@@ -98,9 +109,54 @@ fun LogScreen(
         }
     }
 
+    var reflectionState by remember { mutableStateOf<Pair<String, MoodEntry>?>(null) }
+    var hasCheckedReflectionToday by remember { mutableStateOf(false) }
+
+    LaunchedEffect(entries) {
+        if (hasCheckedReflectionToday) return@LaunchedEffect
+        val today = LocalDate.now()
+        val loggedToday = entries.any { it.date == today }
+        if (loggedToday) return@LaunchedEffect
+        if (ReflectionPrefs.hasRolledToday(context)) return@LaunchedEffect
+
+        hasCheckedReflectionToday = true
+        ReflectionPrefs.markRolledToday(context)
+
+        if (Random.nextFloat() < ReflectionPrefs.DAILY_CHANCE) {
+            val weekEntry = entries.find { it.date == today.minusWeeks(1) }
+            val monthEntry = entries.find { it.date == today.minusMonths(1) }
+            reflectionState = when {
+                weekEntry != null -> "last week" to weekEntry
+                monthEntry != null -> "last month" to monthEntry
+                else -> null
+            }
+        }
+    }
+
     var viewMode by remember { mutableStateOf(LogViewMode.CALENDAR) }
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     var currentYear by remember { mutableStateOf(LocalDate.now().year) }
+
+    val timeCapsulesForAchievements by viewModel.allTimeCapsules.collectAsState()
+    val goalCompletionsForAchievements = remember(entries) { GoalProgressPrefs.totalCompletions(context) }
+    var achievementQueue by remember { mutableStateOf(listOf<AchievementTier>()) }
+
+    LaunchedEffect(entries, timeCapsulesForAchievements) {
+        val newly = AchievementCalculator.computeNewlyUnlockedTierIds(
+            context, entries, goalCompletionsForAchievements, timeCapsulesForAchievements.size
+        )
+        if (newly.isNotEmpty()) {
+            AchievementPrefs.markUnlocked(context, newly)
+            achievementQueue = achievementQueue + AchievementDefinitions.allTiers.filter { it.id in newly }
+        }
+    }
+
+    var positiveMemoryEntry by remember { mutableStateOf<MoodEntry?>(null) }
+
+    LaunchedEffect(entries) {
+        val candidates = entries.filter { it.mood >= 4 && it.date != LocalDate.now() }
+        positiveMemoryEntry = if (candidates.isNotEmpty()) candidates[Random.nextInt(candidates.size)] else null
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -189,12 +245,22 @@ fun LogScreen(
                     onDayClick = onDayClick
                 )
             }
+            positiveMemoryEntry?.let { memoryEntry ->
+                OutlinedButton(
+                    onClick = { onVisitPositiveMemory(memoryEntry) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text("Visit Past Positive Memory")
+                }
+            }
 
             motivationalMessage?.let { message ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 20.dp),
+                        .padding(top = 16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     )
@@ -220,6 +286,43 @@ fun LogScreen(
             },
             title = { Text("📬 A message from your past self") },
             text = { Text(capsule.message) }
+        )
+    }
+    achievementQueue.firstOrNull()?.let { tier ->
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {
+                TextButton(onClick = { achievementQueue = achievementQueue.drop(1) }) { Text("Nice!") }
+            },
+            title = { Text("🏆 Achievement Unlocked!") },
+            text = {
+                Column {
+                    Text(tier.title, style = MaterialTheme.typography.titleMedium)
+                    Text(tier.description, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        )
+    }
+    reflectionState?.let { (label, pastEntry) ->
+        AlertDialog(
+            onDismissRequest = { reflectionState = null },
+            confirmButton = {
+                TextButton(onClick = {
+                    reflectionState = null
+                    onDayClick(LocalDate.now())
+                }) { Text("Log Today") }
+            },
+            dismissButton = {
+                TextButton(onClick = { reflectionState = null }) { Text("Not now") }
+            },
+            title = { Text("A quick reflection") },
+            text = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("$label on this day, you felt ")
+                    MoodGlyph(pastEntry.mood, size = 20.dp)
+                    Text(". How do you feel now?")
+                }
+            }
         )
     }
 }
@@ -301,8 +404,17 @@ private fun CalendarMonthView(
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier
                                             .align(Alignment.TopEnd)
-                                            .padding(4.dp)
-                                            .size(12.dp)
+                                            .size(14.dp)
+                                    )
+                                }
+                                if (entry?.isFavorite == true) {
+                                    Icon(
+                                        Icons.Filled.Favorite,
+                                        contentDescription = "Favorite day",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier
+                                            .align(Alignment.TopStart)
+                                            .size(14.dp)
                                     )
                                 }
                             }

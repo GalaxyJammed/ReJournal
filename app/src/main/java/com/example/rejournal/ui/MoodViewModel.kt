@@ -62,6 +62,7 @@ class MoodViewModel(
         )
 
     var selectedPhoto: com.example.rejournal.data.MediaItem? = null
+    var selectedPositiveMemory: MoodEntry? = null
 
     fun saveEntry(
         date: LocalDate,

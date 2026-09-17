@@ -52,6 +52,8 @@ import com.example.rejournal.ui.ImportantDaysScreen
 import com.example.rejournal.ui.FavoriteDaysScreen
 import com.example.rejournal.ui.TimeCapsulesScreen
 import com.example.rejournal.ui.CreateTimeCapsuleScreen
+import com.example.rejournal.ui.AchievementsScreen
+import com.example.rejournal.ui.PositiveMemoryScreen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,7 +111,8 @@ fun AppNavHost(repository: MoodRepository) {
         Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
         Screen.Extras.route, Screen.Goals.route, Screen.PhotoAlbum.route,
         Screen.VoiceMemoAlbum.route, Screen.ImportantDays.route,
-        Screen.FavoriteDays.route, Screen.TimeCapsules.route
+        Screen.FavoriteDays.route, Screen.TimeCapsules.route,
+        Screen.Achievements.route, Screen.PositiveMemory.route
     )
 
     Scaffold(
@@ -150,7 +153,11 @@ fun AppNavHost(repository: MoodRepository) {
                 LogScreen(
                     viewModel = viewModel,
                     onDayClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
-                    onSearchClick = { navController.navigate(Screen.Search.route) }
+                    onSearchClick = { navController.navigate(Screen.Search.route) },
+                    onVisitPositiveMemory = { entry ->
+                        viewModel.selectedPositiveMemory = entry
+                        navController.navigate(Screen.PositiveMemory.route)
+                    },
                 )
             }
             composable(Screen.Stats.route) {
@@ -192,6 +199,7 @@ fun AppNavHost(repository: MoodRepository) {
                     onBack = { navController.popBackStack() },
                     onFavoriteDaysClick = { navController.navigate(Screen.FavoriteDays.route) },
                     onTimeCapsulesClick = { navController.navigate(Screen.TimeCapsules.route) },
+                    onAchievementsClick = { navController.navigate(Screen.Achievements.route) },
                 )
             }
             composable(Screen.Goals.route) {
@@ -290,6 +298,19 @@ fun AppNavHost(repository: MoodRepository) {
                     onDone = { navController.popBackStack() },
                     onBack = { navController.popBackStack() }
                 )
+            }
+            composable(Screen.Achievements.route) {
+                AchievementsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+            }
+            composable(Screen.PositiveMemory.route) {
+                val entry = viewModel.selectedPositiveMemory
+                if (entry != null) {
+                    PositiveMemoryScreen(
+                        entry = entry,
+                        onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
+                        onBack = { navController.popBackStack() }
+                    )
+                }
             }
         }
     }

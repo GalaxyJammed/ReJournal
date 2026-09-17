@@ -77,6 +77,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.ui.graphics.Path
 import kotlin.math.cos
 import kotlin.math.sin
+import androidx.compose.foundation.clickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,6 +223,7 @@ private fun TrendSliderFilter(
                         modifier = Modifier
                             .size(20.dp)
                             .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                            .clickable { onValueChange(null) }
                             .padding(3.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )

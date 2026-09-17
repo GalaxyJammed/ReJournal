@@ -96,7 +96,9 @@ fun GoalDetailScreen(
                         Text("In progress: $progress / ${definition.target}", style = MaterialTheme.typography.titleMedium)
                         LinearProgressIndicator(
                             progress = { (progress.toFloat() / definition.target).coerceIn(0f, 1f) },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            gapSize = 0.dp,
+                            drawStopIndicator = {}
                         )
                     }
                 }
