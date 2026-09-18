@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,13 +50,11 @@ fun MainBottomBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .height(80.dp)
+            .height(64.dp)
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp)
-                .align(Alignment.BottomCenter),
+                .fillMaxSize(),
             tonalElevation = 3.dp
         ) {
             Row(
@@ -104,6 +103,7 @@ fun MainBottomBar(
             onClick = onAddClick,
             modifier = Modifier
                 .align(Alignment.TopCenter)
+                .offset(y = (-16).dp)
                 .size(56.dp)
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add entry")

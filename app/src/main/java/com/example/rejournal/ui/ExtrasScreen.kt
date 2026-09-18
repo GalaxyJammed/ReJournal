@@ -31,8 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MilitaryTech
+import androidx.compose.material.icons.filled.Person
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,18 +46,21 @@ fun ExtrasScreen(
     onImportantDaysClick: () -> Unit,
     onFavoriteDaysClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onBack: () -> Unit,
     onTimeCapsulesClick: () -> Unit,
-    onAchievementsClick: () -> Unit
+    onAchievementsClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { CenterAlignedTopAppBar(title = { Text("Extras") }, navigationIcon = { BackButton(onBack) }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Extras") }) }
     ) { padding: PaddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScrollbar(scrollState)
+                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -79,6 +85,8 @@ fun ExtrasScreen(
             }
 
             ExtrasCard {
+                ExtrasRow(Icons.Filled.Person, "Profile", onProfileClick)
+                HorizontalDivider()
                 ExtrasRow(Icons.Filled.Settings, "Settings", onSettingsClick)
             }
         }

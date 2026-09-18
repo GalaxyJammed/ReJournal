@@ -4,6 +4,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,9 +19,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,9 +41,6 @@ import com.example.rejournal.data.LockPrefs
 
 private const val PIN_LENGTH = 4
 
-private val warmGradient = Brush.verticalGradient(
-    colors = listOf(Color(0xFFFFF3E0), Color(0xFFFFE0B2))
-)
 
 @Composable
 fun LockScreen(activity: FragmentActivity, onUnlocked: () -> Unit) {
@@ -104,79 +104,89 @@ fun LockScreen(activity: FragmentActivity, onUnlocked: () -> Unit) {
         }
     }
 
+    val backgroundBrush = Brush.verticalGradient(
+        colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceContainerHigh)
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(warmGradient)
+            .background(backgroundBrush)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (!pinEnabled) {
-            Text("Unlock ReJournal", style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(24.dp))
-            Icon(
-                Icons.Filled.Fingerprint,
-                contentDescription = "Use fingerprint",
-                modifier = Modifier
-                    .size(72.dp)
-                    .clickable { biometricPrompt.authenticate(promptInfo) }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                errorMessage ?: "Tap to unlock with fingerprint",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            return@Column
-        }
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (!pinEnabled) {
+                    Text("Unlock ReJournal", style = MaterialTheme.typography.headlineSmall)
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Icon(
+                        Icons.Filled.Fingerprint,
+                        contentDescription = "Use fingerprint",
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clickable { biometricPrompt.authenticate(promptInfo) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        errorMessage ?: "Tap to unlock with fingerprint",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    Text("Enter PIN", style = MaterialTheme.typography.headlineSmall)
+                    Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Enter PIN", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            repeat(PIN_LENGTH) { index ->
-                val filled = index < enteredPin.length
-                Box(
-                    modifier = Modifier
-                        .size(16.dp)
-                        .background(
-                            if (filled) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
-                            CircleShape
-                        )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            errorMessage ?: " ",
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-
-        val rows = listOf(
-            listOf("1", "2", "3"),
-            listOf("4", "5", "6"),
-            listOf("7", "8", "9"),
-            listOf(if (canUseFingerprint) "fingerprint" else "", "0", "backspace")
-        )
-
-        rows.forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                row.forEach { key ->
-                    KeypadButton(key = key, onDigitEntered = ::onDigitEntered) {
-                        when (key) {
-                            "backspace" -> {
-                                errorMessage = null
-                                enteredPin = enteredPin.dropLast(1)
-                            }
-                            "fingerprint" -> biometricPrompt.authenticate(promptInfo)
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        repeat(PIN_LENGTH) { index ->
+                            val filled = index < enteredPin.length
+                            Box(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .background(
+                                        if (filled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                        CircleShape
+                                    )
+                            )
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        errorMessage ?: " ",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    val rows = listOf(
+                        listOf("1", "2", "3"),
+                        listOf("4", "5", "6"),
+                        listOf("7", "8", "9"),
+                        listOf(if (canUseFingerprint) "fingerprint" else "", "0", "backspace")
+                    )
+
+                    rows.forEach { row ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                            row.forEach { key ->
+                                KeypadButton(key = key, onDigitEntered = ::onDigitEntered) {
+                                    when (key) {
+                                        "backspace" -> {
+                                            errorMessage = null
+                                            enteredPin = enteredPin.dropLast(1)
+                                        }
+                                        "fingerprint" -> biometricPrompt.authenticate(promptInfo)
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -190,6 +200,7 @@ private fun KeypadButton(
     Box(
         modifier = Modifier
             .size(64.dp)
+            .clip(CircleShape)
             .clickable(enabled = key.isNotEmpty()) {
                 if (key.toIntOrNull() != null) onDigitEntered(key) else onSpecialKey()
             },

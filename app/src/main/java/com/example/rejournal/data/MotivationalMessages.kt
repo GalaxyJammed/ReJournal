@@ -1,12 +1,14 @@
 package com.example.rejournal.data
 
+import kotlin.random.Random
+
 object MotivationalMessages {
 
     private val veryTough = listOf(
         "The road to growth isn't easy. Take small steps each day.",
         "You don't have to have it all figured out today.",
         "This is hard right now, and that's not because of you. You're not alone.",
-        "Don't let emptiness guide your soul."
+        "Don't let emptiness guide your soul.",
     )
 
     private val tough = listOf(
@@ -44,5 +46,26 @@ object MotivationalMessages {
         3 -> neutral
         4 -> good
         else -> great
+    }
+
+    fun getSmartInsight(entries: List<MoodEntry>): String? {
+        if (entries.size < 5) return null
+
+        val highMoodActivities = entries
+            .filter { it.mood >= 4 }
+            .flatMap { it.activities }
+            .groupingBy { it }
+            .eachCount()
+            .filter { it.value >= 2 }
+
+        if (highMoodActivities.isEmpty()) return null
+
+        val topActivity = highMoodActivities.maxByOrNull { it.value }?.key ?: return null
+
+        return when (Random.nextInt(3)) {
+            0 -> "You often feel great after $topActivity. Maybe today is a good day for one?"
+            1 -> "It seems like $topActivity really boosts your spirit. Worth a try today?"
+            else -> "Notice how $topActivity often leads to good days? Keep it up!"
+        }
     }
 }

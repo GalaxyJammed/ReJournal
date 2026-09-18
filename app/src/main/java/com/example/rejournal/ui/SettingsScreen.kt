@@ -20,10 +20,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -64,6 +69,7 @@ import com.example.rejournal.data.AppTheme
 import com.example.rejournal.data.ThemePrefs
 import com.example.rejournal.ui.theme.ThemeState
 import com.example.rejournal.ui.theme.previewColorFor
+import com.example.rejournal.ui.theme.themePreviewColors
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -74,6 +80,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.rejournal.data.MoodAppearancePrefs
 import com.example.rejournal.data.MoodDisplayMode
 import com.example.rejournal.data.MoodPalettes
@@ -111,6 +118,8 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     var customColors by remember { mutableStateOf(MoodAppearancePrefs.getCustomColors(context)) }
     var editingColorIndex by remember { mutableStateOf<Int?>(null) }
     var hexInput by remember { mutableStateOf("") }
+    var themesExpanded by remember { mutableStateOf(false) }
+    var moodPalettesExpanded by remember { mutableStateOf(false) }
 
     fun applyPalette(name: String) {
         paletteName = name
@@ -170,7 +179,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             CategoryLabel("Reminders")
             SettingsCard {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -189,8 +198,9 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 }
 
                 if (enabled) {
+                    HorizontalDivider()
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -205,7 +215,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             CategoryLabel("App Lock", topPadding = 20.dp)
             SettingsCard {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -229,8 +239,10 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     )
                 }
 
+                HorizontalDivider()
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -252,81 +264,136 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     )
                 }
                 if (pinEnabled) {
-                    TextButton(
-                        onClick = {
-                            pinInput = ""
-                            pinConfirmInput = ""
-                            pinError = null
-                            showPinSetupDialog = true
-                        },
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text("Change PIN")
+                    HorizontalDivider()
+                    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        TextButton(
+                            onClick = {
+                                pinInput = ""
+                                pinConfirmInput = ""
+                                pinError = null
+                                showPinSetupDialog = true
+                            },
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("Change PIN")
+                        }
                     }
                 }
             }
 
             CategoryLabel("Mood Appearance", topPadding = 20.dp)
             SettingsCard {
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    MoodDisplayMode.entries.forEachIndexed { index, mode ->
-                        SegmentedButton(
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = MoodDisplayMode.entries.size),
-                            selected = moodMode == mode,
-                            onClick = {
-                                moodMode = mode
-                                MoodAppearancePrefs.setMode(context, mode)
-                                MoodVisualsState.mode.value = mode
+                Box(modifier = Modifier.padding(16.dp)) {
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        MoodDisplayMode.entries.forEachIndexed { index, mode ->
+                            SegmentedButton(
+                                shape = SegmentedButtonDefaults.itemShape(index = index, count = MoodDisplayMode.entries.size),
+                                selected = moodMode == mode,
+                                onClick = {
+                                    moodMode = mode
+                                    MoodAppearancePrefs.setMode(context, mode)
+                                    MoodVisualsState.mode.value = mode
+                                }
+                            ) {
+                                Text(if (mode == MoodDisplayMode.EMOJI) "Emoji" else "Circle")
                             }
-                        ) {
-                            Text(if (mode == MoodDisplayMode.EMOJI) "Emoji" else "Circle")
                         }
                     }
                 }
 
                 if (moodMode == MoodDisplayMode.CIRCLE) {
-                    Text("Color palette", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 12.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        (MoodPalettes.presets.keys + "Custom").forEach { name ->
-                            val previewColors = if (name == "Custom") customColors else MoodPalettes.presets[name]!!
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { applyPalette(name) },
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    previewColors.forEach { colorLong ->
-                                        Box(
-                                            modifier = Modifier
-                                                .size(20.dp)
-                                                .background(Color(colorLong), CircleShape)
-                                        )
+                    HorizontalDivider()
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Mood Palette", style = MaterialTheme.typography.titleMedium)
+                            IconButton(onClick = { moodPalettesExpanded = !moodPalettesExpanded }) {
+                                Icon(
+                                    if (moodPalettesExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = if (moodPalettesExpanded) "Show fewer palettes" else "Show more palettes"
+                                )
+                            }
+                        }
+
+                        val allPaletteNames = remember { MoodPalettes.presets.keys.toList() + "Custom" }
+                        val collapsedPalettes = allPaletteNames.take(3)
+                        val remainingPalettes = allPaletteNames.drop(3)
+
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            collapsedPalettes.forEach { name ->
+                                val previewColors = if (name == "Custom") customColors else MoodPalettes.presets[name]!!
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { applyPalette(name) },
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        previewColors.forEach { colorLong ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(20.dp)
+                                                    .background(Color(colorLong), CircleShape)
+                                            )
+                                        }
+                                    }
+                                    Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                                    if (paletteName == name) {
+                                        Icon(Icons.Filled.Check, contentDescription = "Selected")
                                     }
                                 }
-                                Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                                if (paletteName == name) {
-                                    Icon(Icons.Filled.Check, contentDescription = "Selected")
+                            }
+
+                            if (moodPalettesExpanded) {
+                                remainingPalettes.forEach { name ->
+                                    val previewColors = if (name == "Custom") customColors else MoodPalettes.presets[name]!!
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { applyPalette(name) },
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            previewColors.forEach { colorLong ->
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(20.dp)
+                                                        .background(Color(colorLong), CircleShape)
+                                                )
+                                            }
+                                        }
+                                        Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                                        if (paletteName == name) {
+                                            Icon(Icons.Filled.Check, contentDescription = "Selected")
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if (paletteName == "Custom") {
-                        Text("Tap a color to set a hex value", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 8.dp)) {
-                            customColors.forEachIndexed { index, colorLong ->
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .background(Color(colorLong), CircleShape)
-                                        .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                                        .clickable {
-                                            editingColorIndex = index
-                                            hexInput = String.format("%06X", colorLong and 0xFFFFFF)
-                                        }
-                                )
+                        if (paletteName == "Custom") {
+                            Text("Tap a color to set a hex value", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 8.dp)) {
+                                customColors.forEachIndexed { index, colorLong ->
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .background(Color(colorLong), CircleShape)
+                                            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                                            .clickable {
+                                                editingColorIndex = index
+                                                hexInput = String.format("%06X", colorLong and 0xFFFFFF)
+                                            }
+                                    )
+                                }
                             }
                         }
                     }
@@ -335,21 +402,79 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
 
             CategoryLabel("App Appearance", topPadding = 20.dp)
             SettingsCard {
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(AppTheme.entries) { theme ->
-                        ThemeSwatch(
-                            theme = theme,
-                            selected = theme == selectedTheme,
-                            onClick = {
-                                selectedTheme = theme
-                                ThemePrefs.setTheme(context, theme)
-                                ThemeState.current.value = theme
-                            }
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Theme Palette", style = MaterialTheme.typography.titleMedium)
+                        IconButton(onClick = { themesExpanded = !themesExpanded }) {
+                            Icon(
+                                if (themesExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                contentDescription = if (themesExpanded) "Show fewer themes" else "Show more themes"
+                            )
+                        }
+                    }
+
+                    val orderedThemes = remember {
+                        listOf(
+                            AppTheme.CLASSIC,
+                            AppTheme.WARM_PASTEL,
+                            AppTheme.SLEEPY_PINK,
+                            AppTheme.SUNSET,
+                            AppTheme.ARTISTIC_GREEN,
+                            AppTheme.MINT,
+                            AppTheme.EMPATHETIC_BLUE,
+                            AppTheme.BLUE,
+                            AppTheme.LAVENDER
                         )
                     }
+
+                    val collapsedThemes = orderedThemes.take(3)
+                    val remainingThemes = orderedThemes.drop(3)
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                    ) {
+                        collapsedThemes.forEach { theme ->
+                            ThemeRowItem(
+                                theme = theme,
+                                selected = theme == selectedTheme,
+                                darkMode = darkMode,
+                                onClick = {
+                                    selectedTheme = theme
+                                    ThemePrefs.setTheme(context, theme)
+                                    ThemeState.current.value = theme
+                                }
+                            )
+                        }
+
+                        if (themesExpanded) {
+                            remainingThemes.forEach { theme ->
+                                ThemeRowItem(
+                                    theme = theme,
+                                    selected = theme == selectedTheme,
+                                    darkMode = darkMode,
+                                    onClick = {
+                                        selectedTheme = theme
+                                        ThemePrefs.setTheme(context, theme)
+                                        ThemeState.current.value = theme
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
+
+                HorizontalDivider()
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -368,31 +493,39 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
 
             CategoryLabel("Backup", topPadding = 20.dp)
             SettingsCard {
-                Button(
-                    onClick = {
-                        val intent = BackupHelper.exportFullBackup(context, entries)
-                        context.startActivity(Intent.createChooser(intent, "Export full backup"))
-                    },
-                    enabled = entries.isNotEmpty(),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(if (entries.isEmpty()) "No entries to back up" else "Export Full Backup (.zip)")
+                Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Button(
+                        onClick = {
+                            val intent = BackupHelper.exportFullBackup(context, entries)
+                            context.startActivity(Intent.createChooser(intent, "Export full backup"))
+                        },
+                        enabled = entries.isNotEmpty(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (entries.isEmpty()) "No entries to back up" else "Export Full Backup (.zip)")
+                    }
                 }
-                Button(
-                    onClick = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Import Backup")
+                HorizontalDivider()
+                Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Button(
+                        onClick = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Import Backup")
+                    }
                 }
-                Button(
-                    onClick = {
-                        val intent = ExportHelper.exportToCsv(context, entries)
-                        context.startActivity(Intent.createChooser(intent, "Export mood data"))
-                    },
-                    enabled = entries.isNotEmpty(),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(if (entries.isEmpty()) "No entries to export" else "Export data as CSV")
+                HorizontalDivider()
+                Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Button(
+                        onClick = {
+                            val intent = ExportHelper.exportToCsv(context, entries)
+                            context.startActivity(Intent.createChooser(intent, "Export mood data"))
+                        },
+                        enabled = entries.isNotEmpty(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (entries.isEmpty()) "No entries to export" else "Export data as CSV")
+                    }
                 }
             }
         }
@@ -580,33 +713,34 @@ private fun CategoryLabel(text: String, topPadding: Dp = 0.dp) {
 private fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth(),
             content = content
         )
     }
 }
 
 @Composable
-private fun ThemeSwatch(theme: AppTheme, selected: Boolean, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
+private fun ThemeRowItem(theme: AppTheme, selected: Boolean, darkMode: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .background(previewColorFor(theme), CircleShape)
-                .border(
-                    width = if (selected) 3.dp else 0.dp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    shape = CircleShape
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            val colors = themePreviewColors(theme, darkMode)
+            colors.take(5).forEach { color ->
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .background(color, CircleShape)
                 )
-        )
-        Text(
-            theme.displayName,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(top = 4.dp)
-        )
+            }
+        }
+        Text(theme.displayName, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        if (selected) {
+            Icon(Icons.Filled.Check, contentDescription = "Selected")
+        }
     }
 }

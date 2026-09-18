@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.MoodEntry
 import com.example.rejournal.data.MotivationalMessagePrefs
@@ -67,6 +68,8 @@ import com.example.rejournal.data.AchievementTier
 import com.example.rejournal.data.GoalProgressPrefs
 import androidx.compose.material.icons.filled.Favorite
 import com.example.rejournal.ui.verticalScrollbar
+import androidx.compose.ui.graphics.vector.ImageVector
+
 private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,7 +108,7 @@ fun LogScreen(
         if (relevant.isNotEmpty()) {
             val avgMood = relevant.map { it.mood }.average()
             val moodLevel = Math.round(avgMood).toInt().coerceIn(1, 5)
-            motivationalMessage = MotivationalMessagePrefs.nextMessage(context, moodLevel)
+            motivationalMessage = MotivationalMessagePrefs.nextMessage(context, moodLevel, entries)
         }
     }
 
@@ -400,23 +403,19 @@ private fun CalendarMonthView(
                                 )
 
                                 if (date in importantDates) {
-                                    Icon(
-                                        Icons.Filled.Star,
-                                        contentDescription = "Important day",
+                                    OutlinedMarkerIcon(
+                                        icon = Icons.Filled.Star,
+                                        description = "Important day",
                                         tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .size(14.dp)
+                                        modifier = Modifier.align(Alignment.TopEnd)
                                     )
                                 }
                                 if (entry?.isFavorite == true) {
-                                    Icon(
-                                        Icons.Filled.Favorite,
-                                        contentDescription = "Favorite day",
+                                    OutlinedMarkerIcon(
+                                        icon = Icons.Filled.Favorite,
+                                        description = "Favorite day",
                                         tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier
-                                            .align(Alignment.TopStart)
-                                            .size(14.dp)
+                                        modifier = Modifier.align(Alignment.TopStart)
                                     )
                                 }
                             }
@@ -493,5 +492,34 @@ private fun YearPixelsView(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun OutlinedMarkerIcon(
+    icon: ImageVector,
+    description: String,
+    tint: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 14.dp
+) {
+    Box(
+        modifier = modifier.size(size + 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // A slightly larger, dark silhouette drawn first acts as a stroke/
+        // outline, since Compose's vector Icon has no native stroke support.
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = Color.Black.copy(alpha = 0.55f),
+            modifier = Modifier.size(size + 4.dp)
+        )
+        Icon(
+            icon,
+            contentDescription = description,
+            tint = tint,
+            modifier = Modifier.size(size)
+        )
     }
 }

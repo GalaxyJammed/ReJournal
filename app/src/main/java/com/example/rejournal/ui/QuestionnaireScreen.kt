@@ -76,6 +76,7 @@ import com.example.rejournal.data.MediaFileHelper
 import com.example.rejournal.data.MoodEntry
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalTime
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.MoodBad
@@ -94,6 +95,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.LocalContentColor
 import com.example.rejournal.ui.verticalScrollbar
+import com.example.rejournal.data.GreetingHelper
+import com.example.rejournal.data.ProfilePrefs
 
 private const val TOP_TAG_COUNT = 3
 
@@ -132,6 +135,10 @@ fun QuestionnaireScreen(
     var existingImportantDay by remember { mutableStateOf<ImportantDay?>(null) }
 
     var isFavorite by remember { mutableStateOf(false) }
+    val soulfulHint = remember { getSoulfulHint() }
+
+    val nickname = remember { ProfilePrefs.getNickname(context) }
+    val greeting = remember(nickname) { nickname?.let { GreetingHelper.nextGreeting(context, it) } }
 
     LaunchedEffect(date) {
         val entry = viewModel.getEntryForDate(date)
@@ -242,6 +249,9 @@ fun QuestionnaireScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            greeting?.let {
+                Text(it, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            }
             SectionHeader(Icons.Filled.AddReaction, "Mood")
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -383,7 +393,8 @@ fun QuestionnaireScreen(
                 RichNoteEditor(
                     value = noteValue,
                     onValueChange = { noteValue = it },
-                    minHeight = 120.dp
+                    minHeight = 120.dp,
+                    placeholder = soulfulHint
                 )
             }
 
@@ -457,7 +468,8 @@ fun QuestionnaireScreen(
                         value = noteValue,
                         onValueChange = { noteValue = it },
                         modifier = Modifier.fillMaxSize(),
-                        fillAvailableSpace = true
+                        fillAvailableSpace = true,
+                        placeholder = soulfulHint
                     )
                 }
             }
@@ -788,5 +800,15 @@ fun SectionHeader(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
         Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+    }
+}
+
+private fun getSoulfulHint(): String {
+    val hour = LocalTime.now().hour
+    return when (hour) {
+        in 5..11 -> "What's your mind like on this quiet morning?"
+        in 12..16 -> "How's your day going so far?"
+        in 17..20 -> "How are you winding down this evening?"
+        else -> "What has been on your mind for the day?"
     }
 }

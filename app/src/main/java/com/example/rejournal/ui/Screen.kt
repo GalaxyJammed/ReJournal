@@ -33,4 +33,5 @@ sealed class Screen(val route: String) {
     object CreateTimeCapsule : Screen("createTimeCapsule")
     object Achievements : Screen("achievements")
     object PositiveMemory : Screen("positiveMemory")
+    object Profile : Screen("profile")
 }

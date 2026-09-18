@@ -284,7 +284,7 @@ private val BlueDark = darkColorScheme(
     onBackground = Color(0xFFE1EFFB)
 )
 
-private val DarkGreenLight = lightColorScheme(
+private val ArtisticGreenLight = lightColorScheme(
     primary = Color(0xFF2E7D32),
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = Color(0xFFC8E6C9),
@@ -306,7 +306,7 @@ private val DarkGreenLight = lightColorScheme(
     onBackground = Color(0xFF0C260C)
 )
 
-private val DarkGreenDark = darkColorScheme(
+private val ArtisticGreenDark = darkColorScheme(
     primary = Color(0xFFA5D6A7),
     onPrimary = Color(0xFF1B5E20),
     primaryContainer = Color(0xFF2E7D32),
@@ -328,6 +328,94 @@ private val DarkGreenDark = darkColorScheme(
     onBackground = Color(0xFFE1F4E1)
 )
 
+private val EmpatheticBlueLight = lightColorScheme(
+    primary = Color(0xFF4FA4B8),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFD0F0F7),
+    onPrimaryContainer = Color(0xFF0A313A),
+    secondary = Color(0xFF7FBCC9),
+    secondaryContainer = Color(0xFFE6F7FA),
+    tertiary = Color(0xFFF3B096),
+    background = Color(0xFFF4FAFB),
+    surface = Color(0xFFEBF5F7),
+    surfaceVariant = Color(0xFFDCEBF0),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFEFF8FA),
+    surfaceContainer = Color(0xFFE3F1F5),
+    surfaceContainerHigh = Color(0xFFD9EAF0),
+    surfaceContainerHighest = Color(0xFFCCE2E8),
+    outline = Color(0xFF65939E),
+    outlineVariant = Color(0xFFBAD6DD),
+    onSurface = Color(0xFF1B353B),
+    onBackground = Color(0xFF1B353B)
+)
+
+private val EmpatheticBlueDark = darkColorScheme(
+    primary = Color(0xFF78D1E1),
+    onPrimary = Color(0xFF0A343D),
+    primaryContainer = Color(0xFF1C4D57),
+    onPrimaryContainer = Color(0xFFD0F0F7),
+    secondary = Color(0xFF96D5E3),
+    secondaryContainer = Color(0xFF2B4E56),
+    tertiary = Color(0xFFF3B096),
+    background = Color(0xFF0F1A1C),
+    surface = Color(0xFF162529),
+    surfaceVariant = Color(0xFF273B40),
+    surfaceContainerLowest = Color(0xFF0A1214),
+    surfaceContainerLow = Color(0xFF122024),
+    surfaceContainer = Color(0xFF1A2C31),
+    surfaceContainerHigh = Color(0xFF24373D),
+    surfaceContainerHighest = Color(0xFF2F434A),
+    outline = Color(0xFF6C8387),
+    outlineVariant = Color(0xFF354B4F),
+    onSurface = Color(0xFFDCEBF0),
+    onBackground = Color(0xFFDCEBF0)
+)
+
+private val SleepyPinkLight = lightColorScheme(
+    primary = Color(0xFFEAA1B8),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFFEE3EB),
+    onPrimaryContainer = Color(0xFF421221),
+    secondary = Color(0xFFF3BDCD),
+    secondaryContainer = Color(0xFFFFF0F4),
+    tertiary = Color(0xFF90CAF9),
+    background = Color(0xFFFFF5F7),
+    surface = Color(0xFFFEEBF0),
+    surfaceVariant = Color(0xFFFADAE3),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFFFEFF3),
+    surfaceContainer = Color(0xFFFCE3EA),
+    surfaceContainerHigh = Color(0xFFF7D9E2),
+    surfaceContainerHighest = Color(0xFFF1CFDA),
+    outline = Color(0xFFB58492),
+    outlineVariant = Color(0xFFE4BCC7),
+    onSurface = Color(0xFF4C2732),
+    onBackground = Color(0xFF4C2732)
+)
+
+private val SleepyPinkDark = darkColorScheme(
+    primary = Color(0xFFFAB6C9),
+    onPrimary = Color(0xFF4A1525),
+    primaryContainer = Color(0xFF692A3D),
+    onPrimaryContainer = Color(0xFFFEE3EB),
+    secondary = Color(0xFFF4CCD6),
+    secondaryContainer = Color(0xFF532834),
+    tertiary = Color(0xFF90CAF9),
+    background = Color(0xFF241418),
+    surface = Color(0xFF2F1B20),
+    surfaceVariant = Color(0xFF432A31),
+    surfaceContainerLowest = Color(0xFF1B0C10),
+    surfaceContainerLow = Color(0xFF28161B),
+    surfaceContainer = Color(0xFF331E24),
+    surfaceContainerHigh = Color(0xFF3F272E),
+    surfaceContainerHighest = Color(0xFF4A313A),
+    outline = Color(0xFF966F7A),
+    outlineVariant = Color(0xFF553942),
+    onSurface = Color(0xFFFCE3EA),
+    onBackground = Color(0xFFFCE3EA)
+)
+
 private fun colorSchemeFor(theme: AppTheme, darkMode: Boolean) = when (theme) {
     AppTheme.CLASSIC -> if (darkMode) ClassicDark else ClassicLight
     AppTheme.WARM_PASTEL -> if (darkMode) WarmPastelDark else WarmPastelLight
@@ -335,10 +423,23 @@ private fun colorSchemeFor(theme: AppTheme, darkMode: Boolean) = when (theme) {
     AppTheme.LAVENDER -> if (darkMode) LavenderDark else LavenderLight
     AppTheme.MINT -> if (darkMode) MintDark else MintLight
     AppTheme.BLUE -> if (darkMode) BlueDark else BlueLight
-    AppTheme.DARK_GREEN -> if (darkMode) DarkGreenDark else DarkGreenLight
+    AppTheme.ARTISTIC_GREEN -> if (darkMode) ArtisticGreenDark else ArtisticGreenLight
+    AppTheme.EMPATHETIC_BLUE -> if (darkMode) EmpatheticBlueDark else EmpatheticBlueLight
+    AppTheme.SLEEPY_PINK -> if (darkMode) SleepyPinkDark else SleepyPinkLight
 }
 
 fun previewColorFor(theme: AppTheme): Color = colorSchemeFor(theme, darkMode = false).primary
+
+fun themePreviewColors(theme: AppTheme, darkMode: Boolean): List<Color> {
+    val scheme = colorSchemeFor(theme, darkMode)
+    return listOf(
+        scheme.primary,
+        scheme.secondary,
+        scheme.tertiary,
+        scheme.surfaceVariant,
+        scheme.background
+    )
+}
 
 fun resolvedPrimaryColor(context: android.content.Context): Color {
     val theme = com.example.rejournal.data.ThemePrefs.getTheme(context)

@@ -54,6 +54,7 @@ import com.example.rejournal.ui.TimeCapsulesScreen
 import com.example.rejournal.ui.CreateTimeCapsuleScreen
 import com.example.rejournal.ui.AchievementsScreen
 import com.example.rejournal.ui.PositiveMemoryScreen
+import com.example.rejournal.ui.ProfileScreen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,7 +110,7 @@ fun AppNavHost(repository: MoodRepository) {
     val currentRoute = backStackEntry?.destination?.route
     val bottomBarRoutes = setOf(
         Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
-        Screen.Extras.route,
+        Screen.Extras.route, Screen.Profile.route,
     )
 
     Scaffold(
@@ -193,10 +194,10 @@ fun AppNavHost(repository: MoodRepository) {
                     onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
                     onImportantDaysClick = { navController.navigate(Screen.ImportantDays.route) },
                     onSettingsClick = { navController.navigate(Screen.Settings.route) },
-                    onBack = { navController.popBackStack() },
                     onFavoriteDaysClick = { navController.navigate(Screen.FavoriteDays.route) },
                     onTimeCapsulesClick = { navController.navigate(Screen.TimeCapsules.route) },
                     onAchievementsClick = { navController.navigate(Screen.Achievements.route) },
+                    onProfileClick = { navController.navigate(Screen.Profile.route) },
                 )
             }
             composable(Screen.Goals.route) {
@@ -308,6 +309,9 @@ fun AppNavHost(repository: MoodRepository) {
                         onBack = { navController.popBackStack() }
                     )
                 }
+            }
+            composable(Screen.Profile.route) {
+                ProfileScreen(onBack = { navController.popBackStack() })
             }
         }
     }

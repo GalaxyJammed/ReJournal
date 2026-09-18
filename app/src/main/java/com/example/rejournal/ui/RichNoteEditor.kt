@@ -186,7 +186,8 @@ fun RichNoteEditor(
     onValueChange: (RichNoteValue) -> Unit,
     modifier: Modifier = Modifier,
     minHeight: Dp = 120.dp,
-    fillAvailableSpace: Boolean = false
+    fillAvailableSpace: Boolean = false,
+    placeholder: String = ""
 ) {
     var showColorPicker by remember { mutableStateOf(false) }
     val plainText = remember(value.chars) { value.chars.joinToString("") { it.char.toString() } }
@@ -199,6 +200,13 @@ fun RichNoteEditor(
                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
                 .padding(12.dp)
         ) {
+            if (plainText.isEmpty() && placeholder.isNotEmpty()) {
+                Text(
+                    text = placeholder,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
+            }
             BasicTextField(
                 value = androidx.compose.ui.text.input.TextFieldValue(plainText, value.selection),
                 onValueChange = { newTfv -> onValueChange(applyEdit(value, newTfv.text, newTfv.selection)) },
