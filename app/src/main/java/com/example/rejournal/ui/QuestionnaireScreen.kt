@@ -671,7 +671,6 @@ private fun stopRecording(recorder: MediaRecorder?) {
     try {
         recorder?.stop()
     } catch (e: Exception) {
-        // Recording was too short or failed.
     }
     recorder?.release()
 }

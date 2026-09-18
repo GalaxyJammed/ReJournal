@@ -45,7 +45,6 @@ class MoodViewModel(
         initialValue = emptyList()
     )
 
-    // Delivered but not yet shown/dismissed on the main screen.
     val pendingCapsules: StateFlow<List<TimeCapsule>> = allTimeCapsules.map { list ->
         list.filter { it.delivered && !it.opened }
     }.stateIn(

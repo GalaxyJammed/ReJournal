@@ -15,7 +15,6 @@ object LockPrefs {
     fun isPinEnabled(context: Context): Boolean =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getBoolean(KEY_PIN_ENABLED, false)
 
-    // The lock screen shows if either method is turned on.
     fun isEnabled(context: Context): Boolean = isFingerprintEnabled(context) || isPinEnabled(context)
 
     fun setFingerprintEnabled(context: Context, enabled: Boolean) {

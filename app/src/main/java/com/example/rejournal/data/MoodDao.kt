@@ -19,8 +19,7 @@ interface MoodDao {
     @Query("SELECT * FROM mood_entries ORDER BY date DESC")
     fun getAllEntries(): Flow<List<MoodEntry>>
 
-    // One-shot (non-Flow) fetch, used only for maintenance tasks like purging
-    // a deleted tag from every entry that used it.
+
     @Query("SELECT * FROM mood_entries")
     suspend fun getAllEntriesOnce(): List<MoodEntry>
 

@@ -113,7 +113,6 @@ fun LockScreen(activity: FragmentActivity, onUnlocked: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         if (!pinEnabled) {
-            // Fingerprint-only mode: no keypad, just a retry button.
             Text("Unlock ReJournal", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(24.dp))
             Icon(

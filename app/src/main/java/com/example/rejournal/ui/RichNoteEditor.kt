@@ -75,8 +75,6 @@ private fun applyEdit(
 ): RichNoteValue {
     val oldText = old.chars.joinToString("") { it.char.toString() }
     if (oldText == newText) {
-        // Just a cursor move / selection change — sync the active style so
-        // the toolbar reflects formatting at the new cursor position.
         val synced = if (newSelection.collapsed && newSelection.start > 0 && newSelection.start <= old.chars.size) {
             old.chars[newSelection.start - 1].style
         } else old.activeStyle

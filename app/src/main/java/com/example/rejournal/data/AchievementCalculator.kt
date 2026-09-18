@@ -16,7 +16,6 @@ object AchievementCalculator {
         }
     }
 
-    // Index of the highest tier reached within a group's ordered tier list, or -1 if none yet.
     fun currentTierIndex(group: AchievementGroup, currentValue: Int): Int {
         var index = -1
         group.tiers.forEachIndexed { i, tier -> if (currentValue >= tier.target) index = i }
