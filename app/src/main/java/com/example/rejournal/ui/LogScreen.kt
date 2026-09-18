@@ -66,7 +66,7 @@ import com.example.rejournal.data.AchievementPrefs
 import com.example.rejournal.data.AchievementTier
 import com.example.rejournal.data.GoalProgressPrefs
 import androidx.compose.material.icons.filled.Favorite
-
+import com.example.rejournal.ui.verticalScrollbar
 private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -171,11 +171,13 @@ fun LogScreen(
             )
         }
     ) { padding: PaddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
+                .verticalScrollbar(scrollState)
                 .padding(16.dp)
         ) {
             if (streak.currentStreak > 0 || streak.longestStreak > 0) {

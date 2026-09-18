@@ -66,6 +66,7 @@ import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.CenterAlignedTopAppBar
+import com.example.rejournal.ui.verticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,11 +98,13 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { CenterAlignedTopAppBar(title = { Text("Stats") }) }
     ) { padding: PaddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
+                .verticalScrollbar(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

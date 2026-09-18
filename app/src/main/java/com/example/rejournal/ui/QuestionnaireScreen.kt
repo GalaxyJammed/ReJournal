@@ -93,6 +93,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.LocalContentColor
+import com.example.rejournal.ui.verticalScrollbar
 
 private const val TOP_TAG_COUNT = 3
 
@@ -231,11 +232,13 @@ fun QuestionnaireScreen(
             )
         }
     ) { padding: PaddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScrollbar(scrollState)
+                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {

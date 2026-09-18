@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MoodEntry
 import java.time.LocalDate
+import androidx.compose.foundation.lazy.rememberLazyListState
 
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 
@@ -117,10 +118,13 @@ fun SearchScreen(
             )
         }
     ) { padding: PaddingValues ->
+        val listState = rememberLazyListState()
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(padding)
+                .verticalScrollbar(listState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {

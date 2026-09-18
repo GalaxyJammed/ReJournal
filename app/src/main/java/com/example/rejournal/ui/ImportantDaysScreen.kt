@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
@@ -45,7 +45,6 @@ fun ImportantDaysScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     var dayPendingDeletion by remember { mutableStateOf<ImportantDay?>(null) }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { CenterAlignedTopAppBar(title = { Text("Important Days") }, navigationIcon = { BackButton(onBack) }) },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddDialog = true }) {
@@ -54,15 +53,26 @@ fun ImportantDaysScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
         }
     ) { padding: PaddingValues ->
         if (importantDays.isEmpty()) {
-            Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp)
+            ) {
                 Text("No important days marked yet. Tap + to add one.")
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScrollbar(scrollState)
+                    .verticalScroll(scrollState)
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(importantDays) { day ->
+                importantDays.forEach { day ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { dayPendingDeletion = day }

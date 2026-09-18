@@ -80,6 +80,7 @@ import com.example.rejournal.data.MoodPalettes
 import com.example.rejournal.ui.theme.MoodVisualsState
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CenterAlignedTopAppBar
+import com.example.rejournal.ui.verticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,11 +157,13 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Settings") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
+                .verticalScrollbar(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {

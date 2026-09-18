@@ -109,10 +109,7 @@ fun AppNavHost(repository: MoodRepository) {
     val currentRoute = backStackEntry?.destination?.route
     val bottomBarRoutes = setOf(
         Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
-        Screen.Extras.route, Screen.Goals.route, Screen.PhotoAlbum.route,
-        Screen.VoiceMemoAlbum.route, Screen.ImportantDays.route,
-        Screen.FavoriteDays.route, Screen.TimeCapsules.route,
-        Screen.Achievements.route, Screen.PositiveMemory.route
+        Screen.Extras.route,
     )
 
     Scaffold(

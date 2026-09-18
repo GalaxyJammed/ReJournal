@@ -4,12 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -47,7 +46,6 @@ fun TimeCapsulesScreen(
     var pendingDeletion by remember { mutableStateOf<TimeCapsule?>(null) }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { CenterAlignedTopAppBar(title = { Text("Time Capsules") }, navigationIcon = { BackButton(onBack) }) },
         floatingActionButton = {
             FloatingActionButton(onClick = onCreateClick) {
@@ -56,15 +54,26 @@ fun TimeCapsulesScreen(
         }
     ) { padding: PaddingValues ->
         if (capsules.isEmpty()) {
-            Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp)
+            ) {
                 Text("No time capsules yet. Tap + to write one to your future self.")
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScrollbar(scrollState)
+                    .verticalScroll(scrollState)
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(capsules) { capsule ->
+                capsules.forEach { capsule ->
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(16.dp),

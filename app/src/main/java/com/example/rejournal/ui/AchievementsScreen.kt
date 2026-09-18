@@ -4,12 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Lock
@@ -42,6 +41,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.clipRect
+import com.example.rejournal.ui.verticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,10 +67,18 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { CenterAlignedTopAppBar(title = { Text("Achievements") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScrollbar(scrollState)
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
@@ -84,11 +92,10 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 }
             }
 
-            LazyColumn(
-                modifier = Modifier.padding(top = 16.dp),
+            Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(AchievementDefinitions.groups) { group ->
+                AchievementDefinitions.groups.forEach { group ->
                     val value = AchievementCalculator.currentValue(group.metric, entries, goalCompletions, timeCapsules.size)
                     val tierIndex = AchievementCalculator.currentTierIndex(group, value)
                     AchievementGroupRow(group = group, currentValue = value, tierIndex = tierIndex)

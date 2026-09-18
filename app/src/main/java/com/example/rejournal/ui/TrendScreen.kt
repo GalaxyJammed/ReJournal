@@ -78,6 +78,7 @@ import androidx.compose.ui.graphics.Path
 import kotlin.math.cos
 import kotlin.math.sin
 import androidx.compose.foundation.clickable
+import com.example.rejournal.ui.verticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,11 +130,13 @@ fun TrendScreen(viewModel: MoodViewModel) {
             )
         }
     ) { padding: PaddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
+                .verticalScrollbar(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

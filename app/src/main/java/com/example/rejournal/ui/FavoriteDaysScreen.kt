@@ -3,12 +3,11 @@ package com.example.rejournal.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -38,19 +37,29 @@ fun FavoriteDaysScreen(
     val favorites = remember(entries) { entries.filter { it.isFavorite }.sortedByDescending { it.date } }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { CenterAlignedTopAppBar(title = { Text("Favorite Days") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         if (favorites.isEmpty()) {
-            Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp)
+            ) {
                 Text("No favorite days yet. Tap the heart icon while logging a day to add one.")
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScrollbar(scrollState)
+                    .verticalScroll(scrollState)
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(favorites) { entry: MoodEntry ->
+                favorites.forEach { entry: MoodEntry ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { onDayClick(entry.date) }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +35,7 @@ import com.example.rejournal.data.GoalDefinition
 import com.example.rejournal.data.GoalProgressCalculator
 import com.example.rejournal.data.GoalProgressPrefs
 import androidx.compose.material3.CenterAlignedTopAppBar
+import com.example.rejournal.ui.verticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,14 +58,15 @@ fun GoalsScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { CenterAlignedTopAppBar(title = { Text("Goals") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScrollbar(scrollState)
+                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
