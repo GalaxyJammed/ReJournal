@@ -423,14 +423,16 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     val orderedThemes = remember {
                         listOf(
                             AppTheme.CLASSIC,
-                            AppTheme.WARM_PASTEL,
-                            AppTheme.SLEEPY_PINK,
+                            AppTheme.SLOW_BURGUNDY,
                             AppTheme.SUNSET,
+                            AppTheme.WARM_PASTEL,
                             AppTheme.ARTISTIC_GREEN,
                             AppTheme.MINT,
                             AppTheme.EMPATHETIC_BLUE,
                             AppTheme.BLUE,
-                            AppTheme.LAVENDER
+                            AppTheme.LAVENDER,
+                            AppTheme.IRRITATED_PURPLE,
+                            AppTheme.SLEEPY_PINK
                         )
                     }
 

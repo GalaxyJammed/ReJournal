@@ -161,6 +161,7 @@ fun LogScreen(
         positiveMemoryEntry = if (candidates.isNotEmpty()) candidates[Random.nextInt(candidates.size)] else null
     }
 
+
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {

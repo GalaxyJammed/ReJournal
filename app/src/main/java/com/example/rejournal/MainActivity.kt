@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ import com.example.rejournal.ui.CreateTimeCapsuleScreen
 import com.example.rejournal.ui.AchievementsScreen
 import com.example.rejournal.ui.PositiveMemoryScreen
 import com.example.rejournal.ui.ProfileScreen
+import com.example.rejournal.ui.SyncScreen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,6 +105,10 @@ fun AppNavHost(repository: MoodRepository) {
     val navController = rememberNavController()
     val appContext = LocalContext.current.applicationContext
     val viewModel: MoodViewModel = viewModel(factory = MoodViewModel.Factory(repository, appContext))
+
+    LaunchedEffect(Unit) {
+        viewModel.autoSyncCalendar()
+    }
 
     val animationSpec = tween<androidx.compose.ui.unit.IntOffset>(durationMillis = 300)
 
@@ -198,6 +204,7 @@ fun AppNavHost(repository: MoodRepository) {
                     onTimeCapsulesClick = { navController.navigate(Screen.TimeCapsules.route) },
                     onAchievementsClick = { navController.navigate(Screen.Achievements.route) },
                     onProfileClick = { navController.navigate(Screen.Profile.route) },
+                    onSyncClick = { navController.navigate(Screen.Sync.route) },
                 )
             }
             composable(Screen.Goals.route) {
@@ -312,6 +319,9 @@ fun AppNavHost(repository: MoodRepository) {
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.Sync.route) {
+                SyncScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
         }
     }

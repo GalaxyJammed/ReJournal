@@ -36,6 +36,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Sync
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +49,8 @@ fun ExtrasScreen(
     onSettingsClick: () -> Unit,
     onTimeCapsulesClick: () -> Unit,
     onAchievementsClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onSyncClick: () -> Unit
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -88,6 +90,8 @@ fun ExtrasScreen(
                 ExtrasRow(Icons.Filled.Person, "Profile", onProfileClick)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.Settings, "Settings", onSettingsClick)
+                HorizontalDivider()
+                ExtrasRow(Icons.Filled.Sync, "Sync", onSyncClick)
             }
         }
     }

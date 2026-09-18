@@ -9,5 +9,7 @@ enum class AppTheme(val displayName: String) {
     BLUE("Ocean Breeze"),
     ARTISTIC_GREEN("Artistic Green"),
     EMPATHETIC_BLUE("Empathetic Blue"),
-    SLEEPY_PINK("Sleepy Pink")
+    SLEEPY_PINK("Sleepy Pink"),
+    IRRITATED_PURPLE("Irritated Purple"),
+    SLOW_BURGUNDY("Slow Burgundy")
 }

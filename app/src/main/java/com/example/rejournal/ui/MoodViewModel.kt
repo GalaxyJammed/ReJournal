@@ -21,6 +21,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import com.example.rejournal.data.CalendarSyncHelper
+import com.example.rejournal.data.CalendarSyncPrefs
+import java.time.YearMonth
 
 class MoodViewModel(
     private val repository: MoodRepository,
@@ -149,7 +155,6 @@ class MoodViewModel(
                 createdDate = LocalDate.now()
             )
             repository.saveTimeCapsule(capsule)
-            // Re-fetch to get the row's real generated id before scheduling.
             val saved = repository.getUndeliveredCapsulesOnce()
                 .filter { it.type == CapsuleType.TIME && it.targetDate == targetDate }
                 .maxByOrNull { it.id }
@@ -184,6 +189,38 @@ class MoodViewModel(
             AppWidgetsUpdater.updateAll(appContext)
             onResult(imported.size)
         }
+    }
+
+    fun hasCalendarPermission(): Boolean =
+        ContextCompat.checkSelfPermission(appContext, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
+
+    fun syncCalendarNow(calendarIds: Set<Long>, onResult: (Int) -> Unit) {
+        viewModelScope.launch {
+            if (!hasCalendarPermission()) {
+                onResult(0)
+                return@launch
+            }
+            val events = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                CalendarSyncHelper.eventsForRestOfMonth(appContext, calendarIds)
+            }
+            var added = 0
+            events.forEach { occurrence ->
+                val existing = repository.getImportantDayForDate(occurrence.date)
+                if (existing == null) {
+                    repository.saveImportantDay(ImportantDay(date = occurrence.date, message = occurrence.title))
+                    ImportantDayScheduler.schedule(appContext, occurrence.date, occurrence.title)
+                    added++
+                }
+            }
+            CalendarSyncPrefs.setLastSyncedMonth(appContext, YearMonth.now())
+            onResult(added)
+        }
+    }
+
+    fun autoSyncCalendar() {
+        val selectedIds = CalendarSyncPrefs.getSelectedCalendarIds(appContext)
+        if (selectedIds.isEmpty() || !hasCalendarPermission()) return
+        syncCalendarNow(selectedIds) { }
     }
 
     class Factory(

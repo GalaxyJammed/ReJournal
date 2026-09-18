@@ -94,7 +94,7 @@ fun ImportantDayPrompt(
                     OutlinedTextField(
                         value = message,
                         onValueChange = { message = it },
-                        label = { Text("Custom message (optional)") },
+                        label = { Text(if (existing?.message?.isNotBlank() == true) "Edit message" else "Custom message (optional)") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     Button(

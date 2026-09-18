@@ -416,6 +416,94 @@ private val SleepyPinkDark = darkColorScheme(
     onBackground = Color(0xFFFCE3EA)
 )
 
+private val IrritatedPurpleLight = lightColorScheme(
+    primary = Color(0xFF7B1FA2),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFF3E5F5),
+    onPrimaryContainer = Color(0xFF4A0072),
+    secondary = Color(0xFF9C27B0),
+    secondaryContainer = Color(0xFFF3E5F5),
+    tertiary = Color(0xFF6A0DAD),
+    background = Color(0xFFFBFAFD),
+    surface = Color(0xFFFBFAFD),
+    surfaceVariant = Color(0xFFF3E9F7),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFF8F3FA),
+    surfaceContainer = Color(0xFFF4EDF7),
+    surfaceContainerHigh = Color(0xFFEFE6F3),
+    surfaceContainerHighest = Color(0xFFEAE0EF),
+    outline = Color(0xFF8E709F),
+    outlineVariant = Color(0xFFD3C5D8),
+    onSurface = Color(0xFF1F0033),
+    onBackground = Color(0xFF1F0033)
+)
+
+private val IrritatedPurpleDark = darkColorScheme(
+    primary = Color(0xFFE1BEE7),
+    onPrimary = Color(0xFF4A0072),
+    primaryContainer = Color(0xFF7B1FA2),
+    onPrimaryContainer = Color(0xFFF3E5F5),
+    secondary = Color(0xFFCE93D8),
+    secondaryContainer = Color(0xFF4A148C),
+    tertiary = Color(0xFFEA80FC),
+    background = Color(0xFF120B1A),
+    surface = Color(0xFF120B1A),
+    surfaceVariant = Color(0xFF2E1E3B),
+    surfaceContainerLowest = Color(0xFF0C0711),
+    surfaceContainerLow = Color(0xFF1A1024),
+    surfaceContainer = Color(0xFF21152E),
+    surfaceContainerHigh = Color(0xFF2B1B3C),
+    surfaceContainerHighest = Color(0xFF36224B),
+    outline = Color(0xFFA68EB8),
+    outlineVariant = Color(0xFF4E385D),
+    onSurface = Color(0xFFEFE5F3),
+    onBackground = Color(0xFFEFE5F3)
+)
+
+private val SlowBurgundyLight = lightColorScheme(
+    primary = Color(0xFF800020),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFFFDADA),
+    onPrimaryContainer = Color(0xFF400008),
+    secondary = Color(0xFF7B5252),
+    secondaryContainer = Color(0xFFFFDADA),
+    tertiary = Color(0xFF7D5700),
+    background = Color(0xFFFFF8F8),
+    surface = Color(0xFFFFF8F8),
+    surfaceVariant = Color(0xFFF4DDDD),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFFFF1F1),
+    surfaceContainer = Color(0xFFFCEAE9),
+    surfaceContainerHigh = Color(0xFFF7E4E3),
+    surfaceContainerHighest = Color(0xFFF1DEDD),
+    outline = Color(0xFF857373),
+    outlineVariant = Color(0xFFD8C2C2),
+    onSurface = Color(0xFF2B1515),
+    onBackground = Color(0xFF2B1515)
+)
+
+private val SlowBurgundyDark = darkColorScheme(
+    primary = Color(0xFFFFB3B4),
+    onPrimary = Color(0xFF680016),
+    primaryContainer = Color(0xFF800020),
+    onPrimaryContainer = Color(0xFFFFDADA),
+    secondary = Color(0xFFE7BDBE),
+    secondaryContainer = Color(0xFF5F3B3B),
+    tertiary = Color(0xFFFFB945),
+    background = Color(0xFF201212),
+    surface = Color(0xFF201212),
+    surfaceVariant = Color(0xFF534343),
+    surfaceContainerLowest = Color(0xFF1B0C0C),
+    surfaceContainerLow = Color(0xFF2B1515),
+    surfaceContainer = Color(0xFF321B1B),
+    surfaceContainerHigh = Color(0xFF3D2525),
+    surfaceContainerHighest = Color(0xFF493030),
+    outline = Color(0xFFA08C8C),
+    outlineVariant = Color(0xFF534343),
+    onSurface = Color(0xFFF1DEDD),
+    onBackground = Color(0xFFF1DEDD)
+)
+
 private fun colorSchemeFor(theme: AppTheme, darkMode: Boolean) = when (theme) {
     AppTheme.CLASSIC -> if (darkMode) ClassicDark else ClassicLight
     AppTheme.WARM_PASTEL -> if (darkMode) WarmPastelDark else WarmPastelLight
@@ -426,6 +514,8 @@ private fun colorSchemeFor(theme: AppTheme, darkMode: Boolean) = when (theme) {
     AppTheme.ARTISTIC_GREEN -> if (darkMode) ArtisticGreenDark else ArtisticGreenLight
     AppTheme.EMPATHETIC_BLUE -> if (darkMode) EmpatheticBlueDark else EmpatheticBlueLight
     AppTheme.SLEEPY_PINK -> if (darkMode) SleepyPinkDark else SleepyPinkLight
+    AppTheme.IRRITATED_PURPLE -> if (darkMode) IrritatedPurpleDark else IrritatedPurpleLight
+    AppTheme.SLOW_BURGUNDY -> if (darkMode) SlowBurgundyDark else SlowBurgundyLight
 }
 
 fun previewColorFor(theme: AppTheme): Color = colorSchemeFor(theme, darkMode = false).primary
