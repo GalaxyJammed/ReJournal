@@ -74,7 +74,11 @@ fun GoalDetailScreen(
         ) {
             Text(definition.description, style = MaterialTheme.typography.bodyMedium)
 
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder()
+            ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         "Completed ${state.completions} time${if (state.completions == 1) "" else "s"}",
@@ -90,6 +94,8 @@ fun GoalDetailScreen(
             if (state.isActive) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

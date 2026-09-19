@@ -81,6 +81,8 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column(
@@ -112,7 +114,11 @@ private fun AchievementGroupRow(group: AchievementGroup, currentValue: Int, tier
     val nextTier = if (!isMaxed) group.tiers[tierIndex + 1] else null
     val headlineTier = nextTier ?: group.tiers.last()
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = softCardShape,
+        border = softCardBorder()
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,

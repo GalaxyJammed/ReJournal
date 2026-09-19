@@ -58,6 +58,8 @@ fun GoalSuggestionsScreen(
                 suggestions.forEach { definition ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder(),
                         onClick = {
                             if (GoalProgressPrefs.canStartNewGoal(context)) {
                                 GoalProgressPrefs.startGoal(context, definition.id)

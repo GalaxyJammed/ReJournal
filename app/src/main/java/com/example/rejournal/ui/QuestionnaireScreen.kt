@@ -125,6 +125,7 @@ fun QuestionnaireScreen(
     var availableTags by remember { mutableStateOf(ActivityTagsPrefs.getAllTags(context)) }
     var showAddTagDialog by remember { mutableStateOf(false) }
     var tagPendingDeletion by remember { mutableStateOf<String?>(null) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
     var tagsExpanded by remember { mutableStateOf(false) }
 
     var photoPaths by remember { mutableStateOf(listOf<String>()) }
@@ -405,8 +406,7 @@ fun QuestionnaireScreen(
                 if (existingEntry != null) {
                     Button(
                         onClick = {
-                            viewModel.deleteEntry(existingEntry!!)
-                            onDone()
+                            showDeleteConfirmation = true
                         },
                         modifier = Modifier.weight(1f)
                     ) { Text("Delete") }
@@ -507,6 +507,24 @@ fun QuestionnaireScreen(
             },
             title = { Text("Delete \"$tag\"?") },
             text = { Text("This removes it from your list of options AND from every day you've already tagged with it. This can't be undone.") }
+        )
+    }
+
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    existingEntry?.let { viewModel.deleteEntry(it) }
+                    showDeleteConfirmation = false
+                    onDone()
+                }) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmation = false }) { Text("Cancel") }
+            },
+            title = { Text("Delete this log?") },
+            text = { Text("Are you sure you want to delete this log? This cannot be undone.") }
         )
     }
 }

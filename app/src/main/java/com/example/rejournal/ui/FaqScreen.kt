@@ -62,7 +62,11 @@ fun FaqScreen(onBack: () -> Unit) {
 private fun FaqRow(entry: FaqEntry) {
     var expanded by remember { mutableStateOf(false) }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = softCardShape,
+        border = softCardBorder()
+    ) {
         Column(modifier = Modifier.animateContentSize()) {
             Row(
                 modifier = Modifier

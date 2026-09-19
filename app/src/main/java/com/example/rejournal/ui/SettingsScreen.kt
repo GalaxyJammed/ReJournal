@@ -689,7 +689,11 @@ private fun CategoryLabel(text: String, topPadding: Dp = 0.dp) {
 
 @Composable
 private fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = softCardShape,
+        border = softCardBorder()
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             content = content

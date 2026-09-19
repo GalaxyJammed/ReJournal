@@ -79,6 +79,8 @@ fun ImportantDayPrompt(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp),
+                shape = softCardShape,
+                border = softCardBorder(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(

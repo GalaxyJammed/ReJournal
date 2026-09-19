@@ -144,7 +144,11 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
             if (stats.totalEntries == 0) {
                 Text("No entries logged in this period yet.")
             } else {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             "${stats.totalEntries} day${if (stats.totalEntries == 1) "" else "s"} logged",
@@ -163,6 +167,8 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -215,7 +221,11 @@ private fun InsightsSection(
 
         if (mostLoggedActivities.isNotEmpty()) {
             Text("Most logged activities", style = MaterialTheme.typography.titleMedium)
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder()
+            ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     mostLoggedActivities.take(5).forEach { freq ->
                         Row(
@@ -239,7 +249,11 @@ private fun InsightsSection(
 
         if (activityInsights.isNotEmpty()) {
             Text("Mood by activity", style = MaterialTheme.typography.titleMedium)
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder()
+            ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     activityInsights.forEach { insight ->
                         Row(
@@ -280,7 +294,11 @@ private fun InsightsSection(
             Text("Activities on your extreme days", style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (bestDayActivities.isNotEmpty()) {
-                    Card(modifier = Modifier.weight(1f)) {
+                    Card(
+                        modifier = Modifier.weight(1f),
+                        shape = softCardShape,
+                        border = softCardBorder()
+                    ) {
                         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("On your best day(s)", style = MaterialTheme.typography.labelMedium)
                             bestDayActivities.take(4).forEach { freq ->
@@ -290,7 +308,11 @@ private fun InsightsSection(
                     }
                 }
                 if (worstDayActivities.isNotEmpty()) {
-                    Card(modifier = Modifier.weight(1f)) {
+                    Card(
+                        modifier = Modifier.weight(1f),
+                        shape = softCardShape,
+                        border = softCardBorder()
+                    ) {
                         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("On your toughest day(s)", style = MaterialTheme.typography.labelMedium)
                             worstDayActivities.take(4).forEach { freq ->
@@ -311,7 +333,11 @@ private fun InsightsSection(
 
         if (correlationLines.isNotEmpty()) {
             Text("Mood patterns", style = MaterialTheme.typography.titleMedium)
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder()
+            ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     correlationLines.forEach { line ->
                         Text(line, style = MaterialTheme.typography.bodyMedium)

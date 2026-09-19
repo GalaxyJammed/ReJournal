@@ -72,6 +72,8 @@ fun GoalsScreen(
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column(
@@ -124,6 +126,8 @@ private fun GoalRow(definition: GoalDefinition, context: Context, onClick: () ->
     val state = GoalProgressPrefs.getState(context, definition.id)
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = softCardShape,
+        border = softCardBorder(),
         onClick = onClick
     ) {
         Column {

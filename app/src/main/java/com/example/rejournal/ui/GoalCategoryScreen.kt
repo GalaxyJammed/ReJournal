@@ -41,6 +41,8 @@ fun GoalCategoryScreen(
             GoalCategory.entries.forEach { category ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder(),
                     onClick = { onCategoryClick(category) }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {

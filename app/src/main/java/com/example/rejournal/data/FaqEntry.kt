@@ -66,7 +66,7 @@ object FaqEntries {
         ),
         FaqEntry(
             "What is the Constellation view?",
-            "In Trend, tap \"Create Constellation\" for an artistic star-map version of your mood trend, where star size reflects how much you logged that day. You can save it as an image."
+            "In Trend, tap \"Create Constellation\" to pick a period of up to 10 days. The app will generate a beautiful vertical star-map of your mood, which looks stunning as a wide constellation when saved and viewed horizontally. Star size reflects your energy and activity level."
         )
     )
 }

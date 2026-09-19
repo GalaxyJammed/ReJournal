@@ -62,6 +62,8 @@ fun FavoriteDaysScreen(
                 favorites.forEach { entry: MoodEntry ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder(),
                         onClick = { onDayClick(entry.date) }
                     ) {
                         androidx.compose.foundation.layout.Row(

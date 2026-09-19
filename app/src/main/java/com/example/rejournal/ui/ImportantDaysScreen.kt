@@ -75,6 +75,8 @@ fun ImportantDaysScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 importantDays.forEach { day ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder(),
                         onClick = { dayPendingDeletion = day }
                     ) {
                         Row(

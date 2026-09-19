@@ -141,7 +141,11 @@ private fun VoiceMemoAlbumRow(
     }
     val seconds = durationMs / 1000
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = softCardShape,
+        border = softCardBorder()
+    ) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

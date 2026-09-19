@@ -67,6 +67,16 @@ import com.example.rejournal.data.GoalProgressPrefs
 import androidx.compose.material.icons.filled.Favorite
 import com.example.rejournal.ui.verticalScrollbar
 import androidx.compose.ui.graphics.vector.ImageVector
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.rejournal.BuildConfig
+import com.example.rejournal.data.AvailableUpdate
+import com.example.rejournal.data.VersionCheckHelper
+import com.example.rejournal.data.VersionCheckPrefs
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private enum class LogViewMode { CALENDAR, YEAR_PIXELS }
 
@@ -162,6 +172,19 @@ fun LogScreen(
             if (candidates.isNotEmpty()) candidates[Random.nextInt(candidates.size)] else null
     }
 
+    val scope = rememberCoroutineScope()
+    var availableUpdate by remember { mutableStateOf(VersionCheckPrefs.getCachedUpdate(context)) }
+
+    LaunchedEffect(Unit) {
+        if (!VersionCheckPrefs.hasCheckedToday(context)) {
+            val result = withContext(Dispatchers.IO) {
+                VersionCheckHelper.checkForUpdate(BuildConfig.VERSION_NAME)
+            }
+            VersionCheckPrefs.saveResult(context, result)
+            availableUpdate = result
+        }
+    }
+
     Scaffold(
         containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -190,6 +213,8 @@ fun LogScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
+                    shape = softCardShape,
+                    border = softCardBorder(),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
@@ -218,6 +243,31 @@ fun LogScreen(
                             )
                         }
                     }
+                }
+            }
+
+            availableUpdate?.let { update ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                        .clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(update.releaseUrl))
+                            context.startActivity(intent)
+                        },
+                    shape = softCardShape,
+                    border = softCardBorder(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                ) {
+                    Text(
+                        "Update ${update.version} is available. Update now!",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
                 }
             }
 
@@ -269,6 +319,8 @@ fun LogScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
+                    shape = softCardShape,
+                    border = softCardBorder(),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     )

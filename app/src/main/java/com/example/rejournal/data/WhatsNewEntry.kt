@@ -9,16 +9,16 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "2.6.0",
+            version = "2.7.0",
             date = "19/9/2026",
             highlights = listOf(
-                "Sleepy Pink is now a lot more pink",
-                "Slow Burgundy has more hints of red",
-                "Theme Palette now shows lighter to darker colors",
-                "Added a 'What's New' and 'FAQ' screen",
-                "Photo Album/Voice Memos now let you download them to your device",
-                "Added a notification troubleshooting area incase notifications don't come through",
-                "UI changes to make the app look better"
+                "Added an outline to cards to make them look nicer",
+                "Changed the way Constellation works for a cleaner and nicer look",
+                "Finally added version checking. If you have an outdated version it will let you know in the main menu.",
+                "Trend screen now only shows 7 latest days, clicking on the trend screen shows the entire month",
+                "Instead of a 1,5 number trend screen now copies your personal style of mood icons (emojis/circles)",
+                "Deleting a log now adds a popup asking for confirmation before actually deleting"
+
 
             )
         )

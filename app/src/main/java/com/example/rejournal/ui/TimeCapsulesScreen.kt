@@ -74,7 +74,11 @@ fun TimeCapsulesScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 capsules.forEach { capsule ->
-                    Card(modifier = Modifier.fillMaxWidth()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder()
+                    ) {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,

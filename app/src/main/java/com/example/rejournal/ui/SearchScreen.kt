@@ -267,6 +267,8 @@ fun SearchScreen(
             items(results) { entry ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder(),
                     onClick = { onResultClick(entry.date) }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {

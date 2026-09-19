@@ -52,7 +52,11 @@ fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int, onBack: () -> Uni
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder()
+            ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         "${stats.totalOccurrences} day${if (stats.totalOccurrences == 1) "" else "s"} total",
@@ -71,7 +75,11 @@ fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int, onBack: () -> Uni
                 return@Column
             }
 
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder()
+            ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Averages on these days", style = MaterialTheme.typography.titleMedium)
                     Text("Energy: ${String.format("%.1f", stats.averageEnergy)} / 5", style = MaterialTheme.typography.bodyMedium)
@@ -81,7 +89,11 @@ fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int, onBack: () -> Uni
                 }
             }
 
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = softCardShape,
+                border = softCardBorder()
+            ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Most common day of week", style = MaterialTheme.typography.titleMedium)
                     Text(
@@ -94,7 +106,11 @@ fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int, onBack: () -> Uni
             }
 
             if (stats.topTags.isNotEmpty()) {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("Most common activities", style = MaterialTheme.typography.titleMedium)
                         stats.topTags.forEach { tagFreq ->

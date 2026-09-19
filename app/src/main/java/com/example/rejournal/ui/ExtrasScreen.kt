@@ -59,7 +59,7 @@ fun ExtrasScreen(
     Scaffold(
         containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { CenterAlignedTopAppBar(title = { Text("Extras") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("More") }) }
     ) { padding: PaddingValues ->
         val scrollState = rememberScrollState()
         Column(
@@ -108,7 +108,11 @@ fun ExtrasScreen(
 
 @Composable
 private fun ExtrasCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = softCardShape,
+        border = softCardBorder()
+    ) {
         Column { content() }
     }
 }

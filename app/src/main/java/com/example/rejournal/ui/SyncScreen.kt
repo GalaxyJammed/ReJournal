@@ -121,7 +121,11 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         Text("Last synced: $it", style = MaterialTheme.typography.bodySmall)
                     }
                     syncMessage?.let {
-                        Card(modifier = Modifier.fillMaxWidth()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = softCardShape,
+                            border = softCardBorder()
+                        ) {
                             Text(it, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)
                         }
                     }
