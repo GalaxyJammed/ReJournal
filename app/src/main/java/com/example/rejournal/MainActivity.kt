@@ -9,12 +9,15 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -57,6 +60,10 @@ import com.example.rejournal.ui.AchievementsScreen
 import com.example.rejournal.ui.PositiveMemoryScreen
 import com.example.rejournal.ui.ProfileScreen
 import com.example.rejournal.ui.SyncScreen
+import com.example.rejournal.ui.WhatsNewScreen
+import com.example.rejournal.ui.FaqScreen
+import com.example.rejournal.ui.AboutScreen
+import com.example.rejournal.ui.NotificationTroubleshootScreen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,6 +127,7 @@ fun AppNavHost(repository: MoodRepository) {
     )
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (currentRoute in bottomBarRoutes) {
@@ -205,7 +213,14 @@ fun AppNavHost(repository: MoodRepository) {
                     onAchievementsClick = { navController.navigate(Screen.Achievements.route) },
                     onProfileClick = { navController.navigate(Screen.Profile.route) },
                     onSyncClick = { navController.navigate(Screen.Sync.route) },
+                    onAboutClick = { navController.navigate(Screen.About.route) },
                 )
+            }
+            composable(Screen.WhatsNew.route) {
+                WhatsNewScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.Faq.route) {
+                FaqScreen(onBack = { navController.popBackStack() })
             }
             composable(Screen.Goals.route) {
                 GoalsScreen(
@@ -322,6 +337,17 @@ fun AppNavHost(repository: MoodRepository) {
             }
             composable(Screen.Sync.route) {
                 SyncScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+            }
+            composable(Screen.About.route) {
+                AboutScreen(
+                    onWhatsNewClick = { navController.navigate(Screen.WhatsNew.route) },
+                    onFaqClick = { navController.navigate(Screen.Faq.route) },
+                    onNotificationTroubleshootClick = { navController.navigate(Screen.NotificationTroubleshoot.route) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.NotificationTroubleshoot.route) {
+                NotificationTroubleshootScreen(onBack = { navController.popBackStack() })
             }
         }
     }

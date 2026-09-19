@@ -64,6 +64,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.IconButton
 import com.example.rejournal.data.ActivityIcons
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.ImageSaveHelper
@@ -80,6 +84,8 @@ import kotlin.math.sin
 import androidx.compose.foundation.clickable
 import com.example.rejournal.ui.verticalScrollbar
 
+private const val TOP_TAG_COUNT = 3
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrendScreen(viewModel: MoodViewModel) {
@@ -92,7 +98,21 @@ fun TrendScreen(viewModel: MoodViewModel) {
     var stressFilter by remember { mutableStateOf<Int?>(null) }
     var sleepFilter by remember { mutableStateOf<Int?>(null) }
     var selectedTags by remember { mutableStateOf(setOf<String>()) }
+    var tagsExpanded by remember { mutableStateOf(false) }
     var showConstellation by remember { mutableStateOf(false) }
+
+    val tagUsageCounts = remember(entries) {
+        entries.flatMap { it.activities }.groupingBy { it }.eachCount()
+    }
+    val topTags = remember(availableTags, tagUsageCounts) {
+        availableTags.sortedByDescending { tagUsageCounts[it] ?: 0 }.take(TOP_TAG_COUNT)
+    }
+    val collapsedTags = remember(topTags, selectedTags) {
+        (topTags + selectedTags.filter { it in availableTags }).distinct()
+    }
+    val remainingTags = remember(availableTags, collapsedTags) {
+        availableTags.filterNot { it in collapsedTags }
+    }
 
     val hasFilters = selectedTags.isNotEmpty() ||
             energyFilter != null || productivityFilter != null || stressFilter != null || sleepFilter != null
@@ -110,6 +130,7 @@ fun TrendScreen(viewModel: MoodViewModel) {
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
@@ -164,12 +185,29 @@ fun TrendScreen(viewModel: MoodViewModel) {
             TrendSliderFilter(icon = Icons.Filled.Psychology, label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
             TrendSliderFilter(icon = Icons.Filled.Hotel, label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.DirectionsRun, contentDescription = null, modifier = Modifier.size(20.dp))
-                Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.DirectionsRun, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Text("Activities", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+                }
+                IconButton(onClick = { tagsExpanded = !tagsExpanded }) {
+                    Icon(
+                        if (tagsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = if (tagsExpanded) "Show fewer tags" else "Show more tags"
+                    )
+                }
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(availableTags) { tag ->
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                collapsedTags.forEach { tag ->
                     FilterChip(
                         selected = tag in selectedTags,
                         onClick = {
@@ -184,6 +222,25 @@ fun TrendScreen(viewModel: MoodViewModel) {
                             )
                         }
                     )
+                }
+
+                if (tagsExpanded) {
+                    remainingTags.forEach { tag ->
+                        FilterChip(
+                            selected = tag in selectedTags,
+                            onClick = {
+                                selectedTags = if (tag in selectedTags) selectedTags - tag else selectedTags + tag
+                            },
+                            label = { Text(tag) },
+                            leadingIcon = {
+                                Icon(
+                                    ActivityIcons.resolve(tag, ActivityTagsPrefs.getIconIdForTag(context, tag)),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

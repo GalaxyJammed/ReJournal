@@ -35,4 +35,8 @@ sealed class Screen(val route: String) {
     object PositiveMemory : Screen("positiveMemory")
     object Profile : Screen("profile")
     object Sync : Screen("sync")
+    object WhatsNew : Screen("whatsNew")
+    object Faq : Screen("faq")
+    object About : Screen("about")
+    object NotificationTroubleshoot : Screen("notificationTroubleshoot")
 }

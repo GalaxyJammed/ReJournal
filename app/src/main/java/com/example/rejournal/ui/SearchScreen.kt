@@ -6,15 +6,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
@@ -22,6 +24,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -44,11 +47,13 @@ import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.rejournal.data.ActivityIcons
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MoodEntry
 import java.time.LocalDate
 import androidx.compose.foundation.lazy.rememberLazyListState
 
+private const val TOP_TAG_COUNT = 3
 private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +73,21 @@ fun SearchScreen(
     var stressFilter by remember { mutableStateOf<Int?>(null) }
     var sleepFilter by remember { mutableStateOf<Int?>(null) }
     var selectedTags by remember { mutableStateOf(setOf<String>()) }
+    var tagsExpanded by remember { mutableStateOf(false) }
     var favoritesOnly by remember { mutableStateOf(false) }
+
+    val tagUsageCounts = remember(entries) {
+        entries.flatMap { it.activities }.groupingBy { it }.eachCount()
+    }
+    val topTags = remember(availableTags, tagUsageCounts) {
+        availableTags.sortedByDescending { tagUsageCounts[it] ?: 0 }.take(TOP_TAG_COUNT)
+    }
+    val collapsedTags = remember(topTags, selectedTags) {
+        (topTags + selectedTags.filter { it in availableTags }).distinct()
+    }
+    val remainingTags = remember(availableTags, collapsedTags) {
+        availableTags.filterNot { it in collapsedTags }
+    }
 
     val hasFilters = selectedMoods.isNotEmpty() ||
             selectedTags.isNotEmpty() ||
@@ -172,12 +191,29 @@ fun SearchScreen(
                     SingleValueFilter(icon = Icons.Filled.Psychology, label = "Stress", value = stressFilter, onValueChange = { stressFilter = it })
                     SingleValueFilter(icon = Icons.Filled.Hotel, label = "Sleep", value = sleepFilter, onValueChange = { sleepFilter = it })
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.DirectionsRun, contentDescription = null, modifier = Modifier.size(20.dp))
-                        Text("Activities (all selected must match)", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.DirectionsRun, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Text("Activities", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+                        }
+                        IconButton(onClick = { tagsExpanded = !tagsExpanded }) {
+                            Icon(
+                                if (tagsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                contentDescription = if (tagsExpanded) "Show fewer tags" else "Show more tags"
+                            )
+                        }
                     }
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(availableTags) { tag ->
+
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        collapsedTags.forEach { tag ->
                             FilterChip(
                                 selected = tag in selectedTags,
                                 onClick = {
@@ -186,12 +222,31 @@ fun SearchScreen(
                                 label = { Text(tag) },
                                 leadingIcon = {
                                     Icon(
-                                        com.example.rejournal.data.ActivityIcons.resolve(tag, com.example.rejournal.data.ActivityTagsPrefs.getIconIdForTag(context, tag)),
+                                        ActivityIcons.resolve(tag, ActivityTagsPrefs.getIconIdForTag(context, tag)),
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
                             )
+                        }
+
+                        if (tagsExpanded) {
+                            remainingTags.forEach { tag ->
+                                FilterChip(
+                                    selected = tag in selectedTags,
+                                    onClick = {
+                                        selectedTags = if (tag in selectedTags) selectedTags - tag else selectedTags + tag
+                                    },
+                                    label = { Text(tag) },
+                                    leadingIcon = {
+                                        Icon(
+                                            ActivityIcons.resolve(tag, ActivityTagsPrefs.getIconIdForTag(context, tag)),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
 

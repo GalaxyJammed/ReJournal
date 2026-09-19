@@ -10,34 +10,48 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.IconButton
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -47,47 +61,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.rejournal.data.AppTheme
+import com.example.rejournal.data.BackupHelper
 import com.example.rejournal.data.ExportHelper
 import com.example.rejournal.data.LockPrefs
-import com.example.rejournal.notifications.ReminderPrefs
-import com.example.rejournal.notifications.ReminderScheduler
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.graphics.Color
-import com.example.rejournal.data.AppTheme
-import com.example.rejournal.data.ThemePrefs
-import com.example.rejournal.ui.theme.ThemeState
-import com.example.rejournal.ui.theme.previewColorFor
-import com.example.rejournal.ui.theme.themePreviewColors
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import com.example.rejournal.data.BackupHelper
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.rejournal.data.MoodAppearancePrefs
 import com.example.rejournal.data.MoodDisplayMode
 import com.example.rejournal.data.MoodPalettes
+import com.example.rejournal.data.ThemePrefs
+import com.example.rejournal.notifications.ReminderPrefs
+import com.example.rejournal.notifications.ReminderScheduler
 import com.example.rejournal.ui.theme.MoodVisualsState
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.CenterAlignedTopAppBar
-import com.example.rejournal.ui.verticalScrollbar
+import com.example.rejournal.ui.theme.ThemeState
+import com.example.rejournal.ui.theme.themePreviewColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +103,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     var pinError by remember { mutableStateOf<String?>(null) }
 
     var showImportConfirmDialog by remember { mutableStateOf(false) }
-    var pendingImportUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var importResultCount by remember { mutableStateOf<Int?>(null) }
 
     var moodMode by remember { mutableStateOf(MoodAppearancePrefs.getMode(context)) }
@@ -164,6 +157,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = { CenterAlignedTopAppBar(title = { Text("Settings") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         val scrollState = rememberScrollState()
@@ -327,54 +321,11 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
 
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             collapsedPalettes.forEach { name ->
-                                val previewColors = if (name == "Custom") customColors else MoodPalettes.presets[name]!!
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { applyPalette(name) },
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                        previewColors.forEach { colorLong ->
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(20.dp)
-                                                    .background(Color(colorLong), CircleShape)
-                                            )
-                                        }
-                                    }
-                                    Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                                    if (paletteName == name) {
-                                        Icon(Icons.Filled.Check, contentDescription = "Selected")
-                                    }
-                                }
+                                PaletteRow(name, paletteName, customColors, onClick = { applyPalette(name) })
                             }
-
                             if (moodPalettesExpanded) {
                                 remainingPalettes.forEach { name ->
-                                    val previewColors = if (name == "Custom") customColors else MoodPalettes.presets[name]!!
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable { applyPalette(name) },
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                            previewColors.forEach { colorLong ->
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(20.dp)
-                                                        .background(Color(colorLong), CircleShape)
-                                                )
-                                            }
-                                        }
-                                        Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                                        if (paletteName == name) {
-                                            Icon(Icons.Filled.Check, contentDescription = "Selected")
-                                        }
-                                    }
+                                    PaletteRow(name, paletteName, customColors, onClick = { applyPalette(name) })
                                 }
                             }
                         }
@@ -491,7 +442,6 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     )
                 }
             }
-
 
             CategoryLabel("Backup", topPadding = 20.dp)
             SettingsCard {
@@ -697,6 +647,32 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 )
             }
         )
+    }
+}
+
+@Composable
+private fun PaletteRow(name: String, selectedName: String, customColors: List<Long>, onClick: () -> Unit) {
+    val previewColors = if (name == "Custom") customColors else MoodPalettes.presets[name]!!
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            previewColors.forEach { colorLong ->
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .background(Color(colorLong), CircleShape)
+                )
+            }
+        }
+        Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        if (selectedName == name) {
+            Icon(Icons.Filled.Check, contentDescription = "Selected")
+        }
     }
 }
 

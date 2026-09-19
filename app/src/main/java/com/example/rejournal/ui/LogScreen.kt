@@ -57,8 +57,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import com.example.rejournal.data.TimeCapsule
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 import com.example.rejournal.data.ReflectionPrefs
 import kotlin.random.Random
 import com.example.rejournal.data.AchievementCalculator
@@ -141,7 +139,8 @@ fun LogScreen(
     var currentYear by remember { mutableStateOf(LocalDate.now().year) }
 
     val timeCapsulesForAchievements by viewModel.allTimeCapsules.collectAsState()
-    val goalCompletionsForAchievements = remember(entries) { GoalProgressPrefs.totalCompletions(context) }
+    val goalCompletionsForAchievements =
+        remember(entries) { GoalProgressPrefs.totalCompletions(context) }
     var achievementQueue by remember { mutableStateOf(listOf<AchievementTier>()) }
 
     LaunchedEffect(entries, timeCapsulesForAchievements) {
@@ -150,7 +149,8 @@ fun LogScreen(
         )
         if (newly.isNotEmpty()) {
             AchievementPrefs.markUnlocked(context, newly)
-            achievementQueue = achievementQueue + AchievementDefinitions.allTiers.filter { it.id in newly }
+            achievementQueue =
+                achievementQueue + AchievementDefinitions.allTiers.filter { it.id in newly }
         }
     }
 
@@ -158,11 +158,12 @@ fun LogScreen(
 
     LaunchedEffect(entries) {
         val candidates = entries.filter { it.mood >= 4 && it.date != LocalDate.now() }
-        positiveMemoryEntry = if (candidates.isNotEmpty()) candidates[Random.nextInt(candidates.size)] else null
+        positiveMemoryEntry =
+            if (candidates.isNotEmpty()) candidates[Random.nextInt(candidates.size)] else null
     }
 
-
     Scaffold(
+        containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             CenterAlignedTopAppBar(
@@ -222,7 +223,8 @@ fun LogScreen(
 
             OutlinedButton(
                 onClick = {
-                    viewMode = if (viewMode == LogViewMode.CALENDAR) LogViewMode.YEAR_PIXELS else LogViewMode.CALENDAR
+                    viewMode =
+                        if (viewMode == LogViewMode.CALENDAR) LogViewMode.YEAR_PIXELS else LogViewMode.CALENDAR
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -281,6 +283,7 @@ fun LogScreen(
             }
         }
     }
+
     capsuleBeingShown?.let { capsule ->
         AlertDialog(
             onDismissRequest = { },
@@ -298,7 +301,9 @@ fun LogScreen(
         AlertDialog(
             onDismissRequest = { },
             confirmButton = {
-                TextButton(onClick = { achievementQueue = achievementQueue.drop(1) }) { Text("Nice!") }
+                TextButton(onClick = {
+                    achievementQueue = achievementQueue.drop(1)
+                }) { Text("Nice!") }
             },
             title = { Text("🏆 Achievement Unlocked!") },
             text = {

@@ -1,6 +1,7 @@
 package com.example.rejournal.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +33,7 @@ fun MoodGlyph(moodValue: Int, size: Dp = 24.dp, textStyle: TextStyle = MaterialT
     if (mode == MoodDisplayMode.EMOJI) {
         Text(moodEmojis[moodValue - 1], style = textStyle)
     } else {
-        androidx.compose.foundation.layout.Box(
+        Box(
             modifier = Modifier
                 .size(size)
                 .background(moodColorFor(moodValue), CircleShape)

@@ -25,7 +25,7 @@ fun Modifier.verticalScrollbar(scrollState: ScrollState, color: Color = Material
                 val viewportHeight = size.height
                 val contentHeight = viewportHeight + maxValue
                 val thumbHeight = (viewportHeight / contentHeight * viewportHeight)
-                    .coerceIn(16.dp.toPx(), viewportHeight * 0.2f) // Keep it "tiny"
+                    .coerceIn(16.dp.toPx(), viewportHeight * 0.2f)
                 val scrollFraction = scrollState.value.toFloat() / maxValue
                 val thumbY = scrollFraction * (viewportHeight - thumbHeight)
                 drawRoundRect(

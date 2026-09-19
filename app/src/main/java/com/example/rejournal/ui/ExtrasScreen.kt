@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
@@ -37,6 +38,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.QuestionAnswer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,9 +53,11 @@ fun ExtrasScreen(
     onTimeCapsulesClick: () -> Unit,
     onAchievementsClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onSyncClick: () -> Unit
+    onSyncClick: () -> Unit,
+    onAboutClick: () -> Unit
 ) {
     Scaffold(
+        containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { CenterAlignedTopAppBar(title = { Text("Extras") }) }
     ) { padding: PaddingValues ->
@@ -92,6 +97,10 @@ fun ExtrasScreen(
                 ExtrasRow(Icons.Filled.Settings, "Settings", onSettingsClick)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.Sync, "Sync", onSyncClick)
+            }
+
+            ExtrasCard {
+                ExtrasRow(Icons.Filled.Info, "About", onAboutClick)
             }
         }
     }
