@@ -11,7 +11,7 @@ object GoalProgressCalculator {
             GoalMetric.PHOTOS -> sinceStart.sumOf { it.photoPaths.size }
             GoalMetric.AUDIO_MEMOS -> sinceStart.sumOf { it.audioPaths.size }
             GoalMetric.ENTRIES_LOGGED -> sinceStart.size
-            GoalMetric.STREAK -> StreakCalculator.calculate(entries).currentStreak
+            GoalMetric.STREAK -> StreakCalculator.calculate(sinceStart).currentStreak
             GoalMetric.ACTIVITY_TAG -> sinceStart.count { definition.activityTag in it.activities }
             GoalMetric.HIGH_ENERGY_DAYS -> sinceStart.count { it.energy >= 4 }
             GoalMetric.LOW_STRESS_DAYS -> sinceStart.count { it.stress <= 2 }

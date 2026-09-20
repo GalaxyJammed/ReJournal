@@ -4,7 +4,19 @@ import android.content.Context
 
 enum class MoodDisplayMode { EMOJI, CIRCLE }
 
-val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
+object MoodEmojiSets {
+    val default = listOf("😞", "😕", "😐", "🙂", "😄")
+    val weather = listOf("⛈️", "🌧️", "☁️", "🌤️", "☀️")
+    val animals = listOf("🦎", "🦊", "🐱", "🐶", "🦁")
+
+    val presets: Map<String, List<String>> = linkedMapOf(
+        "Default" to default,
+        "Weather" to weather,
+        "Animals" to animals
+    )
+}
+
+val moodEmojis = MoodEmojiSets.default
 
 object MoodPalettes {
     val default = listOf(0xFFE57373L, 0xFFFFB74DL, 0xFFFFF176L, 0xFF81C784L, 0xFF4CAF50L)
@@ -24,6 +36,7 @@ object MoodAppearancePrefs {
     private const val PREFS_NAME = "mood_appearance_prefs"
     private const val KEY_MODE = "mode"
     private const val KEY_PALETTE = "palette"
+    private const val KEY_EMOJI_SET = "emoji_set"
     private const val KEY_CUSTOM_PREFIX = "custom_color_"
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -43,6 +56,12 @@ object MoodAppearancePrefs {
         prefs(context).edit().putString(KEY_PALETTE, name).apply()
     }
 
+    fun getEmojiSetName(context: Context): String = prefs(context).getString(KEY_EMOJI_SET, "Default") ?: "Default"
+
+    fun setEmojiSetName(context: Context, name: String) {
+        prefs(context).edit().putString(KEY_EMOJI_SET, name).apply()
+    }
+
     fun getCustomColors(context: Context): List<Long> =
         (0..4).map { prefs(context).getLong("$KEY_CUSTOM_PREFIX$it", MoodPalettes.default[it]) }
 
@@ -53,5 +72,25 @@ object MoodAppearancePrefs {
     fun getActiveColors(context: Context): List<Long> {
         val paletteName = getPaletteName(context)
         return if (paletteName == "Custom") getCustomColors(context) else MoodPalettes.presets[paletteName] ?: MoodPalettes.default
+    }
+
+    private const val KEY_CUSTOM_EMOJI_PREFIX = "custom_emoji_"
+
+    fun getCustomEmojis(context: Context): List<String> =
+        (0..4).map { prefs(context).getString("$KEY_CUSTOM_EMOJI_PREFIX$it", MoodEmojiSets.default[it]) ?: MoodEmojiSets.default[it] }
+
+    fun setCustomEmoji(context: Context, index: Int, emoji: String) {
+        prefs(context).edit().putString("$KEY_CUSTOM_EMOJI_PREFIX$index", emoji).apply()
+    }
+
+    fun getActiveEmojis(context: Context): List<String> {
+        val name = getEmojiSetName(context)
+        return if (name == "Custom") getCustomEmojis(context) else MoodEmojiSets.presets[name] ?: MoodEmojiSets.default
+    }
+
+    fun resetCustomEmojis(context: Context) {
+        val editor = prefs(context).edit()
+        (0..4).forEach { editor.remove("$KEY_CUSTOM_EMOJI_PREFIX$it") }
+        editor.apply()
     }
 }

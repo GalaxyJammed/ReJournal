@@ -35,6 +35,7 @@ import com.example.rejournal.data.GoalDefinition
 import com.example.rejournal.data.GoalProgressCalculator
 import com.example.rejournal.data.GoalProgressPrefs
 import androidx.compose.material3.CenterAlignedTopAppBar
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import com.example.rejournal.ui.verticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,20 +71,22 @@ fun GoalsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = softCardShape,
-                border = softCardBorder(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            ButterflyCardWrapper(seed = "GoalsSummary", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
-                    Text("$totalCompletions", style = MaterialTheme.typography.headlineLarge)
-                    Text("Total Completed Goals", style = MaterialTheme.typography.bodyMedium)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("$totalCompletions", style = MaterialTheme.typography.headlineLarge)
+                        Text("Total Completed Goals", style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
 
@@ -96,8 +99,8 @@ fun GoalsScreen(
                 Text("You don't have any active goals yet.", style = MaterialTheme.typography.bodyMedium)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    activeGoals.forEach { definition ->
-                        GoalRow(definition = definition, context = context, onClick = { onGoalClick(definition.id) })
+                    activeGoals.forEachIndexed { index, definition ->
+                        GoalRow(definition = definition, context = context, index = index + 1, onClick = { onGoalClick(definition.id) })
                     }
                 }
             }
@@ -122,38 +125,40 @@ fun GoalsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GoalRow(definition: GoalDefinition, context: Context, onClick: () -> Unit) {
+private fun GoalRow(definition: GoalDefinition, context: Context, index: Int, onClick: () -> Unit) {
     val state = GoalProgressPrefs.getState(context, definition.id)
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = softCardShape,
-        border = softCardBorder(),
-        onClick = onClick
-    ) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(definition.title, style = MaterialTheme.typography.titleMedium)
-                    Text(definition.description, style = MaterialTheme.typography.bodySmall)
+    ButterflyCardWrapper(seed = "Goal_${definition.id}", indexOffset = index, modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = softCardShape,
+            border = softCardBorder(),
+            onClick = onClick
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(definition.title, style = MaterialTheme.typography.titleMedium)
+                        Text(definition.description, style = MaterialTheme.typography.bodySmall)
+                    }
+                    if (state.isActive) {
+                        Text("In progress", style = MaterialTheme.typography.bodySmall)
+                    }
                 }
-                if (state.isActive) {
-                    Text("In progress", style = MaterialTheme.typography.bodySmall)
-                }
+                HorizontalDivider()
+                Text(
+                    "Completed ${state.completions} time${if (state.completions == 1) "" else "s"}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
             }
-            HorizontalDivider()
-            Text(
-                "Completed ${state.completions} time${if (state.completions == 1) "" else "s"}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
         }
     }
 }

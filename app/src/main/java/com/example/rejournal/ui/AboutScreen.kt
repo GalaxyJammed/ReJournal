@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,12 +80,14 @@ private fun CategoryLabelPublic(text: String) {
 
 @Composable
 private fun AboutCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = softCardShape,
-        border = softCardBorder()
-    ) {
-        Column { content() }
+    ButterflyCardWrapper(seed = "AboutCardMain", modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = softCardShape,
+            border = softCardBorder()
+        ) {
+            Column { content() }
+        }
     }
 }
 

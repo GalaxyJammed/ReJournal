@@ -32,6 +32,7 @@ import com.example.rejournal.data.LockPrefs
 import com.example.rejournal.data.MoodRepository
 import com.example.rejournal.ui.ExtrasScreen
 import com.example.rejournal.data.GoalCategory
+import com.example.rejournal.data.MoodAppearancePrefs
 import com.example.rejournal.ui.GoalCategoryScreen
 import com.example.rejournal.ui.GoalDetailScreen
 import com.example.rejournal.ui.GoalSuggestionsScreen
@@ -64,6 +65,8 @@ import com.example.rejournal.ui.WhatsNewScreen
 import com.example.rejournal.ui.FaqScreen
 import com.example.rejournal.ui.AboutScreen
 import com.example.rejournal.ui.NotificationTroubleshootScreen
+import com.example.rejournal.ui.theme.MoodVisualsState
+import com.example.rejournal.ui.SplashGate
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,13 +77,16 @@ class MainActivity : FragmentActivity() {
         com.example.rejournal.ui.theme.ThemeState.darkMode.value = com.example.rejournal.data.ThemePrefs.isDarkMode(this)
         com.example.rejournal.ui.theme.MoodVisualsState.mode.value = com.example.rejournal.data.MoodAppearancePrefs.getMode(this)
         com.example.rejournal.ui.theme.MoodVisualsState.colors.value = com.example.rejournal.data.MoodAppearancePrefs.getActiveColors(this)
+        MoodVisualsState.emojis.value = MoodAppearancePrefs.getActiveEmojis(this)
 
         val database = (application as RejournalApplication).database
         val repository = MoodRepository(database.moodDao(), database.importantDayDao(), database.timeCapsuleDao())
 
         setContent {
             ReJournalTheme {
-                AppRoot(repository = repository, activity = this)
+                SplashGate {
+                    AppRoot(repository = repository, activity = this)
+                }
             }
         }
     }
@@ -203,6 +209,7 @@ fun AppNavHost(repository: MoodRepository) {
             }
             composable(Screen.Extras.route) {
                 ExtrasScreen(
+                    viewModel = viewModel,
                     onGoalsClick = { navController.navigate(Screen.Goals.route) },
                     onPhotoAlbumClick = { navController.navigate(Screen.PhotoAlbum.route) },
                     onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
@@ -245,6 +252,7 @@ fun AppNavHost(repository: MoodRepository) {
                 val categoryName = backStackEntry.arguments?.getString("category") ?: GoalCategory.HABITS.name
                 val category = GoalCategory.entries.find { it.name == categoryName } ?: GoalCategory.HABITS
                 GoalSuggestionsScreen(
+                    viewModel = viewModel,
                     category = category,
                     onGoalSelected = { navController.popBackStack(Screen.Goals.route, inclusive = false) },
                     onBack = { navController.popBackStack() }

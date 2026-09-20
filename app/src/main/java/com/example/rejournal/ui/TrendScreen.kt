@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import com.example.rejournal.data.MoodDisplayMode
-import com.example.rejournal.data.moodEmojis
 import com.example.rejournal.ui.theme.MoodVisualsState
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -472,6 +471,7 @@ private fun MoodLineChart(entries: List<MoodEntry>, isExpanded: Boolean = false)
     val dateFormatter = DateTimeFormatter.ofPattern("d")
     val axisLabelStyle = TextStyle(fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
     val mode by MoodVisualsState.mode
+    val emojis by MoodVisualsState.emojis
     val surfaceColor = MaterialTheme.colorScheme.surface
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
@@ -496,7 +496,7 @@ private fun MoodLineChart(entries: List<MoodEntry>, isExpanded: Boolean = false)
             )
 
             if (mode == MoodDisplayMode.EMOJI) {
-                val emoji = moodEmojis[mood - 1]
+                val emoji = emojis[mood - 1]
                 val layout = textMeasurer.measure(emoji, style = TextStyle(fontSize = 16.sp))
                 drawText(
                     textMeasurer = textMeasurer,

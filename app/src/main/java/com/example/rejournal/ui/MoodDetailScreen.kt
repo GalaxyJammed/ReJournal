@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.MoodDetailStatsCalculator
-import com.example.rejournal.data.moodEmojis
+import com.example.rejournal.ui.theme.MoodVisualsState
 import java.time.format.TextStyle
 import java.util.Locale
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -37,11 +37,12 @@ fun MoodDetailScreen(viewModel: MoodViewModel, moodValue: Int, onBack: () -> Uni
     val stats = remember(entries, moodValue) {
         MoodDetailStatsCalculator.calculate(entries, moodValue)
     }
+    val emojis by MoodVisualsState.emojis
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("${moodEmojis[moodValue - 1]} ${moodLabels[moodValue - 1]} Days") }, navigationIcon = { BackButton(onBack) })
+            CenterAlignedTopAppBar(title = { Text("${emojis[moodValue - 1]} ${moodLabels[moodValue - 1]} Days") }, navigationIcon = { BackButton(onBack) })
         }
     ) { padding: PaddingValues ->
         Column(

@@ -29,7 +29,7 @@ import androidx.glance.text.TextStyle
 import com.example.rejournal.data.AppDatabase
 import com.example.rejournal.data.MoodEntry
 import com.example.rejournal.data.StreakCalculator
-import com.example.rejournal.data.moodEmojis
+import com.example.rejournal.data.MoodAppearancePrefs
 import com.example.rejournal.ui.theme.resolvedPrimaryColor
 import java.time.LocalDate
 
@@ -43,6 +43,7 @@ class TodayMoodWidget : GlanceAppWidget() {
         val todayEntry = entries.find { it.date == LocalDate.now() }
         val streak = StreakCalculator.calculate(entries).currentStreak
         val accent = resolvedPrimaryColor(context)
+        val activeEmojis = MoodAppearancePrefs.getActiveEmojis(context)
 
         provideContent {
             Column(
@@ -68,7 +69,7 @@ class TodayMoodWidget : GlanceAppWidget() {
                     modifier = GlanceModifier.fillMaxWidth().padding(12.dp),
                     horizontalAlignment = Alignment.Horizontal.CenterHorizontally
                 ) {
-                    moodEmojis.forEachIndexed { index, emoji ->
+                    activeEmojis.forEachIndexed { index, emoji ->
                         val moodValue = index + 1
                         val selected = todayEntry?.mood == moodValue
                         Box(

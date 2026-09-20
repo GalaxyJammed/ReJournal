@@ -15,7 +15,7 @@ fun softCardBorder(): BorderStroke {
     val outline = MaterialTheme.colorScheme.outlineVariant
     val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     val alpha = if (isDark) 0.8f else 0.7f
-    return BorderStroke(1.5.dp, outline.copy(alpha = alpha))
+    return BorderStroke(2.dp, outline.copy(alpha = alpha))
 }
 
 val softCardShape = RoundedCornerShape(16.dp)

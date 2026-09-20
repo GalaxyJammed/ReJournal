@@ -14,7 +14,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.MoodDisplayMode
-import com.example.rejournal.data.moodEmojis
 import com.example.rejournal.ui.theme.MoodVisualsState
 
 
@@ -30,8 +29,9 @@ fun moodColorFor(moodValue: Int): Color = moodColorList()[moodValue - 1]
 @Composable
 fun MoodGlyph(moodValue: Int, size: Dp = 24.dp, textStyle: TextStyle = MaterialTheme.typography.headlineSmall) {
     val mode by MoodVisualsState.mode
+    val emojis by MoodVisualsState.emojis
     if (mode == MoodDisplayMode.EMOJI) {
-        Text(moodEmojis[moodValue - 1], style = textStyle)
+        Text(emojis[moodValue - 1], style = textStyle)
     } else {
         Box(
             modifier = Modifier

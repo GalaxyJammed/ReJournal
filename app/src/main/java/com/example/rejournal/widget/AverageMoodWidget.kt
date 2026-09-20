@@ -21,7 +21,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.example.rejournal.MainActivity
 import com.example.rejournal.data.AppDatabase
-import com.example.rejournal.data.moodEmojis
+import com.example.rejournal.data.MoodAppearancePrefs
 import com.example.rejournal.ui.theme.resolvedPrimaryColor
 
 
@@ -32,6 +32,7 @@ class AverageMoodWidget : GlanceAppWidget() {
         val average = if (entries.isNotEmpty()) entries.map { it.mood }.average() else 0.0
         val roundedIndex = Math.round(average).toInt().coerceIn(1, 5) - 1
         val accent = resolvedPrimaryColor(context)
+        val activeEmojis = MoodAppearancePrefs.getActiveEmojis(context)
 
         provideContent {
             Column(
@@ -58,7 +59,7 @@ class AverageMoodWidget : GlanceAppWidget() {
                     if (entries.isEmpty()) {
                         Text("No entries yet", style = TextStyle(fontSize = 13.sp, color = ColorProvider(Color.White)))
                     } else {
-                        Text(moodEmojis[roundedIndex], style = TextStyle(fontSize = 28.sp))
+                        Text(activeEmojis[roundedIndex], style = TextStyle(fontSize = 28.sp))
                         Text(
                             String.format("%.1f", average),
                             style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ColorProvider(Color.White))

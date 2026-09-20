@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import com.example.rejournal.data.CalendarInfo
 import com.example.rejournal.data.CalendarSyncHelper
 import com.example.rejournal.data.CalendarSyncPrefs
@@ -120,13 +121,15 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     lastSyncedMonth?.let {
                         Text("Last synced: $it", style = MaterialTheme.typography.bodySmall)
                     }
-                    syncMessage?.let {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = softCardShape,
-                            border = softCardBorder()
-                        ) {
-                            Text(it, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)
+                    syncMessage?.let { msg ->
+                        ButterflyCardWrapper(seed = "SyncMessageCard_$msg", modifier = Modifier.fillMaxWidth()) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = softCardShape,
+                                border = softCardBorder()
+                            ) {
+                                Text(msg, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)
+                            }
                         }
                     }
                 }

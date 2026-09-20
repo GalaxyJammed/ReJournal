@@ -30,6 +30,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoalSuggestionsScreen(
+    viewModel: MoodViewModel,
     category: GoalCategory,
     onGoalSelected: () -> Unit,
     onBack: () -> Unit
@@ -63,6 +64,7 @@ fun GoalSuggestionsScreen(
                         onClick = {
                             if (GoalProgressPrefs.canStartNewGoal(context)) {
                                 GoalProgressPrefs.startGoal(context, definition.id)
+                                viewModel.refreshGoalStatus()
                                 onGoalSelected()
                             } else {
                                 showFullDialog = true

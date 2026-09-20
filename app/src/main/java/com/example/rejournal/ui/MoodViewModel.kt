@@ -15,6 +15,7 @@ import com.example.rejournal.data.TimeCapsule
 import com.example.rejournal.notifications.ImportantDayScheduler
 import com.example.rejournal.notifications.TimeCapsuleScheduler
 import com.example.rejournal.widget.AppWidgetsUpdater
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -26,6 +27,9 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.example.rejournal.data.CalendarSyncHelper
 import com.example.rejournal.data.CalendarSyncPrefs
+import com.example.rejournal.data.GoalProgressCalculator
+import com.example.rejournal.data.GoalProgressPrefs
+import com.example.rejournal.data.MediaItem
 import java.time.YearMonth
 
 class MoodViewModel(
@@ -66,8 +70,62 @@ class MoodViewModel(
             initialValue = StreakInfo(0, 0)
         )
 
-    var selectedPhoto: com.example.rejournal.data.MediaItem? = null
+    val activeGoalsCount = MutableStateFlow(0)
+
+    val timeCapsulesCount: StateFlow<Int> = allTimeCapsules.map { it.size }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
+
+    val photoAlbumCount: StateFlow<Int> = allEntries.map { list ->
+        list.sumOf { it.photoPaths.size }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
+
+    val voiceMemosCount: StateFlow<Int> = allEntries.map { list ->
+        list.sumOf { it.audioPaths.size }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
+
+    val importantDaysCount: StateFlow<Int> = allImportantDays.map { it.size }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
+
+    val favoriteDaysCount: StateFlow<Int> = allEntries.map { list ->
+        list.count { it.isFavorite }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
+
+    var selectedPhoto: MediaItem? = null
     var selectedPositiveMemory: MoodEntry? = null
+
+    init {
+        refreshGoalStatus()
+        viewModelScope.launch {
+            allEntries.collect {
+                refreshGoalStatus()
+            }
+        }
+    }
+
+    fun refreshGoalStatus() {
+        viewModelScope.launch {
+            GoalProgressCalculator.checkAndCompleteActiveGoals(appContext, allEntries.value)
+            activeGoalsCount.value = GoalProgressPrefs.activeCount(appContext)
+        }
+    }
 
     fun saveEntry(
         date: LocalDate,

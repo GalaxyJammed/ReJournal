@@ -118,6 +118,7 @@ fun GoalDetailScreen(
                         GoalProgressPrefs.startGoal(context, goalId)
                     }
                     state = GoalProgressPrefs.getState(context, goalId)
+                    viewModel.refreshGoalStatus()
                     scope.launch { AppWidgetsUpdater.updateAll(context) }
                 },
                 modifier = Modifier

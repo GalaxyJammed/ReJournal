@@ -50,11 +50,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rejournal.data.ActivityIcons
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MoodEntry
+import com.example.rejournal.ui.theme.MoodVisualsState
 import java.time.LocalDate
 import androidx.compose.foundation.lazy.rememberLazyListState
 
 private const val TOP_TAG_COUNT = 3
-private val moodEmojis = listOf("😞", "😕", "😐", "🙂", "😄")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +65,7 @@ fun SearchScreen(
 ) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
+    val emojis by MoodVisualsState.emojis
     val availableTags = remember { ActivityTagsPrefs.getAllTags(context) }
 
     var selectedMoods by remember { mutableStateOf(setOf<Int>()) }
@@ -119,6 +120,7 @@ fun SearchScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Search") },
+                navigationIcon = { BackButton(onBack) },
                 actions = {
                     if (hasFilters) {
                         TextButton(onClick = {
@@ -157,7 +159,7 @@ fun SearchScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        moodEmojis.forEachIndexed { index, emoji ->
+                        emojis.forEachIndexed { index, emoji ->
                             val moodValue = index + 1
                             FilterChip(
                                 selected = moodValue in selectedMoods,
@@ -278,7 +280,7 @@ fun SearchScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                "${moodEmojis[entry.mood - 1]}  ${entry.date}",
+                                "${emojis[entry.mood - 1]}  ${entry.date}",
                                 style = MaterialTheme.typography.titleMedium
                             )
                             if (entry.isFavorite) {

@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,13 +73,14 @@ fun ImportantDaysScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                importantDays.forEach { day ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = softCardShape,
-                        border = softCardBorder(),
-                        onClick = { dayPendingDeletion = day }
-                    ) {
+                importantDays.forEachIndexed { idx, day ->
+                    ButterflyCardWrapper(seed = "ImportantDay_${day.date}", indexOffset = idx, modifier = Modifier.fillMaxWidth()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = softCardShape,
+                            border = softCardBorder(),
+                            onClick = { dayPendingDeletion = day }
+                        ) {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -95,6 +97,7 @@ fun ImportantDaysScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     }
                 }
             }
+        }
         }
     }
 

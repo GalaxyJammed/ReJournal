@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -79,18 +80,20 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = softCardShape,
-                border = softCardBorder(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            ButterflyCardWrapper(seed = "AchievementsHeader", modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
-                    Text("$groupsCompleted / ${AchievementDefinitions.groups.size}", style = MaterialTheme.typography.headlineLarge)
-                    Text("Fully Completed", style = MaterialTheme.typography.bodyMedium)
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("$groupsCompleted / ${AchievementDefinitions.groups.size}", style = MaterialTheme.typography.headlineLarge)
+                        Text("Fully Completed", style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
 
@@ -114,16 +117,17 @@ private fun AchievementGroupRow(group: AchievementGroup, currentValue: Int, tier
     val nextTier = if (!isMaxed) group.tiers[tierIndex + 1] else null
     val headlineTier = nextTier ?: group.tiers.last()
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = softCardShape,
-        border = softCardBorder()
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    ButterflyCardWrapper(seed = "Achievement_${group.groupId}", modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = softCardShape,
+            border = softCardBorder()
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -172,6 +176,7 @@ private fun AchievementGroupRow(group: AchievementGroup, currentValue: Int, tier
             }
             val fillFraction = ((tierIndex + 1).toFloat() / group.tiers.size).coerceIn(0f, 1f)
             AchievementTrophy(fillFraction = fillFraction)
+            }
         }
     }
 }

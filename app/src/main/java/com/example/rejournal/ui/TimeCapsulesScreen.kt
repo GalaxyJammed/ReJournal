@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -73,34 +74,36 @@ fun TimeCapsulesScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                capsules.forEach { capsule ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = softCardShape,
-                        border = softCardBorder()
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                capsules.forEachIndexed { idx, capsule ->
+                    ButterflyCardWrapper(seed = "TimeCapsule_${capsule.id}", indexOffset = idx, modifier = Modifier.fillMaxWidth()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = softCardShape,
+                            border = softCardBorder()
                         ) {
-                            Column {
-                                Text(
-                                    if (capsule.type == CapsuleType.MOOD) "Mood Capsule" else "Time Capsule",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(capsuleSubtitle(capsule), style = MaterialTheme.typography.bodySmall)
-                                Text(
-                                    when {
-                                        capsule.opened -> "Delivered — opened"
-                                        capsule.delivered -> "Delivered — waiting for you to view it"
-                                        else -> "Waiting to trigger"
-                                    },
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            }
-                            IconButton(onClick = { pendingDeletion = capsule }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete capsule")
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        if (capsule.type == CapsuleType.MOOD) "Mood Capsule" else "Time Capsule",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(capsuleSubtitle(capsule), style = MaterialTheme.typography.bodySmall)
+                                    Text(
+                                        when {
+                                            capsule.opened -> "Delivered — opened"
+                                            capsule.delivered -> "Delivered — waiting for you to view it"
+                                            else -> "Waiting to trigger"
+                                        },
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
+                                IconButton(onClick = { pendingDeletion = capsule }) {
+                                    Icon(Icons.Filled.Delete, contentDescription = "Delete capsule")
+                                }
                             }
                         }
                     }

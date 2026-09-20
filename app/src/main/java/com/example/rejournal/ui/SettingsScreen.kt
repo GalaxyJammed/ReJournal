@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import java.text.BreakIterator
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -74,6 +76,7 @@ import com.example.rejournal.data.ExportHelper
 import com.example.rejournal.data.LockPrefs
 import com.example.rejournal.data.MoodAppearancePrefs
 import com.example.rejournal.data.MoodDisplayMode
+import com.example.rejournal.data.MoodEmojiSets
 import com.example.rejournal.data.MoodPalettes
 import com.example.rejournal.data.ThemePrefs
 import com.example.rejournal.notifications.ReminderPrefs
@@ -110,7 +113,11 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     var paletteName by remember { mutableStateOf(MoodAppearancePrefs.getPaletteName(context)) }
     var customColors by remember { mutableStateOf(MoodAppearancePrefs.getCustomColors(context)) }
     var editingColorIndex by remember { mutableStateOf<Int?>(null) }
+    var emojiSetName by remember { mutableStateOf(MoodAppearancePrefs.getEmojiSetName(context)) }
+    var customEmojis by remember { mutableStateOf(MoodAppearancePrefs.getCustomEmojis(context)) }
+    var editingEmojiIndex by remember { mutableStateOf<Int?>(null) }
     var hexInput by remember { mutableStateOf("") }
+    var emojiInput by remember { mutableStateOf("") }
     var themesExpanded by remember { mutableStateOf(false) }
     var moodPalettesExpanded by remember { mutableStateOf(false) }
 
@@ -119,6 +126,13 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
         MoodAppearancePrefs.setPaletteName(context, name)
         val colors = if (name == "Custom") customColors else MoodPalettes.presets[name] ?: MoodPalettes.default
         MoodVisualsState.colors.value = colors
+    }
+
+    fun applyEmojiSet(name: String) {
+        emojiSetName = name
+        MoodAppearancePrefs.setEmojiSetName(context, name)
+        val emojis = if (name == "Custom") customEmojis else MoodEmojiSets.presets[name] ?: MoodEmojiSets.default
+        MoodVisualsState.emojis.value = emojis
     }
 
     val importLauncher = rememberLauncherForActivityResult(
@@ -171,7 +185,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             CategoryLabel("Reminders")
-            SettingsCard {
+            SettingsCard(seed = "SettingsReminders", index = 0) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -207,7 +221,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             }
 
             CategoryLabel("App Lock", topPadding = 20.dp)
-            SettingsCard {
+            SettingsCard(seed = "SettingsLock", index = 1) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -276,7 +290,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             }
 
             CategoryLabel("Mood Appearance", topPadding = 20.dp)
-            SettingsCard {
+            SettingsCard(seed = "SettingsMoodAppearance", index = 2) {
                 Box(modifier = Modifier.padding(16.dp)) {
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         MoodDisplayMode.entries.forEachIndexed { index, mode ->
@@ -290,6 +304,49 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                 }
                             ) {
                                 Text(if (mode == MoodDisplayMode.EMOJI) "Emoji" else "Circle")
+                            }
+                        }
+                    }
+                }
+
+                if (moodMode == MoodDisplayMode.EMOJI) {
+                    HorizontalDivider()
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Emoji Set", style = MaterialTheme.typography.titleMedium)
+                        }
+
+                        val allSetNames = remember { MoodEmojiSets.presets.keys.toList() + "Custom" }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            allSetNames.forEach { name ->
+                                EmojiSetRow(name, emojiSetName, customEmojis, onClick = { applyEmojiSet(name) })
+                            }
+                        }
+
+                        if (emojiSetName == "Custom") {
+                            Text("Tap an emoji to change it", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 8.dp)) {
+                                customEmojis.forEachIndexed { index, emoji ->
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clickable {
+                                                editingEmojiIndex = index
+                                                emojiInput = emoji
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(emoji, style = MaterialTheme.typography.headlineSmall)
+                                    }
+                                }
                             }
                         }
                     }
@@ -352,7 +409,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             }
 
             CategoryLabel("App Appearance", topPadding = 20.dp)
-            SettingsCard {
+            SettingsCard(seed = "SettingsAppAppearance", index = 3) {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -444,7 +501,7 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             }
 
             CategoryLabel("Backup", topPadding = 20.dp)
-            SettingsCard {
+            SettingsCard(seed = "SettingsBackup", index = 4) {
                 Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Button(
                         onClick = {
@@ -648,6 +705,91 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             }
         )
     }
+
+    editingEmojiIndex?.let { index ->
+        AlertDialog(
+            onDismissRequest = { editingEmojiIndex = null },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (emojiInput.isNotEmpty()) {
+                            MoodAppearancePrefs.setCustomEmoji(context, index, emojiInput)
+                            customEmojis = MoodAppearancePrefs.getCustomEmojis(context)
+                            if (emojiSetName == "Custom") MoodVisualsState.emojis.value = customEmojis
+                        }
+                        editingEmojiIndex = null
+                    },
+                    enabled = emojiInput.isNotEmpty()
+                ) { Text("Save") }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingEmojiIndex = null }) { Text("Cancel") }
+            },
+            title = { Text("Mood ${index + 1} emoji") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = emojiInput,
+                        onValueChange = { input ->
+                            if (input.isNotEmpty()) {
+                                val it = BreakIterator.getCharacterInstance()
+                                it.setText(input)
+                                val last = it.last()
+                                val start = it.previous()
+                                val single = input.substring(start, last)
+                                
+                                val codePoint = single.codePointAt(0)
+                                val isLikelyEmoji = (Character.getType(codePoint) == Character.OTHER_SYMBOL.toInt() || 
+                                                  codePoint > 0xFFFF || 
+                                                  codePoint in 0x203C..0x3299) && 
+                                                  !Character.isLetterOrDigit(codePoint)
+                                
+                                if (isLikelyEmoji) {
+                                    emojiInput = single
+                                }
+                            } else {
+                                emojiInput = ""
+                            }
+                        },
+                        label = { Text("Enter an emoji") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    )
+                    if (emojiInput.isEmpty()) {
+                        Text(
+                            "Please enter an emoji",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+                        )
+                    }
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun EmojiSetRow(name: String, selectedName: String, customEmojis: List<String>, onClick: () -> Unit) {
+    val previewEmojis = if (name == "Custom") customEmojis else MoodEmojiSets.presets[name]!!
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            previewEmojis.forEach { emoji ->
+                Text(emoji, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        if (selectedName == name) {
+            Icon(Icons.Filled.Check, contentDescription = "Selected")
+        }
+    }
 }
 
 @Composable
@@ -688,16 +830,18 @@ private fun CategoryLabel(text: String, topPadding: Dp = 0.dp) {
 }
 
 @Composable
-private fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = softCardShape,
-        border = softCardBorder()
-    ) {
-        Column(
+private fun SettingsCard(seed: String = "SettingsCard", index: Int = 0, content: @Composable ColumnScope.() -> Unit) {
+    ButterflyCardWrapper(seed = seed, indexOffset = index, modifier = Modifier.fillMaxWidth()) {
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            content = content
-        )
+            shape = softCardShape,
+            border = softCardBorder()
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                content = content
+            )
+        }
     }
 }
 

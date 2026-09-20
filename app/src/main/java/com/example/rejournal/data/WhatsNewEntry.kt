@@ -9,15 +9,15 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "2.7.0",
+            version = "2.8.0",
             date = "19/9/2026",
             highlights = listOf(
-                "Added an outline to cards to make them look nicer",
-                "Changed the way Constellation works for a cleaner and nicer look",
-                "Finally added version checking. If you have an outdated version it will let you know in the main menu.",
-                "Trend screen now only shows 7 latest days, clicking on the trend screen shows the entire month",
-                "Instead of a 1,5 number trend screen now copies your personal style of mood icons (emojis/circles)",
-                "Deleting a log now adds a popup asking for confirmation before actually deleting"
+                "Added a custom section in the Emojis Appearance area to add your own custom emojis for moods",
+                "A few cards in 'More' now show a number besides them of how much of {x} you have in that card",
+                "Each card has a 35% to have a variation of a miniature butterfly appear in it to give the app more soul",
+                "Entering the app now adds a splash screen of the logo instead of a white screen to help the app load".
+                "Fixed bug where users could spam the 7 day goal if they had at least 7 days logged",
+                "Added back button on search menu"
 
 
             )

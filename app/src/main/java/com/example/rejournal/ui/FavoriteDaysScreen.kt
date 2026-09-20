@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import com.example.rejournal.data.MoodEntry
 import java.time.LocalDate
 
@@ -59,13 +60,14 @@ fun FavoriteDaysScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                favorites.forEach { entry: MoodEntry ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = softCardShape,
-                        border = softCardBorder(),
-                        onClick = { onDayClick(entry.date) }
-                    ) {
+                favorites.forEachIndexed { idx, entry ->
+                    ButterflyCardWrapper(seed = "FavDay_${entry.date}", indexOffset = idx, modifier = Modifier.fillMaxWidth()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = softCardShape,
+                            border = softCardBorder(),
+                            onClick = { onDayClick(entry.date) }
+                        ) {
                         androidx.compose.foundation.layout.Row(
                             modifier = Modifier.fillMaxWidth().padding(16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -80,6 +82,7 @@ fun FavoriteDaysScreen(
                             Icon(Icons.Filled.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         }
                     }
+                }
                 }
             }
         }

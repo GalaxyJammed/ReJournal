@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -209,38 +210,38 @@ fun LogScreen(
                 .padding(16.dp)
         ) {
             if (streak.currentStreak > 0 || streak.longestStreak > 0) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = softCardShape,
-                    border = softCardBorder(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                ButterflyCardWrapper(seed = "LogStreak_${streak.currentStreak}", indexOffset = 0, modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     ) {
-                        Column {
-                            Text(
-                                "🔥 ${streak.currentStreak} day${if (streak.currentStreak == 1) "" else "s"}",
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                            Text(
-                                "Current streak",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                "Best: ${streak.longestStreak}",
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    "🔥 ${streak.currentStreak} day${if (streak.currentStreak == 1) "" else "s"}",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                Text(
+                                    "Current streak",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    "Best: ${streak.longestStreak}",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                         }
                     }
                 }
@@ -315,22 +316,22 @@ fun LogScreen(
             }
 
             motivationalMessage?.let { message ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    shape = softCardShape,
-                    border = softCardBorder(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Text(
-                        message,
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
+                ButterflyCardWrapper(seed = "LogMotivation_$message", indexOffset = 1, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    ) {
+                        Text(
+                            message,
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }

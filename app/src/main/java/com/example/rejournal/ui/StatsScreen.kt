@@ -38,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +67,8 @@ import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.CenterAlignedTopAppBar
+import com.example.rejournal.data.ActivityIcons
+import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.ui.verticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,36 +147,40 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
             if (stats.totalEntries == 0) {
                 Text("No entries logged in this period yet.")
             } else {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = softCardShape,
-                    border = softCardBorder()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            "${stats.totalEntries} day${if (stats.totalEntries == 1) "" else "s"} logged",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        StatLine(Icons.Filled.EmojiEmotions, "Average mood: ${String.format("%.1f", stats.averageMood)} / 5")
-                        StatLine(Icons.Filled.TrendingUp, "Average energy: ${String.format("%.1f", stats.averageEnergy)} / 5")
-                        StatLine(Icons.Filled.WorkOutline, "Average productivity: ${String.format("%.1f", stats.averageProductivity)} / 5")
-                        StatLine(Icons.Filled.Psychology, "Average stress: ${String.format("%.1f", stats.averageStress)} / 5")
-                        StatLine(Icons.Filled.Bedtime, "Average sleep: ${String.format("%.1f", stats.averageSleep)} / 5")
+                ButterflyCardWrapper(seed = "StatsLogged_${stats.totalEntries}", modifier = Modifier.fillMaxWidth()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder()
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                "${stats.totalEntries} day${if (stats.totalEntries == 1) "" else "s"} logged",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            StatLine(Icons.Filled.EmojiEmotions, "Average mood: ${String.format("%.1f", stats.averageMood)} / 5")
+                            StatLine(Icons.Filled.TrendingUp, "Average energy: ${String.format("%.1f", stats.averageEnergy)} / 5")
+                            StatLine(Icons.Filled.WorkOutline, "Average productivity: ${String.format("%.1f", stats.averageProductivity)} / 5")
+                            StatLine(Icons.Filled.Psychology, "Average stress: ${String.format("%.1f", stats.averageStress)} / 5")
+                            StatLine(Icons.Filled.Bedtime, "Average sleep: ${String.format("%.1f", stats.averageSleep)} / 5")
+                        }
                     }
                 }
 
                 Text("Mood breakdown (tap a mood for details)", style = MaterialTheme.typography.titleMedium)
                 MoodDistributionChart(stats.moodCounts, moodColors = moodColors, onMoodClick = onMoodClick)
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = softCardShape,
-                    border = softCardBorder(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        StatLine(Icons.Filled.SentimentVerySatisfied, "Best day of the ${periodNoun(period)}: ${stats.bestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}")
-                        StatLine(Icons.Filled.SentimentDissatisfied, "Toughest day of the ${periodNoun(period)}: ${stats.toughestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}")
+                ButterflyCardWrapper(seed = "StatsMilestone_${stats.bestDaysOfWeek.size}", modifier = Modifier.fillMaxWidth()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            StatLine(Icons.Filled.SentimentVerySatisfied, "Best day of the ${periodNoun(period)}: ${stats.bestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}")
+                            StatLine(Icons.Filled.SentimentDissatisfied, "Toughest day of the ${periodNoun(period)}: ${stats.toughestDaysOfWeek.joinToString(", ") { it.displayName() }.ifEmpty { "—" }}")
+                        }
                     }
                 }
 
@@ -221,26 +228,28 @@ private fun InsightsSection(
 
         if (mostLoggedActivities.isNotEmpty()) {
             Text("Most logged activities", style = MaterialTheme.typography.titleMedium)
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = softCardShape,
-                border = softCardBorder()
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    mostLoggedActivities.take(5).forEach { freq ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    com.example.rejournal.data.ActivityIcons.resolve(freq.tag, com.example.rejournal.data.ActivityTagsPrefs.getIconIdForTag(LocalContext.current, freq.tag)),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Text(freq.tag, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
+            ButterflyCardWrapper(seed = "StatsMostLogged", indexOffset = 10, modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        mostLoggedActivities.take(5).forEach { freq ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        ActivityIcons.resolve(freq.tag, ActivityTagsPrefs.getIconIdForTag(LocalContext.current, freq.tag)),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Text(freq.tag, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
+                                }
+                                Text("${freq.count}x", style = MaterialTheme.typography.bodyMedium)
                             }
-                            Text("${freq.count}x", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }
@@ -249,36 +258,38 @@ private fun InsightsSection(
 
         if (activityInsights.isNotEmpty()) {
             Text("Mood by activity", style = MaterialTheme.typography.titleMedium)
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = softCardShape,
-                border = softCardBorder()
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    activityInsights.forEach { insight ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    com.example.rejournal.data.ActivityIcons.resolve(insight.tag, com.example.rejournal.data.ActivityTagsPrefs.getIconIdForTag(LocalContext.current, insight.tag)),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Text("${insight.tag} (${insight.count}x)", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
-                            }
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    "avg ${String.format("%.1f", insight.averageMood)}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(end = 4.dp)
-                                )
-                                MoodGlyph(
-                                    moodValue = insight.averageMood.toInt().coerceIn(1, 5),
-                                    size = 20.dp,
-                                    textStyle = MaterialTheme.typography.bodyLarge
-                                )
+            ButterflyCardWrapper(seed = "StatsActivityMood", indexOffset = 11, modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        activityInsights.forEach { insight ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        ActivityIcons.resolve(insight.tag, ActivityTagsPrefs.getIconIdForTag(LocalContext.current, insight.tag)),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Text("${insight.tag} (${insight.count}x)", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        "avg ${String.format("%.1f", insight.averageMood)}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(end = 4.dp)
+                                    )
+                                    MoodGlyph(
+                                        moodValue = insight.averageMood.toInt().coerceIn(1, 5),
+                                        size = 20.dp,
+                                        textStyle = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
                             }
                         }
                     }
@@ -294,29 +305,33 @@ private fun InsightsSection(
             Text("Activities on your extreme days", style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (bestDayActivities.isNotEmpty()) {
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        shape = softCardShape,
-                        border = softCardBorder()
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("On your best day(s)", style = MaterialTheme.typography.labelMedium)
-                            bestDayActivities.take(4).forEach { freq ->
-                                Text("${freq.tag} (${freq.count}x)", style = MaterialTheme.typography.bodySmall)
+                    ButterflyCardWrapper(seed = "StatsBestDay", indexOffset = 12, modifier = Modifier.weight(1f)) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = softCardShape,
+                            border = softCardBorder()
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("On your best day(s)", style = MaterialTheme.typography.labelMedium)
+                                bestDayActivities.take(4).forEach { freq ->
+                                    Text("${freq.tag} (${freq.count}x)", style = MaterialTheme.typography.bodySmall)
+                                }
                             }
                         }
                     }
                 }
                 if (worstDayActivities.isNotEmpty()) {
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        shape = softCardShape,
-                        border = softCardBorder()
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("On your toughest day(s)", style = MaterialTheme.typography.labelMedium)
-                            worstDayActivities.take(4).forEach { freq ->
-                                Text("${freq.tag} (${freq.count}x)", style = MaterialTheme.typography.bodySmall)
+                    ButterflyCardWrapper(seed = "StatsWorstDay", indexOffset = 13, modifier = Modifier.weight(1f)) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = softCardShape,
+                            border = softCardBorder()
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("On your toughest day(s)", style = MaterialTheme.typography.labelMedium)
+                                worstDayActivities.take(4).forEach { freq ->
+                                    Text("${freq.tag} (${freq.count}x)", style = MaterialTheme.typography.bodySmall)
+                                }
                             }
                         }
                     }
@@ -333,14 +348,16 @@ private fun InsightsSection(
 
         if (correlationLines.isNotEmpty()) {
             Text("Mood patterns", style = MaterialTheme.typography.titleMedium)
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = softCardShape,
-                border = softCardBorder()
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    correlationLines.forEach { line ->
-                        Text(line, style = MaterialTheme.typography.bodyMedium)
+            ButterflyCardWrapper(seed = "StatsCorrelations", indexOffset = 14, modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        correlationLines.forEach { line ->
+                            Text(line, style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }

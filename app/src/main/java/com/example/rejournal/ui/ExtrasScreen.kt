@@ -26,11 +26,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -44,6 +47,7 @@ import androidx.compose.material.icons.filled.QuestionAnswer
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExtrasScreen(
+    viewModel: MoodViewModel,
     onGoalsClick: () -> Unit,
     onPhotoAlbumClick: () -> Unit,
     onVoiceMemoAlbumClick: () -> Unit,
@@ -56,6 +60,13 @@ fun ExtrasScreen(
     onSyncClick: () -> Unit,
     onAboutClick: () -> Unit
 ) {
+    val activeGoalsCount by viewModel.activeGoalsCount.collectAsState()
+    val timeCapsulesCount by viewModel.timeCapsulesCount.collectAsState()
+    val photoAlbumCount by viewModel.photoAlbumCount.collectAsState()
+    val voiceMemosCount by viewModel.voiceMemosCount.collectAsState()
+    val importantDaysCount by viewModel.importantDaysCount.collectAsState()
+    val favoriteDaysCount by viewModel.favoriteDaysCount.collectAsState()
+
     Scaffold(
         containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -71,27 +82,27 @@ fun ExtrasScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            ExtrasCard {
-                ExtrasRow(Icons.Filled.EmojiEvents, "Goals", onGoalsClick)
+            ExtrasCard(titleSeed = "Goals", index = 0) {
+                ExtrasRow(Icons.Filled.EmojiEvents, "Goals", onGoalsClick, count = activeGoalsCount)
                 HorizontalDivider()
-                ExtrasRow(Icons.Filled.History, "Time Capsules", onTimeCapsulesClick)
+                ExtrasRow(Icons.Filled.History, "Time Capsules", onTimeCapsulesClick, count = timeCapsulesCount)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.MilitaryTech, "Achievements", onAchievementsClick)
             }
 
-            ExtrasCard {
-                ExtrasRow(Icons.Filled.PhotoLibrary, "Photo Album", onPhotoAlbumClick)
+            ExtrasCard(titleSeed = "Media", index = 1) {
+                ExtrasRow(Icons.Filled.PhotoLibrary, "Photo Album", onPhotoAlbumClick, count = photoAlbumCount)
                 HorizontalDivider()
-                ExtrasRow(Icons.Filled.Mic, "Voice Memos", onVoiceMemoAlbumClick)
+                ExtrasRow(Icons.Filled.Mic, "Voice Memos", onVoiceMemoAlbumClick, count = voiceMemosCount)
             }
 
-            ExtrasCard {
-                ExtrasRow(Icons.Filled.Star, "Important Days", onImportantDaysClick)
+            ExtrasCard(titleSeed = "Favorites", index = 2) {
+                ExtrasRow(Icons.Filled.Star, "Important Days", onImportantDaysClick, count = importantDaysCount)
                 HorizontalDivider()
-                ExtrasRow(Icons.Filled.Favorite, "Favorite Days", onFavoriteDaysClick)
+                ExtrasRow(Icons.Filled.Favorite, "Favorite Days", onFavoriteDaysClick, count = favoriteDaysCount)
             }
 
-            ExtrasCard {
+            ExtrasCard(titleSeed = "ProfileSync", index = 3) {
                 ExtrasRow(Icons.Filled.Person, "Profile", onProfileClick)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.Settings, "Settings", onSettingsClick)
@@ -99,7 +110,7 @@ fun ExtrasScreen(
                 ExtrasRow(Icons.Filled.Sync, "Sync", onSyncClick)
             }
 
-            ExtrasCard {
+            ExtrasCard(titleSeed = "About", index = 4) {
                 ExtrasRow(Icons.Filled.Info, "About", onAboutClick)
             }
         }
@@ -107,18 +118,20 @@ fun ExtrasScreen(
 }
 
 @Composable
-private fun ExtrasCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = softCardShape,
-        border = softCardBorder()
-    ) {
-        Column { content() }
+private fun ExtrasCard(titleSeed: String = "Extras", index: Int = 0, content: @Composable ColumnScope.() -> Unit) {
+    ButterflyCardWrapper(seed = titleSeed, indexOffset = index, modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = softCardShape,
+            border = softCardBorder()
+        ) {
+            Column { content() }
+        }
     }
 }
 
 @Composable
-private fun ExtrasRow(icon: ImageVector, label: String, onClick: () -> Unit) {
+private fun ExtrasRow(icon: ImageVector, label: String, onClick: () -> Unit, count: Int? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,6 +144,16 @@ private fun ExtrasRow(icon: ImageVector, label: String, onClick: () -> Unit) {
             Icon(icon, contentDescription = null)
             Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
         }
-        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (count != null) {
+                Text(
+                    text = "($count)",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }

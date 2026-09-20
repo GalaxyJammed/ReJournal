@@ -88,7 +88,7 @@ import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rejournal.data.ActivityIcons
-import com.example.rejournal.data.moodEmojis
+import com.example.rejournal.ui.theme.MoodVisualsState
 import com.example.rejournal.data.ImportantDay
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material.icons.filled.Favorite
