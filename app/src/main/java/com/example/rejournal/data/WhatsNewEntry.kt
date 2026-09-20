@@ -10,7 +10,7 @@ object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
             version = "2.8.0",
-            date = "19/9/2026",
+            date = "21/9/2026",
             highlights = listOf(
                 "Added a custom section in the Emojis Appearance area to add your own custom emojis for moods",
                 "A few cards in 'More' now show a number besides them of how much of {x} you have in that card",
