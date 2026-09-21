@@ -61,6 +61,7 @@ This project was created as a way to let people freely use mental health journal
 - **Year pixel view** - your entire year at a glance, one tiny colored square per day
 - **Trend chart** - a mood line graph for the current month, properly spaced by real calendar dates, with filters for mood, sliders, and activities. Tap it to expand into a full, swipeable view of the entire month
 - **Mood Constellation** - turn your trend into a starry, artistic night-sky view where star size reflects how much you logged that day, and save it as an image
+- **Personality Tests** - Do one of our many personality tests to learn more about yourself
 
 <div align="center">
 <table>
