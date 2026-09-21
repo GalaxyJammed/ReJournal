@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.ui.components.ButterflyCardWrapper
+import com.example.rejournal.ui.components.PastelIcon
 import com.example.rejournal.data.MoodEntry
 import java.time.LocalDate
 
@@ -84,7 +85,7 @@ fun FavoriteDaysScreen(
                                     Text(entry.note, style = MaterialTheme.typography.bodySmall)
                                 }
                             }
-                            Icon(Icons.Filled.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            PastelIcon(Icons.Filled.Favorite, contentDescription = null)
                         }
                     }
                 }

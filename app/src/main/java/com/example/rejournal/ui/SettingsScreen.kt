@@ -35,10 +35,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Brightness4
+import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FormatPaint
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import com.example.rejournal.ui.components.ButterflyCardWrapper
+import com.example.rejournal.ui.components.IconPill
+import com.example.rejournal.ui.components.PastelIcon
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -191,7 +206,10 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Daily reminder", style = MaterialTheme.typography.titleMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconPill(icon = Icons.Filled.Notifications)
+                        Text("Daily reminder", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
+                    }
                     Switch(
                         checked = enabled,
                         onCheckedChange = { checked ->
@@ -212,7 +230,10 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Reminder time", style = MaterialTheme.typography.titleMedium)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconPill(icon = Icons.Filled.Schedule)
+                            Text("Reminder time", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
+                        }
                         TextButton(onClick = { showTimePicker = true }, contentPadding = PaddingValues(0.dp)) {
                             Text(String.format("%02d:%02d", hour, minute))
                         }
@@ -227,14 +248,17 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text("Fingerprint", style = MaterialTheme.typography.titleMedium)
-                        if (!biometricAvailable) {
-                            Text(
-                                "Not available on this device",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        IconPill(icon = Icons.Filled.Fingerprint)
+                        Column(modifier = Modifier.padding(start = 16.dp)) {
+                            Text("Fingerprint", style = MaterialTheme.typography.titleMedium)
+                            if (!biometricAvailable) {
+                                Text(
+                                    "Not available on this device",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                     Switch(
@@ -254,7 +278,10 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("PIN", style = MaterialTheme.typography.titleMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconPill(icon = Icons.Filled.Lock)
+                        Text("PIN", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
+                    }
                     Switch(
                         checked = pinEnabled,
                         onCheckedChange = { checked ->
@@ -283,7 +310,10 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                             },
                             contentPadding = PaddingValues(0.dp)
                         ) {
-                            Text("Change PIN")
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconPill(icon = Icons.Filled.Password, size = 32.dp, iconSize = 18.dp)
+                                Text("Change PIN", modifier = Modifier.padding(start = 12.dp))
+                            }
                         }
                     }
                 }
@@ -320,7 +350,10 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Emoji Set", style = MaterialTheme.typography.titleMedium)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconPill(icon = Icons.Filled.EmojiEmotions)
+                                Text("Emoji Set", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
+                            }
                         }
 
                         val allSetNames = remember { MoodEmojiSets.presets.keys.toList() + "Custom" }
@@ -363,9 +396,12 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Mood Palette", style = MaterialTheme.typography.titleMedium)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconPill(icon = Icons.Filled.ColorLens)
+                                Text("Mood Palette", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
+                            }
                             IconButton(onClick = { moodPalettesExpanded = !moodPalettesExpanded }) {
-                                Icon(
+                                PastelIcon(
                                     if (moodPalettesExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                                     contentDescription = if (moodPalettesExpanded) "Show fewer palettes" else "Show more palettes"
                                 )
@@ -419,9 +455,12 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Theme Palette", style = MaterialTheme.typography.titleMedium)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconPill(icon = Icons.Filled.FormatPaint)
+                            Text("Theme Palette", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
+                        }
                         IconButton(onClick = { themesExpanded = !themesExpanded }) {
-                            Icon(
+                            PastelIcon(
                                 if (themesExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                                 contentDescription = if (themesExpanded) "Show fewer themes" else "Show more themes"
                             )
@@ -488,7 +527,10 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Dark Mode", style = MaterialTheme.typography.titleMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconPill(icon = Icons.Filled.Brightness4)
+                        Text("Dark Mode", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
+                    }
                     Switch(
                         checked = darkMode,
                         onCheckedChange = { checked ->
@@ -502,39 +544,51 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
 
             CategoryLabel("Backup", topPadding = 20.dp)
             SettingsCard(seed = "SettingsBackup", index = 4) {
-                Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    Button(
-                        onClick = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
                             val intent = BackupHelper.exportFullBackup(context, entries)
                             context.startActivity(Intent.createChooser(intent, "Export full backup"))
-                        },
-                        enabled = entries.isNotEmpty(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(if (entries.isEmpty()) "No entries to back up" else "Export Full Backup (.zip)")
-                    }
+                        }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconPill(icon = Icons.Filled.Backup)
+                    Text(
+                        if (entries.isEmpty()) "No entries to back up" else "Export Full Backup (.zip)",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
                 HorizontalDivider()
-                Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    Button(
-                        onClick = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Import Backup")
-                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { importLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconPill(icon = Icons.Filled.Restore)
+                    Text("Import Backup", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
                 }
                 HorizontalDivider()
-                Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    Button(
-                        onClick = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = entries.isNotEmpty()) {
                             val intent = ExportHelper.exportToCsv(context, entries)
                             context.startActivity(Intent.createChooser(intent, "Export mood data"))
-                        },
-                        enabled = entries.isNotEmpty(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(if (entries.isEmpty()) "No entries to export" else "Export data as CSV")
-                    }
+                        }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconPill(icon = Icons.Filled.FileDownload)
+                    Text(
+                        if (entries.isEmpty()) "No entries to export" else "Export data as CSV",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
             }
         }
@@ -787,7 +841,7 @@ private fun EmojiSetRow(name: String, selectedName: String, customEmojis: List<S
         }
         Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
         if (selectedName == name) {
-            Icon(Icons.Filled.Check, contentDescription = "Selected")
+            PastelIcon(Icons.Filled.Check, contentDescription = "Selected")
         }
     }
 }
@@ -813,7 +867,7 @@ private fun PaletteRow(name: String, selectedName: String, customColors: List<Lo
         }
         Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
         if (selectedName == name) {
-            Icon(Icons.Filled.Check, contentDescription = "Selected")
+            PastelIcon(Icons.Filled.Check, contentDescription = "Selected")
         }
     }
 }
@@ -866,7 +920,7 @@ private fun ThemeRowItem(theme: AppTheme, selected: Boolean, darkMode: Boolean, 
         }
         Text(theme.displayName, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
         if (selected) {
-            Icon(Icons.Filled.Check, contentDescription = "Selected")
+            PastelIcon(Icons.Filled.Check, contentDescription = "Selected")
         }
     }
 }

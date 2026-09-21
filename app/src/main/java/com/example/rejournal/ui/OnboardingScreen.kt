@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.rejournal.data.ProfilePrefs
+import com.example.rejournal.ui.components.PastelIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +53,9 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                        PastelIcon(
+                            icon = Icons.AutoMirrored.Filled.MenuBook,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                             modifier = Modifier.size(96.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -83,11 +83,11 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Filled.CalendarViewMonth, contentDescription = null, modifier = Modifier.size(24.dp))
+                                    PastelIcon(Icons.Filled.CalendarViewMonth, contentDescription = null, modifier = Modifier.size(24.dp))
                                     Text("Entries", style = MaterialTheme.typography.labelSmall)
                                 }
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Filled.BarChart, contentDescription = null, modifier = Modifier.size(24.dp))
+                                    PastelIcon(Icons.Filled.BarChart, contentDescription = null, modifier = Modifier.size(24.dp))
                                     Text("Stats", style = MaterialTheme.typography.labelSmall)
                                 }
                             }
@@ -97,11 +97,11 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.AutoMirrored.Filled.ShowChart, contentDescription = null, modifier = Modifier.size(24.dp))
+                                    PastelIcon(Icons.AutoMirrored.Filled.ShowChart, contentDescription = null, modifier = Modifier.size(24.dp))
                                     Text("Trend", style = MaterialTheme.typography.labelSmall)
                                 }
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Filled.MoreHoriz, contentDescription = null, modifier = Modifier.size(24.dp))
+                                    PastelIcon(Icons.Filled.MoreHoriz, contentDescription = null, modifier = Modifier.size(24.dp))
                                     Text("More", style = MaterialTheme.typography.labelSmall)
                                 }
                             }
@@ -116,7 +116,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                             .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.Add, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                        PastelIcon(Icons.Filled.Add, contentDescription = null)
                     }
                 }
             }
@@ -129,10 +129,9 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.AutoAwesome,
+                    PastelIcon(
+                        icon = Icons.Filled.AutoAwesome,
                         contentDescription = "Welcome",
-                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(80.dp)
                     )
                     Spacer(modifier = Modifier.height(24.dp))

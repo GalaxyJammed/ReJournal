@@ -34,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.ui.components.ButterflyCardWrapper
+import com.example.rejournal.ui.components.IconPill
+import com.example.rejournal.ui.components.PastelIcon
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -141,12 +143,12 @@ private fun ExtrasRow(icon: ImageVector, label: String, onClick: () -> Unit, cou
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null)
+            IconPill(icon = icon)
             Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -158,7 +160,7 @@ private fun ExtrasRow(icon: ImageVector, label: String, onClick: () -> Unit, cou
                     modifier = Modifier.padding(end = 8.dp)
                 )
             }
-            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            PastelIcon(Icons.Filled.ChevronRight, contentDescription = null)
         }
     }
 }

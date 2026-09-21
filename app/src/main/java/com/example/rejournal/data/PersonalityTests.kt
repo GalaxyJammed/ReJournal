@@ -94,7 +94,6 @@ object MbtiTest {
 data class NpiQuestion(val id: Int, val optionA: String, val optionB: String)
 
 object NpiTest {
-    // "B" always represents the more self-focused/grandiose option in each pair.
     val questions: List<NpiQuestion> = listOf(
         NpiQuestion(1, "I don't mind following others' lead.", "I see myself as a natural leader."),
         NpiQuestion(2, "Being average is fine with me.", "I know I'm meant for something extraordinary."),

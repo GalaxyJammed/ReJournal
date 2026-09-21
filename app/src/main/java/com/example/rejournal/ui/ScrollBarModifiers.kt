@@ -57,7 +57,7 @@ fun Modifier.verticalScrollbar(listState: LazyListState, color: Color = Material
                 val estimatedContentHeight = averageItemSize * totalItems
                 if (estimatedContentHeight > viewportHeight) {
                     val thumbHeight = (viewportHeight / estimatedContentHeight * viewportHeight)
-                        .coerceIn(16.dp.toPx(), viewportHeight * 0.2f) // Keep it "tiny"
+                        .coerceIn(16.dp.toPx(), viewportHeight * 0.2f)
                     val scrolledPastPx = firstVisible.index * averageItemSize - firstVisible.offset
                     val maxScrollPx = estimatedContentHeight - viewportHeight
                     val scrollFraction = (scrolledPastPx / maxScrollPx).coerceIn(0f, 1f)

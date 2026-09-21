@@ -1,6 +1,7 @@
 package com.example.rejournal.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.rejournal.ui.components.ButterflyCardWrapper
+import com.example.rejournal.ui.components.PastelIcon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -194,7 +196,7 @@ fun LogScreen(
                 title = { Text("Your Mood Log") },
                 actions = {
                     IconButton(onClick = onSearchClick) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search entries")
+                        PastelIcon(Icons.Filled.Search, contentDescription = "Search entries")
                     }
                 }
             )
@@ -408,14 +410,14 @@ private fun CalendarMonthView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onPreviousMonth) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Previous month")
+                PastelIcon(Icons.Filled.ArrowBack, contentDescription = "Previous month")
             }
             Text(
                 "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${currentMonth.year}",
                 style = MaterialTheme.typography.titleLarge
             )
             IconButton(onClick = onNextMonth) {
-                Icon(Icons.Filled.ArrowForward, contentDescription = "Next month")
+                PastelIcon(Icons.Filled.ArrowForward, contentDescription = "Next month")
             }
         }
     }
@@ -454,6 +456,11 @@ private fun CalendarMonthView(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .background(bgColor, RoundedCornerShape(8.dp))
+                                    .then(
+                                        if (date == LocalDate.now()) {
+                                            Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                                        } else Modifier
+                                    )
                                     .clickable { onDayClick(date) },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -507,11 +514,11 @@ private fun YearPixelsView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onPreviousYear) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Previous year")
+                PastelIcon(Icons.Filled.ArrowBack, contentDescription = "Previous year")
             }
             Text(year.toString(), style = MaterialTheme.typography.titleLarge)
             IconButton(onClick = onNextYear) {
-                Icon(Icons.Filled.ArrowForward, contentDescription = "Next year")
+                PastelIcon(Icons.Filled.ArrowForward, contentDescription = "Next year")
             }
         }
     }
@@ -536,6 +543,7 @@ private fun YearPixelsView(
                     if (day <= yearMonth.lengthOfMonth()) {
                         val date = yearMonth.atDay(day)
                         val entry = entriesByDate[date]
+                        val isToday = date == LocalDate.now()
                         val isFuture = date.isAfter(LocalDate.now())
                         val color = when {
                             entry != null -> moodColors[entry.mood - 1]
@@ -546,6 +554,11 @@ private fun YearPixelsView(
                             modifier = Modifier
                                 .padding(1.dp)
                                 .size(9.dp)
+                                .then(
+                                    if (isToday) {
+                                        Modifier.border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+                                    } else Modifier
+                                )
                                 .background(color, RoundedCornerShape(2.dp))
                                 .clickable(enabled = !isFuture) { onDayClick(date) }
                         )
@@ -570,17 +583,15 @@ private fun OutlinedMarkerIcon(
         modifier = modifier.size(size + 4.dp),
         contentAlignment = Alignment.Center
     ) {
-
         Icon(
             icon,
             contentDescription = null,
             tint = Color.Black.copy(alpha = 0.55f),
             modifier = Modifier.size(size + 4.dp)
         )
-        Icon(
-            icon,
+        PastelIcon(
+            icon = icon,
             contentDescription = description,
-            tint = tint,
             modifier = Modifier.size(size)
         )
     }

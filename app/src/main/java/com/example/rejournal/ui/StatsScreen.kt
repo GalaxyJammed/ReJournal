@@ -39,6 +39,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.example.rejournal.ui.components.ButterflyCardWrapper
+import com.example.rejournal.ui.components.IconPill
+import com.example.rejournal.ui.components.PastelIcon
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -133,14 +135,14 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { shiftPeriod(forward = false) }) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = "Previous period")
+                    PastelIcon(Icons.Filled.ArrowBack, contentDescription = "Previous period")
                 }
                 Text(
                     periodLabel(period, rangeStart, rangeEnd),
                     style = MaterialTheme.typography.titleMedium
                 )
                 IconButton(onClick = { shiftPeriod(forward = true) }) {
-                    Icon(Icons.Filled.ArrowForward, contentDescription = "Next period")
+                    PastelIcon(Icons.Filled.ArrowForward, contentDescription = "Next period")
                 }
             }
 
@@ -201,8 +203,8 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(if (showInsights) "Hide Additional Stats" else "Show Additional Stats")
-                    Icon(
-                        imageVector = if (showInsights) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    PastelIcon(
+                        icon = if (showInsights) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                         contentDescription = null,
                         modifier = Modifier.padding(start = 8.dp)
                     )
@@ -253,12 +255,12 @@ private fun InsightsSection(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        ActivityIcons.resolve(freq.tag, ActivityTagsPrefs.getIconIdForTag(LocalContext.current, freq.tag)),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
+                                    IconPill(
+                                        icon = ActivityIcons.resolve(freq.tag, ActivityTagsPrefs.getIconIdForTag(LocalContext.current, freq.tag)),
+                                        size = 28.dp,
+                                        iconSize = 16.dp
                                     )
-                                    Text(freq.tag, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
+                                    Text(freq.tag, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 8.dp))
                                 }
                                 Text("${freq.count}x", style = MaterialTheme.typography.bodyMedium)
                             }
@@ -283,12 +285,12 @@ private fun InsightsSection(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        ActivityIcons.resolve(insight.tag, ActivityTagsPrefs.getIconIdForTag(LocalContext.current, insight.tag)),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
+                                    IconPill(
+                                        icon = ActivityIcons.resolve(insight.tag, ActivityTagsPrefs.getIconIdForTag(LocalContext.current, insight.tag)),
+                                        size = 28.dp,
+                                        iconSize = 16.dp
                                     )
-                                    Text("${insight.tag} (${insight.count}x)", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 6.dp))
+                                    Text("${insight.tag} (${insight.count}x)", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 8.dp))
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
@@ -457,8 +459,8 @@ private fun periodLabel(period: StatsPeriod, start: LocalDate, end: LocalDate): 
 
 @Composable
 private fun StatLine(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-        Text(text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 8.dp))
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+        IconPill(icon = icon, size = 32.dp, iconSize = 18.dp)
+        Text(text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 12.dp))
     }
 }

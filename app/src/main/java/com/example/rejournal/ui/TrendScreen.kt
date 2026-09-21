@@ -1,5 +1,6 @@
 package com.example.rejournal.ui
 
+import com.example.rejournal.ui.components.PastelIcon
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -232,12 +233,12 @@ fun TrendScreen(viewModel: MoodViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.DirectionsRun, contentDescription = null, modifier = Modifier.size(20.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                    PastelIcon(Icons.Filled.DirectionsRun, contentDescription = null, modifier = Modifier.size(20.dp))
                     Text("Activities", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
                 }
                 IconButton(onClick = { tagsExpanded = !tagsExpanded }) {
-                    Icon(
+                    PastelIcon(
                         if (tagsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                         contentDescription = if (tagsExpanded) "Show fewer tags" else "Show more tags"
                     )
@@ -257,7 +258,7 @@ fun TrendScreen(viewModel: MoodViewModel) {
                         },
                         label = { Text(tag) },
                         leadingIcon = {
-                            Icon(
+                            PastelIcon(
                                 ActivityIcons.resolve(tag, ActivityTagsPrefs.getIconIdForTag(context, tag)),
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
@@ -275,7 +276,7 @@ fun TrendScreen(viewModel: MoodViewModel) {
                             },
                             label = { Text(tag) },
                             leadingIcon = {
-                                Icon(
+                                PastelIcon(
                                     ActivityIcons.resolve(tag, ActivityTagsPrefs.getIconIdForTag(context, tag)),
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp)
@@ -383,7 +384,7 @@ private fun FullMonthTrendView(
                     title = { Text("Monthly Trend") },
                     navigationIcon = {
                         IconButton(onClick = onExit) {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
+                            PastelIcon(Icons.Default.Close, contentDescription = "Close")
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -439,7 +440,7 @@ private fun TrendSliderFilter(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+                PastelIcon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
                 Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
             }
             Row(
@@ -448,16 +449,16 @@ private fun TrendSliderFilter(
             ) {
                 Text(value?.toString() ?: "Off", style = MaterialTheme.typography.titleMedium)
                 if (value != null) {
-                    Icon(
-                        Icons.Filled.Close,
-                        contentDescription = "Clear $label filter",
-                        modifier = Modifier
-                            .size(20.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
-                            .clickable { onValueChange(null) }
-                            .padding(3.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    IconButton(
+                        onClick = { onValueChange(null) },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        PastelIcon(
+                            Icons.Filled.Close,
+                            contentDescription = "Clear $label filter",
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                 }
             }
         }

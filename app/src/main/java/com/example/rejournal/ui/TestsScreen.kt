@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.CameraFront
 import androidx.compose.material.icons.filled.Water
 import com.example.rejournal.ui.components.ButterflyCardWrapper
+import com.example.rejournal.ui.components.IconPill
+import com.example.rejournal.ui.components.PastelIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,17 +80,17 @@ private fun TestRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null)
+            IconPill(icon = icon)
             Column(modifier = Modifier.padding(start = 16.dp)) {
                 Text(title, style = MaterialTheme.typography.titleMedium)
                 Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        PastelIcon(Icons.Filled.ChevronRight, contentDescription = null)
     }
 }

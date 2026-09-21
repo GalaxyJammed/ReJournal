@@ -29,6 +29,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.rejournal.ui.components.ButterflyCardWrapper
+import com.example.rejournal.ui.components.IconPill
+import com.example.rejournal.ui.components.getPastelColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,8 +40,10 @@ import com.example.rejournal.data.AchievementDefinitions
 import com.example.rejournal.data.AchievementGroup
 import com.example.rejournal.data.AchievementPrefs
 import com.example.rejournal.data.GoalProgressPrefs
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.clipRect
 import com.example.rejournal.ui.verticalScrollbar
@@ -183,27 +187,34 @@ private fun AchievementGroupRow(group: AchievementGroup, currentValue: Int, tier
 
 @Composable
 private fun AchievementTrophy(fillFraction: Float) {
-    Box(modifier = Modifier.size(28.dp)) {
-        Icon(
-            Icons.Filled.EmojiEvents,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(28.dp)
-        )
-        if (fillFraction > 0f) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(12.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(modifier = Modifier.size(28.dp)) {
             Icon(
                 Icons.Filled.EmojiEvents,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .size(28.dp)
-                    .drawWithContent {
-                        val visibleTop = size.height * (1f - fillFraction)
-                        clipRect(top = visibleTop) {
-                            this@drawWithContent.drawContent()
-                        }
-                    }
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                modifier = Modifier.size(28.dp)
             )
+            if (fillFraction > 0f) {
+                Icon(
+                    Icons.Filled.EmojiEvents,
+                    contentDescription = null,
+                    tint = getPastelColor(),
+                    modifier = Modifier
+                        .size(28.dp)
+                        .drawWithContent {
+                            val visibleTop = size.height * (1f - fillFraction)
+                            clipRect(top = visibleTop) {
+                                this@drawWithContent.drawContent()
+                            }
+                        }
+                )
+            }
         }
     }
 }

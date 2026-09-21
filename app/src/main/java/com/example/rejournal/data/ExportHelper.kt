@@ -35,8 +35,7 @@ object ExportHelper {
         }
     }
 
-    // Wraps a value in quotes and escapes internal quotes, so commas or
-    // quote characters typed in a note don't break the CSV file's columns.
+
     private fun csvEscape(value: String): String {
         val escaped = value.replace("\"", "\"\"")
         return "\"$escaped\""

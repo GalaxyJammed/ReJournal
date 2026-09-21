@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import com.example.rejournal.ui.components.PastelIcon
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -98,6 +99,7 @@ import com.example.rejournal.ui.verticalScrollbar
 import com.example.rejournal.data.GreetingHelper
 import com.example.rejournal.data.ProfilePrefs
 
+
 private const val TOP_TAG_COUNT = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,6 +139,8 @@ fun QuestionnaireScreen(
 
     var isFavorite by remember { mutableStateOf(false) }
     val soulfulHint = remember { getSoulfulHint() }
+
+    var showToolkit by remember { mutableStateOf(false) }
 
     val nickname = remember { ProfilePrefs.getNickname(context) }
     val greeting = remember(nickname) { nickname?.let { GreetingHelper.nextGreeting(context, it) } }
@@ -230,10 +234,9 @@ fun QuestionnaireScreen(
                 navigationIcon = { BackButton(onBack) },
                 actions = {
                     IconButton(onClick = { isFavorite = !isFavorite }) {
-                        Icon(
+                        PastelIcon(
                             if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = "Favorite this day",
-                            tint = if (isFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                            contentDescription = "Favorite this day"
                         )
                     }
                 }
@@ -280,7 +283,7 @@ fun QuestionnaireScreen(
                 ) {
                     SectionHeader(Icons.Filled.DirectionsRun, "What did you do today?")
                     IconButton(onClick = { tagsExpanded = !tagsExpanded }) {
-                        Icon(
+                        PastelIcon(
                             if (tagsExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                             contentDescription = if (tagsExpanded) "Show fewer tags" else "Show more tags"
                         )
@@ -341,7 +344,7 @@ fun QuestionnaireScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             ) {
-                                Icon(
+                                PastelIcon(
                                     Icons.Filled.Add,
                                     contentDescription = "Add custom tag",
                                     modifier = Modifier.size(18.dp)
@@ -383,7 +386,7 @@ fun QuestionnaireScreen(
                 ) {
                     SectionHeader(Icons.Filled.NoteAlt, "Notes (optional)")
                     TextButton(onClick = { showExpandedNote = true }) {
-                        Icon(
+                        PastelIcon(
                             Icons.Filled.OpenInFull,
                             contentDescription = null,
                             modifier = Modifier.padding(end = 4.dp).size(16.dp)
@@ -433,7 +436,11 @@ fun QuestionnaireScreen(
                                 audioPaths = audioPaths,
                                 isFavorite = isFavorite
                             )
-                            onDone()
+                            if (mood <= 2) {
+                                showToolkit = true
+                            } else {
+                                onDone()
+                            }
                         }
                     },
                     enabled = selectedMood != null,
@@ -527,6 +534,12 @@ fun QuestionnaireScreen(
             text = { Text("Are you sure you want to delete this log? This cannot be undone.") }
         )
     }
+    if (showToolkit) {
+        ToolkitDialog(onDismiss = {
+            showToolkit = false
+            onDone()
+        })
+    }
 }
 
 @Composable
@@ -553,7 +566,7 @@ private fun PhotosSection(
                             .clickable(onClick = onAddClick),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.PhotoCamera, contentDescription = "Take photo")
+                        PastelIcon(Icons.Filled.PhotoCamera, contentDescription = "Take photo")
                     }
                 }
             }
@@ -578,17 +591,20 @@ private fun PhotoThumbnail(path: String, onRemove: () -> Unit) {
                     .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
             )
         }
-        Icon(
-            Icons.Filled.Close,
-            contentDescription = "Remove photo",
+        IconButton(
+            onClick = onRemove,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(2.dp)
                 .size(20.dp)
                 .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
-                .clickable(onClick = onRemove)
-                .padding(3.dp)
-        )
+        ) {
+            PastelIcon(
+                Icons.Filled.Close,
+                contentDescription = "Remove photo",
+                modifier = Modifier.size(12.dp)
+            )
+        }
     }
 }
 
@@ -737,7 +753,7 @@ private fun VoiceMemoRow(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onPlayToggle) {
-                    Icon(
+                    PastelIcon(
                         if (isPlaying) Icons.Filled.Stop else Icons.Filled.PlayArrow,
                         contentDescription = if (isPlaying) "Stop" else "Play"
                     )
@@ -745,7 +761,7 @@ private fun VoiceMemoRow(
                 Text("${seconds}s memo", style = MaterialTheme.typography.bodyMedium)
             }
             IconButton(onClick = onRemove) {
-                Icon(Icons.Filled.Delete, contentDescription = "Delete memo")
+                PastelIcon(Icons.Filled.Delete, contentDescription = "Delete memo")
             }
         }
     }
@@ -780,7 +796,7 @@ private fun DeletableActivityChip(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+            PastelIcon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,
@@ -799,7 +815,7 @@ private fun SliderRow(icon: androidx.compose.ui.graphics.vector.ImageVector, lab
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+                PastelIcon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
                 Text(label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
             }
             Text(value.toInt().toString(), style = MaterialTheme.typography.titleMedium)
@@ -816,7 +832,7 @@ private fun SliderRow(icon: androidx.compose.ui.graphics.vector.ImageVector, lab
 @Composable
 fun SectionHeader(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+        PastelIcon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
         Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
     }
 }

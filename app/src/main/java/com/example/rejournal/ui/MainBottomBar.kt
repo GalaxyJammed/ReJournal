@@ -1,5 +1,6 @@
 package com.example.rejournal.ui
 
+import com.example.rejournal.ui.components.PastelIcon
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -125,7 +126,11 @@ private fun BottomBarIcon(
             .clickable(onClick = onClick)
             .padding(4.dp)
     ) {
-        Icon(icon, contentDescription = label, tint = tint)
+        if (selected) {
+            PastelIcon(icon, contentDescription = label)
+        } else {
+            Icon(icon, contentDescription = label, tint = tint)
+        }
         Text(label, style = MaterialTheme.typography.labelSmall, color = tint)
     }
 }

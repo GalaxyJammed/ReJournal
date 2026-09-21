@@ -17,6 +17,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.example.rejournal.ui.components.ButterflyCardWrapper
+import com.example.rejournal.ui.components.IconPill
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -97,7 +98,7 @@ fun ImportantDaysScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                     Text(day.message, style = MaterialTheme.typography.bodySmall)
                                 }
                             }
-                            Icon(Icons.Filled.Star, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            IconPill(icon = Icons.Filled.Star)
                         }
                     }
                 }

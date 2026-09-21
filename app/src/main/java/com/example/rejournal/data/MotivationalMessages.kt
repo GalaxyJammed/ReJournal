@@ -39,7 +39,6 @@ object MotivationalMessages {
         "Radiant days like these are worth celebrating."
     )
 
-    // moodLevel is a rounded average from 1 (roughest) to 5 (best).
     fun messagesFor(moodLevel: Int): List<String> = when (moodLevel) {
         1 -> veryTough
         2 -> tough
