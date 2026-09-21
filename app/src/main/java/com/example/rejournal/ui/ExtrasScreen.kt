@@ -43,6 +43,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.QuestionAnswer
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Quiz
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +60,8 @@ fun ExtrasScreen(
     onAchievementsClick: () -> Unit,
     onProfileClick: () -> Unit,
     onSyncClick: () -> Unit,
-    onAboutClick: () -> Unit
+    onAboutClick: () -> Unit,
+    onTestsClick: () -> Unit
 ) {
     val activeGoalsCount by viewModel.activeGoalsCount.collectAsState()
     val timeCapsulesCount by viewModel.timeCapsulesCount.collectAsState()
@@ -88,6 +91,8 @@ fun ExtrasScreen(
                 ExtrasRow(Icons.Filled.History, "Time Capsules", onTimeCapsulesClick, count = timeCapsulesCount)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.MilitaryTech, "Achievements", onAchievementsClick)
+                HorizontalDivider()
+                ExtrasRow(Icons.Filled.Quiz, "Tests", onTestsClick)
             }
 
             ExtrasCard(titleSeed = "Media", index = 1) {

@@ -3,6 +3,7 @@ package com.example.rejournal.ui
 import java.time.LocalDate
 
 sealed class Screen(val route: String) {
+    object Onboarding : Screen("onboarding")
     object Log : Screen("log")
     object Trend : Screen("trend")
     object Stats : Screen("stats")
@@ -39,4 +40,9 @@ sealed class Screen(val route: String) {
     object Faq : Screen("faq")
     object About : Screen("about")
     object NotificationTroubleshoot : Screen("notificationTroubleshoot")
+    object Tests : Screen("tests")
+    object MbtiTest : Screen("mbtiTest")
+    object NpiTest : Screen("npiTest")
+    object DarkTriadTest : Screen("darkTriadTest")
+    object BigFiveTest : Screen("bigFiveTest")
 }

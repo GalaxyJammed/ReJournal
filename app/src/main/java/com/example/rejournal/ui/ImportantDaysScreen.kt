@@ -54,13 +54,18 @@ fun ImportantDaysScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
         }
     ) { padding: PaddingValues ->
         if (importantDays.isEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
-            ) {
-                Text("No important days marked yet. Tap + to add one.")
+            ButterflyCardWrapper(seed = "ImportantEmpty", indexOffset = 0, modifier = Modifier.fillMaxWidth().padding(padding).padding(16.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
+                    Text(
+                        "No important days marked yet. Tap + to add one.",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         } else {
             val scrollState = rememberScrollState()

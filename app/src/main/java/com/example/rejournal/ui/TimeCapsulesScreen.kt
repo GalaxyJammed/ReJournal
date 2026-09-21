@@ -55,13 +55,18 @@ fun TimeCapsulesScreen(
         }
     ) { padding: PaddingValues ->
         if (capsules.isEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
-            ) {
-                Text("No time capsules yet. Tap + to write one to your future self.")
+            ButterflyCardWrapper(seed = "CapsulesEmpty", indexOffset = 0, modifier = Modifier.fillMaxWidth().padding(padding).padding(16.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
+                    Text(
+                        "No time capsules yet. Tap + to write one to your future self.",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         } else {
             val scrollState = rememberScrollState()

@@ -145,9 +145,21 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
             }
 
             if (stats.totalEntries == 0) {
-                Text("No entries logged in this period yet.")
+                ButterflyCardWrapper(seed = "StatsEmpty", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = softCardShape,
+                        border = softCardBorder()
+                    ) {
+                        Text(
+                            "No entries logged in this period yet.",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             } else {
-                ButterflyCardWrapper(seed = "StatsLogged_${stats.totalEntries}", modifier = Modifier.fillMaxWidth()) {
+                ButterflyCardWrapper(seed = "StatsLogged_${stats.totalEntries}", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = softCardShape,
@@ -170,7 +182,7 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                 Text("Mood breakdown (tap a mood for details)", style = MaterialTheme.typography.titleMedium)
                 MoodDistributionChart(stats.moodCounts, moodColors = moodColors, onMoodClick = onMoodClick)
 
-                ButterflyCardWrapper(seed = "StatsMilestone_${stats.bestDaysOfWeek.size}", modifier = Modifier.fillMaxWidth()) {
+                ButterflyCardWrapper(seed = "StatsMilestone_${stats.bestDaysOfWeek.size}", indexOffset = 1, modifier = Modifier.fillMaxWidth()) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = softCardShape,

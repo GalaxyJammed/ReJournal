@@ -100,10 +100,10 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                AchievementDefinitions.groups.forEach { group ->
+                AchievementDefinitions.groups.forEachIndexed { index, group ->
                     val value = AchievementCalculator.currentValue(group.metric, entries, goalCompletions, timeCapsules.size)
                     val tierIndex = AchievementCalculator.currentTierIndex(group, value)
-                    AchievementGroupRow(group = group, currentValue = value, tierIndex = tierIndex)
+                    AchievementGroupRow(group = group, currentValue = value, tierIndex = tierIndex, index = index + 1)
                 }
             }
         }
@@ -111,13 +111,13 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-private fun AchievementGroupRow(group: AchievementGroup, currentValue: Int, tierIndex: Int) {
+private fun AchievementGroupRow(group: AchievementGroup, currentValue: Int, tierIndex: Int, index: Int) {
     val isMaxed = tierIndex == group.tiers.lastIndex
     val completedTier = if (tierIndex >= 0) group.tiers[tierIndex] else null
     val nextTier = if (!isMaxed) group.tiers[tierIndex + 1] else null
     val headlineTier = nextTier ?: group.tiers.last()
 
-    ButterflyCardWrapper(seed = "Achievement_${group.groupId}", modifier = Modifier.fillMaxWidth()) {
+    ButterflyCardWrapper(seed = "Achievement_${group.groupId}", indexOffset = index, modifier = Modifier.fillMaxWidth()) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = softCardShape,

@@ -65,10 +65,19 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                "Sync your device calendar to automatically mark upcoming events this month as Important Days. Syncing happens automatically each time the app opens.",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            ButterflyCardWrapper(seed = "SyncInfo", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
+                    Text(
+                        "Sync your device calendar to automatically mark upcoming events this month as Important Days. Syncing happens automatically each time the app opens.",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
 
             if (!hasPermission) {
                 Button(

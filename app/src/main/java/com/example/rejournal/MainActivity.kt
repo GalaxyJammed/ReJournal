@@ -67,6 +67,13 @@ import com.example.rejournal.ui.AboutScreen
 import com.example.rejournal.ui.NotificationTroubleshootScreen
 import com.example.rejournal.ui.theme.MoodVisualsState
 import com.example.rejournal.ui.SplashGate
+import com.example.rejournal.ui.TestsScreen
+import com.example.rejournal.ui.MbtiTestScreen
+import com.example.rejournal.ui.NpiTestScreen
+import com.example.rejournal.ui.DarkTriadTestScreen
+import com.example.rejournal.ui.BigFiveTestScreen
+import com.example.rejournal.data.ProfilePrefs
+import com.example.rejournal.ui.OnboardingScreen
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,7 +157,7 @@ fun AppNavHost(repository: MoodRepository) {
     ) { outerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Log.route,
+            startDestination = if (ProfilePrefs.isOnboarded(appContext)) Screen.Log.route else Screen.Onboarding.route,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(outerPadding),
@@ -167,6 +174,15 @@ fun AppNavHost(repository: MoodRepository) {
                 slideOutHorizontally(animationSpec = animationSpec, targetOffsetX = { fullWidth -> fullWidth })
             }
         ) {
+            composable(Screen.Onboarding.route) {
+                OnboardingScreen(
+                    onFinish = {
+                        navController.navigate(Screen.Log.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
             composable(Screen.Log.route) {
                 LogScreen(
                     viewModel = viewModel,
@@ -221,6 +237,7 @@ fun AppNavHost(repository: MoodRepository) {
                     onProfileClick = { navController.navigate(Screen.Profile.route) },
                     onSyncClick = { navController.navigate(Screen.Sync.route) },
                     onAboutClick = { navController.navigate(Screen.About.route) },
+                    onTestsClick = { navController.navigate(Screen.Tests.route) },
                 )
             }
             composable(Screen.WhatsNew.route) {
@@ -356,6 +373,27 @@ fun AppNavHost(repository: MoodRepository) {
             }
             composable(Screen.NotificationTroubleshoot.route) {
                 NotificationTroubleshootScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.Tests.route) {
+                TestsScreen(
+                    onMbtiClick = { navController.navigate(Screen.MbtiTest.route) },
+                    onNpiClick = { navController.navigate(Screen.NpiTest.route) },
+                    onDarkTriadClick = { navController.navigate(Screen.DarkTriadTest.route) },
+                    onBigFiveClick = { navController.navigate(Screen.BigFiveTest.route) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.MbtiTest.route) {
+                MbtiTestScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.NpiTest.route) {
+                NpiTestScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.DarkTriadTest.route) {
+                DarkTriadTestScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.BigFiveTest.route) {
+                BigFiveTestScreen(onBack = { navController.popBackStack() })
             }
         }
     }

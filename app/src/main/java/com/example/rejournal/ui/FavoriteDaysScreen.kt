@@ -41,13 +41,18 @@ fun FavoriteDaysScreen(
         topBar = { CenterAlignedTopAppBar(title = { Text("Favorite Days") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         if (favorites.isEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
-            ) {
-                Text("No favorite days yet. Tap the heart icon while logging a day to add one.")
+            ButterflyCardWrapper(seed = "FavEmpty", indexOffset = 0, modifier = Modifier.fillMaxWidth().padding(padding).padding(16.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
+                    Text(
+                        "No favorite days yet. Tap the heart icon while logging a day to add one.",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         } else {
             val scrollState = rememberScrollState()

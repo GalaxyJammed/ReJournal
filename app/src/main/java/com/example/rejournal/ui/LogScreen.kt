@@ -210,7 +210,7 @@ fun LogScreen(
                 .padding(16.dp)
         ) {
             if (streak.currentStreak > 0 || streak.longestStreak > 0) {
-                ButterflyCardWrapper(seed = "LogStreak_${streak.currentStreak}", indexOffset = 0, modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                ButterflyCardWrapper(seed = "LogStreak_${streak.currentStreak}", indexOffset = 1, modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = softCardShape,
@@ -316,7 +316,7 @@ fun LogScreen(
             }
 
             motivationalMessage?.let { message ->
-                ButterflyCardWrapper(seed = "LogMotivation_$message", indexOffset = 1, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+                ButterflyCardWrapper(seed = "LogMotivation_$message", indexOffset = 2, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = softCardShape,
@@ -401,20 +401,22 @@ private fun CalendarMonthView(
     onNextMonth: () -> Unit,
     onDayClick: (LocalDate) -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onPreviousMonth) {
-            Icon(Icons.Filled.ArrowBack, contentDescription = "Previous month")
-        }
-        Text(
-            "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${currentMonth.year}",
-            style = MaterialTheme.typography.titleLarge
-        )
-        IconButton(onClick = onNextMonth) {
-            Icon(Icons.Filled.ArrowForward, contentDescription = "Next month")
+    ButterflyCardWrapper(seed = "LogCalendarHeader", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onPreviousMonth) {
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Previous month")
+            }
+            Text(
+                "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${currentMonth.year}",
+                style = MaterialTheme.typography.titleLarge
+            )
+            IconButton(onClick = onNextMonth) {
+                Icon(Icons.Filled.ArrowForward, contentDescription = "Next month")
+            }
         }
     }
 
@@ -498,17 +500,19 @@ private fun YearPixelsView(
     onNextYear: () -> Unit,
     onDayClick: (LocalDate) -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onPreviousYear) {
-            Icon(Icons.Filled.ArrowBack, contentDescription = "Previous year")
-        }
-        Text(year.toString(), style = MaterialTheme.typography.titleLarge)
-        IconButton(onClick = onNextYear) {
-            Icon(Icons.Filled.ArrowForward, contentDescription = "Next year")
+    ButterflyCardWrapper(seed = "LogYearHeader", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onPreviousYear) {
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Previous year")
+            }
+            Text(year.toString(), style = MaterialTheme.typography.titleLarge)
+            IconButton(onClick = onNextYear) {
+                Icon(Icons.Filled.ArrowForward, contentDescription = "Next year")
+            }
         }
     }
 

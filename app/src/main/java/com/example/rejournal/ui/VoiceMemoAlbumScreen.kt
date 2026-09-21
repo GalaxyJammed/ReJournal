@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.AudioSaveHelper
 import com.example.rejournal.data.MediaGalleryHelper
 import com.example.rejournal.data.MediaItem
+import com.example.rejournal.ui.components.ButterflyCardWrapper
 import java.io.File
 import java.time.LocalDate
 import androidx.compose.runtime.rememberCoroutineScope
@@ -87,10 +88,19 @@ fun VoiceMemoAlbumScreen(
         topBar = { CenterAlignedTopAppBar(title = { Text("Voice Memos") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         if (memos.isEmpty()) {
-            Text(
-                "No voice memos yet. Add some from a day's entry.",
-                modifier = Modifier.padding(padding).padding(16.dp)
-            )
+            ButterflyCardWrapper(seed = "MemoEmpty", indexOffset = 0, modifier = Modifier.fillMaxWidth().padding(padding).padding(16.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = softCardShape,
+                    border = softCardBorder()
+                ) {
+                    Text(
+                        "No voice memos yet. Add some from a day's entry.",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
         } else {
             val scrollState = rememberScrollState()
             Column(
@@ -102,9 +112,10 @@ fun VoiceMemoAlbumScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                memos.forEach { item ->
+                memos.forEachIndexed { index, item ->
                     VoiceMemoAlbumRow(
                         item = item,
+                        index = index,
                         isPlaying = currentlyPlayingPath == item.path,
                         onPlayToggle = {
                             if (currentlyPlayingPath == item.path) stopPlayback() else play(item.path)
@@ -123,6 +134,7 @@ fun VoiceMemoAlbumScreen(
 @Composable
 private fun VoiceMemoAlbumRow(
     item: MediaItem,
+    index: Int,
     isPlaying: Boolean,
     onPlayToggle: () -> Unit,
     onGoToDay: () -> Unit
@@ -141,46 +153,48 @@ private fun VoiceMemoAlbumRow(
     }
     val seconds = durationMs / 1000
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = softCardShape,
-        border = softCardBorder()
-    ) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onPlayToggle) {
-                        Icon(
-                            if (isPlaying) Icons.Filled.Stop else Icons.Filled.PlayArrow,
-                            contentDescription = if (isPlaying) "Stop" else "Play"
-                        )
-                    }
-                    Column {
-                        Text("${seconds}s memo", style = MaterialTheme.typography.bodyMedium)
-                        Text("${item.date}", style = MaterialTheme.typography.bodySmall)
+    ButterflyCardWrapper(seed = "MemoRow_${item.path}", indexOffset = index, modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = softCardShape,
+            border = softCardBorder()
+        ) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = onPlayToggle) {
+                            Icon(
+                                if (isPlaying) Icons.Filled.Stop else Icons.Filled.PlayArrow,
+                                contentDescription = if (isPlaying) "Stop" else "Play"
+                            )
+                        }
+                        Column {
+                            Text("${seconds}s memo", style = MaterialTheme.typography.bodyMedium)
+                            Text("${item.date}", style = MaterialTheme.typography.bodySmall)
+                        }
                     }
                 }
-            }
-            OutlinedButton(onClick = onGoToDay, modifier = Modifier.fillMaxWidth()) {
-                Text("Go to day memo was taken")
-            }
-            OutlinedButton(
-                onClick = {
-                    scope.launch {
-                        val saved = withContext(Dispatchers.IO) {
-                            AudioSaveHelper.saveToDownloads(context, File(item.path), "rejournal_memo_${item.date}")
+                OutlinedButton(onClick = onGoToDay, modifier = Modifier.fillMaxWidth()) {
+                    Text("Go to day memo was taken")
+                }
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            val saved = withContext(Dispatchers.IO) {
+                                AudioSaveHelper.saveToDownloads(context, File(item.path), "rejournal_memo_${item.date}")
+                            }
+                            Toast.makeText(context, if (saved) "Saved to Files" else "Couldn't save memo", Toast.LENGTH_SHORT).show()
                         }
-                        Toast.makeText(context, if (saved) "Saved to Files" else "Couldn't save memo", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
-                Text("Save to Files")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+                    Text("Save to Files")
+                }
             }
         }
     }

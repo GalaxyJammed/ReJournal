@@ -13,6 +13,7 @@ class RejournalApplication : Application() {
     val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
 
     var isUnlockedThisSession by mutableStateOf(false)
+    var hasShownSplashThisSession by mutableStateOf(false)
 
     override fun onCreate() {
         super.onCreate()
