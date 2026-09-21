@@ -9,7 +9,7 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "2.9.0",
+            version = "2.9.1",
             date = "21/9/2026",
             highlights = listOf(
                 "App now guarantees at least one butterfly spawns on each screen, added butterflies to small UI elements",
