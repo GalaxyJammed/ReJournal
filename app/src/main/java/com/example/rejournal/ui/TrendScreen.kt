@@ -138,11 +138,9 @@ fun TrendScreen(viewModel: MoodViewModel) {
     val hasFilters = selectedTags.isNotEmpty() ||
             energyFilter != null || productivityFilter != null || stressFilter != null || sleepFilter != null
 
-    val currentMonthStart = LocalDate.now().withDayOfMonth(1)
-    val monthFilteredEntries: List<MoodEntry> = remember(entries, energyFilter, productivityFilter, stressFilter, sleepFilter, selectedTags) {
+    val allFilteredEntries = remember(entries, energyFilter, productivityFilter, stressFilter, sleepFilter, selectedTags) {
         entries.filter { entry ->
-            !entry.date.isBefore(currentMonthStart) && !entry.date.isAfter(LocalDate.now()) &&
-                    (energyFilter == null || entry.energy == energyFilter) &&
+            (energyFilter == null || entry.energy == energyFilter) &&
                     (productivityFilter == null || entry.productivity == productivityFilter) &&
                     (stressFilter == null || entry.stress == stressFilter) &&
                     (sleepFilter == null || entry.sleep == sleepFilter) &&
@@ -150,8 +148,16 @@ fun TrendScreen(viewModel: MoodViewModel) {
         }.sortedBy { it.date }
     }
 
-    val miniChartEntries = remember(entries) {
-        entries.sortedBy { it.date }.takeLast(7)
+    val currentMonthStart = LocalDate.now().withDayOfMonth(1)
+    val monthFilteredEntries = remember(allFilteredEntries) {
+        val now = LocalDate.now()
+        allFilteredEntries.filter { entry ->
+            !entry.date.isBefore(currentMonthStart) && !entry.date.isAfter(now)
+        }
+    }
+
+    val miniChartEntries = remember(allFilteredEntries) {
+        allFilteredEntries.takeLast(7)
     }
 
     Scaffold(
