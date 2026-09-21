@@ -82,7 +82,6 @@ fun PositiveMemoryScreen(
                 )
             }
 
-            // Scrapbook Card
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -134,7 +133,6 @@ fun PositiveMemoryScreen(
                 }
             }
 
-            // Photos Section - Polaroid Style
             if (entry.photoPaths.isNotEmpty()) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -166,7 +164,6 @@ private fun PolaroidPhoto(path: String) {
     }
 
     if (bitmap != null) {
-        // Random slight tilt for organic feel
         val rotation = remember(path) { (Random.nextFloat() * 6f) - 3f }
 
         Surface(
@@ -175,7 +172,7 @@ private fun PolaroidPhoto(path: String) {
                 .size(280.dp)
                 .padding(4.dp),
             shape = RoundedCornerShape(4.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHighest, // Polaroid frame
+            color = MaterialTheme.colorScheme.surfaceContainerHighest,
             shadowElevation = 6.dp
         ) {
             Column(

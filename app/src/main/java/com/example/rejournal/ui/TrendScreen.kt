@@ -534,10 +534,8 @@ private fun MoodLineChart(entries: List<MoodEntry>, isExpanded: Boolean = false)
             )
         }
 
-        // Draw Data Points and Date Labels
         val labelEvery = maxOf(1, entries.size / 8)
         points.forEachIndexed { index, point ->
-            // Draw the point
             drawCircle(color = moodColors[entries[index].mood - 1], radius = 5.dp.toPx(), center = point)
             drawCircle(color = Color.White, radius = 5.dp.toPx(), center = point, style = Stroke(width = 2.dp.toPx()))
 

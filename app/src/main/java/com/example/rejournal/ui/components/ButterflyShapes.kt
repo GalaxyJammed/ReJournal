@@ -42,8 +42,6 @@ fun ButterflyCardWrapper(
         val finalHashCode = seed.hashCode() + sessionRandomKey + indexOffset
 
         val shouldShow = remember(finalHashCode) {
-            // Roughly 35% chance to show a butterfly on a given card, 
-            // but ALWAYS show if it's the first card (indexOffset == 0) to keep the screen alive
             indexOffset == 0 || (abs(finalHashCode) % 100) < 35
         }
 

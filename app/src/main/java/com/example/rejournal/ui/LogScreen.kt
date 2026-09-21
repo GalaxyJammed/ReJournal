@@ -570,8 +570,7 @@ private fun OutlinedMarkerIcon(
         modifier = modifier.size(size + 4.dp),
         contentAlignment = Alignment.Center
     ) {
-        // A slightly larger, dark silhouette drawn first acts as a stroke/
-        // outline, since Compose's vector Icon has no native stroke support.
+
         Icon(
             icon,
             contentDescription = null,
