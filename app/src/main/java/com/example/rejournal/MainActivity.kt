@@ -11,7 +11,9 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,7 +26,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -81,18 +86,23 @@ import com.example.rejournal.ui.BigFiveTestScreen
 import com.example.rejournal.ui.SelfEsteemTestScreen
 import com.example.rejournal.ui.ResilienceTestScreen
 import com.example.rejournal.data.ProfilePrefs
+import com.example.rejournal.data.ThemePrefs
 import com.example.rejournal.ui.OnboardingScreen
+import com.example.rejournal.ui.theme.ThemeState
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        com.example.rejournal.ui.theme.ThemeState.current.value = com.example.rejournal.data.ThemePrefs.getTheme(this)
-        com.example.rejournal.ui.theme.ThemeState.darkMode.value = com.example.rejournal.data.ThemePrefs.isDarkMode(this)
-        com.example.rejournal.ui.theme.MoodVisualsState.mode.value = com.example.rejournal.data.MoodAppearancePrefs.getMode(this)
-        com.example.rejournal.ui.theme.MoodVisualsState.colors.value = com.example.rejournal.data.MoodAppearancePrefs.getActiveColors(this)
-        MoodVisualsState.emojis.value = MoodAppearancePrefs.getActiveEmojis(this)
+        val prefs = ThemePrefs
+        val appearance = MoodAppearancePrefs
+        
+        ThemeState.current.value = prefs.getTheme(this)
+        ThemeState.darkMode.value = prefs.isDarkMode(this)
+        MoodVisualsState.mode.value = appearance.getMode(this)
+        MoodVisualsState.colors.value = appearance.getActiveColors(this)
+        MoodVisualsState.emojis.value = appearance.getActiveEmojis(this)
 
         val database = (application as RejournalApplication).database
         val repository = MoodRepository(database.moodDao(), database.importantDayDao(), database.timeCapsuleDao())
@@ -138,20 +148,23 @@ fun AppNavHost(repository: MoodRepository) {
         viewModel.autoSyncCalendar()
     }
 
-
-
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
-    val bottomBarRoutes = setOf(
-        Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
-        Screen.Extras.route,
-    )
-    val routeToIndex = mapOf(
-        Screen.Log.route to 0,
-        Screen.Stats.route to 1,
-        Screen.Trend.route to 2,
-        Screen.Extras.route to 3
-    )
+    
+    val bottomBarRoutes = remember {
+        setOf(
+            Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
+            Screen.Extras.route,
+        )
+    }
+    val routeToIndex = remember {
+        mapOf(
+            Screen.Log.route to 0,
+            Screen.Stats.route to 1,
+            Screen.Trend.route to 2,
+            Screen.Extras.route to 3
+        )
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -170,338 +183,203 @@ fun AppNavHost(repository: MoodRepository) {
         NavHost(
             navController = navController,
             startDestination = if (ProfilePrefs.isOnboarded(appContext)) Screen.Log.route else Screen.Onboarding.route,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(outerPadding),
+            modifier = Modifier.fillMaxSize(),
             enterTransition = {
-                val targetRoute = targetState.destination.route
-                val initialRoute = initialState.destination.route
+                val target = targetState.destination.route
+                val initial = initialState.destination.route
+                val spec = tween<IntOffset>(400, easing = FastOutSlowInEasing)
                 
                 when {
-                    initialRoute == null -> fadeIn(animationSpec = tween(1))
-                    
-                    targetRoute?.startsWith("questionnaire") == true -> 
-                        slideInVertically(animationSpec = tween(450), initialOffsetY = { it }) + fadeIn(animationSpec = tween(350))
-                    
-                    targetRoute in bottomBarRoutes && initialRoute in bottomBarRoutes -> {
-                        val targetIdx = routeToIndex[targetRoute] ?: 0
-                        val initialIdx = routeToIndex[initialRoute] ?: 0
-                        if (targetIdx > initialIdx) {
-                            slideInHorizontally(animationSpec = tween(450), initialOffsetX = { it })
-                        } else {
-                            slideInHorizontally(animationSpec = tween(450), initialOffsetX = { -it })
-                        }
+                    initial == null -> fadeIn(tween(100))
+                    target?.startsWith("questionnaire") == true -> 
+                        fadeIn(tween(350)) + scaleIn(tween(350), initialScale = 0.92f) + slideInVertically(tween(350), initialOffsetY = { 80 })
+                    target in bottomBarRoutes && initial in bottomBarRoutes -> {
+                        val tIdx = routeToIndex[target] ?: 0
+                        val iIdx = routeToIndex[initial] ?: 0
+                        if (tIdx > iIdx) slideInHorizontally(spec, initialOffsetX = { it })
+                        else slideInHorizontally(spec, initialOffsetX = { -it })
                     }
-                    
-                    (initialRoute == Screen.Extras.route && targetRoute !in bottomBarRoutes) ||
-                    (targetRoute == Screen.Extras.route && initialRoute !in bottomBarRoutes) ->
-                        fadeIn(animationSpec = tween(450)) + scaleIn(animationSpec = tween(450), initialScale = 0.94f)
-                        
-                    else -> slideInHorizontally(animationSpec = tween(450), initialOffsetX = { it })
+                    (initial == Screen.Extras.route && target !in bottomBarRoutes) || (target == Screen.Extras.route && initial !in bottomBarRoutes) ->
+                        fadeIn(tween(250)) + scaleIn(tween(250), initialScale = 0.96f) + slideInHorizontally(tween(250), initialOffsetX = { if (target == Screen.Extras.route) -60 else 60 })
+                    else -> slideInHorizontally(spec, initialOffsetX = { it })
                 }
             },
             exitTransition = {
-                val targetRoute = targetState.destination.route
-                val initialRoute = initialState.destination.route
-                
+                val target = targetState.destination.route
+                val initial = initialState.destination.route
+                val spec = tween<IntOffset>(400, easing = FastOutSlowInEasing)
                 when {
-                    targetRoute?.startsWith("questionnaire") == true -> fadeOut(animationSpec = tween(400))
-                    
-                    targetRoute in bottomBarRoutes && initialRoute in bottomBarRoutes -> {
-                        val targetIdx = routeToIndex[targetRoute] ?: 0
-                        val initialIdx = routeToIndex[initialRoute] ?: 0
-                        if (targetIdx > initialIdx) {
-                            slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { -it })
-                        } else {
-                            slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { it })
-                        }
+                    initial?.startsWith("questionnaire") == true -> 
+                        fadeOut(tween(300)) + scaleOut(tween(300), targetScale = 0.92f) + slideOutVertically(tween(300), targetOffsetY = { 80 })
+                    target?.startsWith("questionnaire") == true -> fadeOut(tween(300))
+                    target in bottomBarRoutes && initial in bottomBarRoutes -> {
+                        val tIdx = routeToIndex[target] ?: 0
+                        val iIdx = routeToIndex[initial] ?: 0
+                        if (tIdx > iIdx) slideOutHorizontally(spec, targetOffsetX = { -it })
+                        else slideOutHorizontally(spec, targetOffsetX = { it })
                     }
-                    
-                    (initialRoute == Screen.Extras.route && targetRoute !in bottomBarRoutes) ||
-                    (targetRoute == Screen.Extras.route && initialRoute !in bottomBarRoutes) ->
-                        fadeOut(animationSpec = tween(400)) + scaleOut(animationSpec = tween(400), targetScale = 0.94f)
-                        
-                    else -> slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { -it })
+                    (initial == Screen.Extras.route && target !in bottomBarRoutes) || (target == Screen.Extras.route && initial !in bottomBarRoutes) ->
+                        fadeOut(tween(220)) + scaleOut(tween(220), targetScale = 0.96f) + slideOutHorizontally(tween(220), targetOffsetX = { if (initial == Screen.Extras.route) -60 else 60 })
+                    else -> slideOutHorizontally(spec, targetOffsetX = { -it })
                 }
             },
             popEnterTransition = {
-                val targetRoute = targetState.destination.route
-                val initialRoute = initialState.destination.route
-                
+                val target = targetState.destination.route
+                val initial = initialState.destination.route
+                val spec = tween<IntOffset>(400, easing = FastOutSlowInEasing)
                 when {
-                    initialRoute?.startsWith("questionnaire") == true -> fadeIn(animationSpec = tween(400))
-                    
-                    targetRoute in bottomBarRoutes && initialRoute in bottomBarRoutes -> {
-                        val targetIdx = routeToIndex[targetRoute] ?: 0
-                        val initialIdx = routeToIndex[initialRoute] ?: 0
-                        if (targetIdx > initialIdx) {
-                            slideInHorizontally(animationSpec = tween(450), initialOffsetX = { it })
-                        } else {
-                            slideInHorizontally(animationSpec = tween(450), initialOffsetX = { -it })
-                        }
+                    initial?.startsWith("questionnaire") == true -> fadeIn(tween(300))
+                    target?.startsWith("questionnaire") == true -> 
+                        fadeIn(tween(350)) + scaleIn(tween(350), initialScale = 0.92f) + slideInVertically(tween(350), initialOffsetY = { 80 })
+                    target in bottomBarRoutes && initial in bottomBarRoutes -> {
+                        val tIdx = routeToIndex[target] ?: 0
+                        val iIdx = routeToIndex[initial] ?: 0
+                        if (tIdx > iIdx) slideInHorizontally(spec, initialOffsetX = { it })
+                        else slideInHorizontally(spec, initialOffsetX = { -it })
                     }
-                    
-                    (initialRoute == Screen.Extras.route && targetRoute !in bottomBarRoutes) ||
-                    (targetRoute == Screen.Extras.route && initialRoute !in bottomBarRoutes) ->
-                        fadeIn(animationSpec = tween(450)) + scaleIn(animationSpec = tween(450), initialScale = 0.94f)
-                        
-                    else -> slideInHorizontally(animationSpec = tween(450), initialOffsetX = { -it })
+                    (initial == Screen.Extras.route && target !in bottomBarRoutes) || (target == Screen.Extras.route && initial !in bottomBarRoutes) ->
+                        fadeIn(tween(250)) + scaleIn(tween(250), initialScale = 0.96f) + slideInHorizontally(tween(250), initialOffsetX = { if (target == Screen.Extras.route) -60 else 60 })
+                    else -> slideInHorizontally(spec, initialOffsetX = { -it })
                 }
             },
             popExitTransition = {
-                val targetRoute = targetState.destination.route
-                val initialRoute = initialState.destination.route
-                
+                val target = targetState.destination.route
+                val initial = initialState.destination.route
+                val spec = tween<IntOffset>(400, easing = FastOutSlowInEasing)
                 when {
-                    initialRoute?.startsWith("questionnaire") == true ->
-                        slideOutVertically(animationSpec = tween(450), targetOffsetY = { it }) + fadeOut(animationSpec = tween(350))
-                    
-                    targetRoute in bottomBarRoutes && initialRoute in bottomBarRoutes -> {
-                        val targetIdx = routeToIndex[targetRoute] ?: 0
-                        val initialIdx = routeToIndex[initialRoute] ?: 0
-                        if (targetIdx > initialIdx) {
-                            slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { -it })
-                        } else {
-                            slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { it })
-                        }
+                    initial?.startsWith("questionnaire") == true -> 
+                        fadeOut(tween(300)) + scaleOut(tween(300), targetScale = 0.92f) + slideOutVertically(tween(300), targetOffsetY = { 80 })
+                    target in bottomBarRoutes && initial in bottomBarRoutes -> {
+                        val tIdx = routeToIndex[target] ?: 0
+                        val iIdx = routeToIndex[initial] ?: 0
+                        if (tIdx > iIdx) slideOutHorizontally(spec, targetOffsetX = { -it })
+                        else slideOutHorizontally(spec, targetOffsetX = { it })
                     }
-                    
-                    (initialRoute == Screen.Extras.route && targetRoute !in bottomBarRoutes) ||
-                    (targetRoute == Screen.Extras.route && initialRoute !in bottomBarRoutes) ->
-                        fadeOut(animationSpec = tween(400)) + scaleOut(animationSpec = tween(400), targetScale = 0.94f)
-                        
-                    else -> slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { it })
+                    (initial == Screen.Extras.route && target !in bottomBarRoutes) || (target == Screen.Extras.route && initial !in bottomBarRoutes) ->
+                        fadeOut(tween(220)) + scaleOut(tween(220), targetScale = 0.96f) + slideOutHorizontally(tween(220), targetOffsetX = { if (initial == Screen.Extras.route) -60 else 60 })
+                    else -> slideOutHorizontally(spec, targetOffsetX = { it })
                 }
             }
         ) {
             composable(Screen.Onboarding.route) {
-                OnboardingScreen(
-                    onFinish = {
-                        navController.navigate(Screen.Log.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                )
+                OnboardingScreen(onFinish = { navController.navigate(Screen.Log.route) { popUpTo(0) { inclusive = true } } })
             }
             composable(Screen.Log.route) {
-                LogScreen(
-                    viewModel = viewModel,
-                    onDayClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
-                    onSearchClick = { navController.navigate(Screen.Search.route) },
-                    onVisitPositiveMemory = { entry ->
-                        viewModel.selectedPositiveMemory = entry
-                        navController.navigate(Screen.PositiveMemory.route)
-                    },
-                )
+                Box(modifier = Modifier.fillMaxSize().padding(outerPadding)) {
+                    LogScreen(
+                        viewModel = viewModel,
+                        onDayClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
+                        onSearchClick = { navController.navigate(Screen.Search.route) },
+                        onVisitPositiveMemory = { entry ->
+                            viewModel.selectedPositiveMemory = entry
+                            navController.navigate(Screen.PositiveMemory.route)
+                        },
+                    )
+                }
             }
             composable(Screen.Stats.route) {
-                StatsScreen(
-                    viewModel = viewModel,
-                    onMoodClick = { mood -> navController.navigate(Screen.MoodDetail.createRoute(mood)) }
-                )
+                Box(modifier = Modifier.fillMaxSize().padding(outerPadding)) {
+                    StatsScreen(viewModel = viewModel, onMoodClick = { mood -> navController.navigate(Screen.MoodDetail.createRoute(mood)) })
+                }
             }
             composable(Screen.Trend.route) {
-                TrendScreen(viewModel = viewModel)
+                Box(modifier = Modifier.fillMaxSize().padding(outerPadding)) {
+                    TrendScreen(viewModel = viewModel)
+                }
             }
-            composable(Screen.Search.route) {
-                SearchScreen(
-                    viewModel = viewModel,
-                    onResultClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
-                    onBack = { navController.popBackStack() }
-                )
+            composable(Screen.Extras.route) {
+                Box(modifier = Modifier.fillMaxSize().padding(outerPadding)) {
+                    ExtrasScreen(
+                        viewModel = viewModel,
+                        onGoalsClick = { navController.navigate(Screen.Goals.route) },
+                        onPhotoAlbumClick = { navController.navigate(Screen.PhotoAlbum.route) },
+                        onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
+                        onImportantDaysClick = { navController.navigate(Screen.ImportantDays.route) },
+                        onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                        onFavoriteDaysClick = { navController.navigate(Screen.FavoriteDays.route) },
+                        onTimeCapsulesClick = { navController.navigate(Screen.TimeCapsules.route) },
+                        onAchievementsClick = { navController.navigate(Screen.Achievements.route) },
+                        onProfileClick = { navController.navigate(Screen.Profile.route) },
+                        onSyncClick = { navController.navigate(Screen.Sync.route) },
+                        onAboutClick = { navController.navigate(Screen.About.route) },
+                        onTestsClick = { navController.navigate(Screen.Tests.route) },
+                    )
+                }
             }
+            composable(Screen.WhatsNew.route) { Box(Modifier.fillMaxSize()) { WhatsNewScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.Faq.route) { Box(Modifier.fillMaxSize()) { FaqScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.Goals.route) {
+                Box(Modifier.fillMaxSize()) { GoalsScreen(viewModel = viewModel, onGoalClick = { id -> navController.navigate(Screen.GoalDetail.createRoute(id)) }, onFindGoalClick = { navController.navigate(Screen.GoalCategories.route) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.GoalCategories.route) {
+                Box(Modifier.fillMaxSize()) { GoalCategoryScreen(onCategoryClick = { category -> navController.navigate(Screen.GoalSuggestions.createRoute(category.name)) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(route = Screen.GoalSuggestions.route, arguments = listOf(navArgument("category") { type = NavType.StringType })) { backStackEntry ->
+                val catName = backStackEntry.arguments?.getString("category") ?: GoalCategory.HABITS.name
+                val cat = GoalCategory.entries.find { it.name == catName } ?: GoalCategory.HABITS
+                Box(Modifier.fillMaxSize()) { GoalSuggestionsScreen(viewModel = viewModel, category = cat, onGoalSelected = { navController.popBackStack(Screen.Goals.route, false) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(route = Screen.GoalDetail.route, arguments = listOf(navArgument("goalId") { type = NavType.StringType })) { backStackEntry ->
+                val goalId = backStackEntry.arguments?.getString("goalId")!!
+                Box(Modifier.fillMaxSize()) { GoalDetailScreen(viewModel = viewModel, goalId = goalId, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.PhotoAlbum.route) {
+                Box(Modifier.fillMaxSize()) { PhotoAlbumScreen(viewModel = viewModel, onPhotoClick = { item -> viewModel.selectedPhoto = item; navController.navigate(Screen.PhotoDetail.route) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.PhotoDetail.route) {
+                val item = viewModel.selectedPhoto
+                if (item != null) Box(Modifier.fillMaxSize()) { PhotoDetailScreen(path = item.path, date = item.date, onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.VoiceMemoAlbum.route) {
+                Box(Modifier.fillMaxSize()) { VoiceMemoAlbumScreen(viewModel = viewModel, onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.ImportantDays.route) { Box(Modifier.fillMaxSize()) { ImportantDaysScreen(viewModel = viewModel, onBack = { navController.popBackStack() }) } }
+            composable(Screen.Settings.route) { Box(Modifier.fillMaxSize()) { SettingsScreen(viewModel = viewModel, onBack = { navController.popBackStack() }) } }
+            composable(route = Screen.MoodDetail.route, arguments = listOf(navArgument("moodValue") { type = NavType.IntType })) { backStackEntry ->
+                val moodValue = backStackEntry.arguments?.getInt("moodValue") ?: 3
+                Box(Modifier.fillMaxSize()) { MoodDetailScreen(viewModel = viewModel, moodValue = moodValue, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.FavoriteDays.route) {
+                Box(Modifier.fillMaxSize()) { FavoriteDaysScreen(viewModel = viewModel, onDayClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.TimeCapsules.route) {
+                Box(Modifier.fillMaxSize()) { TimeCapsulesScreen(viewModel = viewModel, onCreateClick = { navController.navigate(Screen.CreateTimeCapsule.route) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.CreateTimeCapsule.route) { Box(Modifier.fillMaxSize()) { CreateTimeCapsuleScreen(viewModel = viewModel, onDone = { navController.popBackStack() }, onBack = { navController.popBackStack() }) } }
+            composable(Screen.Achievements.route) { Box(Modifier.fillMaxSize()) { AchievementsScreen(viewModel = viewModel, onBack = { navController.popBackStack() }) } }
+            composable(Screen.PositiveMemory.route) {
+                val entry = viewModel.selectedPositiveMemory
+                if (entry != null) Box(Modifier.fillMaxSize()) { PositiveMemoryScreen(entry = entry, onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.Profile.route) { Box(Modifier.fillMaxSize()) { ProfileScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.Sync.route) { Box(Modifier.fillMaxSize()) { SyncScreen(viewModel = viewModel, onBack = { navController.popBackStack() }) } }
+            composable(Screen.About.route) {
+                Box(Modifier.fillMaxSize()) { AboutScreen(onWhatsNewClick = { navController.navigate(Screen.WhatsNew.route) }, onFaqClick = { navController.navigate(Screen.Faq.route) }, onNotificationTroubleshootClick = { navController.navigate(Screen.NotificationTroubleshoot.route) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.NotificationTroubleshoot.route) { Box(Modifier.fillMaxSize()) { NotificationTroubleshootScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.Tests.route) {
+                Box(Modifier.fillMaxSize()) { TestsScreen(onMbtiClick = { navController.navigate(Screen.MbtiTest.route) }, onNpiClick = { navController.navigate(Screen.NpiTest.route) }, onDarkTriadClick = { navController.navigate(Screen.DarkTriadTest.route) }, onBigFiveClick = { navController.navigate(Screen.BigFiveTest.route) }, onSelfEsteemClick = { navController.navigate(Screen.SelfEsteemTest.route) }, onResilienceClick = { navController.navigate(Screen.ResilienceTest.route) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.MbtiTest.route) { Box(Modifier.fillMaxSize()) { MbtiTestScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.NpiTest.route) { Box(Modifier.fillMaxSize()) { NpiTestScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.DarkTriadTest.route) { Box(Modifier.fillMaxSize()) { DarkTriadTestScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.BigFiveTest.route) { Box(Modifier.fillMaxSize()) { BigFiveTestScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.SelfEsteemTest.route) { Box(Modifier.fillMaxSize()) { SelfEsteemTestScreen(onBack = { navController.popBackStack() }) } }
+            composable(Screen.ResilienceTest.route) { Box(Modifier.fillMaxSize()) { ResilienceTestScreen(onBack = { navController.popBackStack() }) } }
             composable(
                 route = Screen.Questionnaire.route,
                 arguments = listOf(navArgument("date") { type = NavType.StringType })
             ) { backStackEntry ->
                 val dateString = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
                 val date = LocalDate.parse(dateString)
-                QuestionnaireScreen(
-                    viewModel = viewModel,
-                    date = date,
-                    onDone = { navController.popBackStack() },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.Extras.route) {
-                ExtrasScreen(
-                    viewModel = viewModel,
-                    onGoalsClick = { navController.navigate(Screen.Goals.route) },
-                    onPhotoAlbumClick = { navController.navigate(Screen.PhotoAlbum.route) },
-                    onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
-                    onImportantDaysClick = { navController.navigate(Screen.ImportantDays.route) },
-                    onSettingsClick = { navController.navigate(Screen.Settings.route) },
-                    onFavoriteDaysClick = { navController.navigate(Screen.FavoriteDays.route) },
-                    onTimeCapsulesClick = { navController.navigate(Screen.TimeCapsules.route) },
-                    onAchievementsClick = { navController.navigate(Screen.Achievements.route) },
-                    onProfileClick = { navController.navigate(Screen.Profile.route) },
-                    onSyncClick = { navController.navigate(Screen.Sync.route) },
-                    onAboutClick = { navController.navigate(Screen.About.route) },
-                    onTestsClick = { navController.navigate(Screen.Tests.route) },
-                )
-            }
-            composable(Screen.WhatsNew.route) {
-                WhatsNewScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.Faq.route) {
-                FaqScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.Goals.route) {
-                GoalsScreen(
-                    viewModel = viewModel,
-                    onGoalClick = { id -> navController.navigate(Screen.GoalDetail.createRoute(id)) },
-                    onFindGoalClick = { navController.navigate(Screen.GoalCategories.route) },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.GoalCategories.route) {
-                GoalCategoryScreen(
-                    onCategoryClick = { category ->
-                        navController.navigate(Screen.GoalSuggestions.createRoute(category.name))
-                    },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(
-                route = Screen.GoalSuggestions.route,
-                arguments = listOf(navArgument("category") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val categoryName = backStackEntry.arguments?.getString("category") ?: GoalCategory.HABITS.name
-                val category = GoalCategory.entries.find { it.name == categoryName } ?: GoalCategory.HABITS
-                GoalSuggestionsScreen(
-                    viewModel = viewModel,
-                    category = category,
-                    onGoalSelected = { navController.popBackStack(Screen.Goals.route, inclusive = false) },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(
-                route = Screen.GoalDetail.route,
-                arguments = listOf(navArgument("goalId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val goalId = backStackEntry.arguments?.getString("goalId")!!
-                GoalDetailScreen(viewModel = viewModel, goalId = goalId, onBack = { navController.popBackStack() })
-            }
-            composable(Screen.PhotoAlbum.route) {
-                PhotoAlbumScreen(
-                    viewModel = viewModel,
-                    onPhotoClick = { item ->
-                        viewModel.selectedPhoto = item
-                        navController.navigate(Screen.PhotoDetail.route)
-                    },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.PhotoDetail.route) {
-                val item = viewModel.selectedPhoto
-                if (item != null) {
-                    PhotoDetailScreen(
-                        path = item.path,
-                        date = item.date,
-                        onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
+                Box(Modifier.fillMaxSize()) {
+                    QuestionnaireScreen(
+                        viewModel = viewModel,
+                        date = date,
+                        onDone = { navController.popBackStack() },
                         onBack = { navController.popBackStack() }
                     )
                 }
-            }
-            composable(Screen.VoiceMemoAlbum.route) {
-                VoiceMemoAlbumScreen(
-                    viewModel = viewModel,
-                    onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.ImportantDays.route) {
-                ImportantDaysScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
-            }
-            composable(Screen.Settings.route) {
-                SettingsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
-            }
-            composable(
-                route = Screen.MoodDetail.route,
-                arguments = listOf(navArgument("moodValue") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val moodValue = backStackEntry.arguments?.getInt("moodValue") ?: 3
-                MoodDetailScreen(viewModel = viewModel, moodValue = moodValue, onBack = { navController.popBackStack() })
-            }
-            composable(Screen.FavoriteDays.route) {
-                FavoriteDaysScreen(
-                    viewModel = viewModel,
-                    onDayClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.TimeCapsules.route) {
-                TimeCapsulesScreen(
-                    viewModel = viewModel,
-                    onCreateClick = { navController.navigate(Screen.CreateTimeCapsule.route) },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.CreateTimeCapsule.route) {
-                CreateTimeCapsuleScreen(
-                    viewModel = viewModel,
-                    onDone = { navController.popBackStack() },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.Achievements.route) {
-                AchievementsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
-            }
-            composable(Screen.PositiveMemory.route) {
-                val entry = viewModel.selectedPositiveMemory
-                if (entry != null) {
-                    PositiveMemoryScreen(
-                        entry = entry,
-                        onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
-                        onBack = { navController.popBackStack() }
-                    )
-                }
-            }
-            composable(Screen.Profile.route) {
-                ProfileScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.Sync.route) {
-                SyncScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
-            }
-            composable(Screen.About.route) {
-                AboutScreen(
-                    onWhatsNewClick = { navController.navigate(Screen.WhatsNew.route) },
-                    onFaqClick = { navController.navigate(Screen.Faq.route) },
-                    onNotificationTroubleshootClick = { navController.navigate(Screen.NotificationTroubleshoot.route) },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.NotificationTroubleshoot.route) {
-                NotificationTroubleshootScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.Tests.route) {
-                TestsScreen(
-                    onMbtiClick = { navController.navigate(Screen.MbtiTest.route) },
-                    onNpiClick = { navController.navigate(Screen.NpiTest.route) },
-                    onDarkTriadClick = { navController.navigate(Screen.DarkTriadTest.route) },
-                    onBigFiveClick = { navController.navigate(Screen.BigFiveTest.route) },
-                    onSelfEsteemClick = { navController.navigate(Screen.SelfEsteemTest.route) },
-                    onResilienceClick = { navController.navigate(Screen.ResilienceTest.route) },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.MbtiTest.route) {
-                MbtiTestScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.NpiTest.route) {
-                NpiTestScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.DarkTriadTest.route) {
-                DarkTriadTestScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.BigFiveTest.route) {
-                BigFiveTestScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.SelfEsteemTest.route) {
-                SelfEsteemTestScreen(onBack = { navController.popBackStack() })
-            }
-            composable(Screen.ResilienceTest.route) {
-                ResilienceTestScreen(onBack = { navController.popBackStack() })
             }
         }
     }

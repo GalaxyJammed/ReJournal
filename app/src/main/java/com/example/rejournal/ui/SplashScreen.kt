@@ -24,7 +24,7 @@ import com.example.rejournal.R
 import com.example.rejournal.RejournalApplication
 import kotlinx.coroutines.delay
 
-private const val MIN_SPLASH_DURATION_MS = 1000L
+private const val MIN_SPLASH_DURATION_MS = 2500L
 
 @Composable
 fun SplashGate(content: @Composable () -> Unit) {

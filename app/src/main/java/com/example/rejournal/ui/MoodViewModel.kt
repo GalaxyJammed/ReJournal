@@ -39,19 +39,19 @@ class MoodViewModel(
 
     val allEntries: StateFlow<List<MoodEntry>> = repository.allEntries.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = emptyList()
     )
 
     val allImportantDays: StateFlow<List<ImportantDay>> = repository.allImportantDays.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = emptyList()
     )
 
     val allTimeCapsules: StateFlow<List<TimeCapsule>> = repository.allTimeCapsules.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = emptyList()
     )
 
@@ -59,14 +59,14 @@ class MoodViewModel(
         list.filter { it.delivered && !it.opened }
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = emptyList()
     )
 
     val streakInfo: StateFlow<StreakInfo> = allEntries.map { StreakCalculator.calculate(it) }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = StreakInfo(0, 0)
         )
 
@@ -74,7 +74,7 @@ class MoodViewModel(
 
     val timeCapsulesCount: StateFlow<Int> = allTimeCapsules.map { it.size }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = 0
     )
 
@@ -82,7 +82,7 @@ class MoodViewModel(
         list.sumOf { it.photoPaths.size }
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = 0
     )
 
@@ -90,13 +90,13 @@ class MoodViewModel(
         list.sumOf { it.audioPaths.size }
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = 0
     )
 
     val importantDaysCount: StateFlow<Int> = allImportantDays.map { it.size }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = 0
     )
 

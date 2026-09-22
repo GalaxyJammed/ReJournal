@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,10 +49,12 @@ fun MainBottomBar(
             currentRoute == Screen.VoiceMemoAlbum.route ||
             currentRoute == Screen.Settings.route
 
-    val bottomBarRoutes = setOf(
-        Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
-        Screen.Extras.route,
-    )
+    val bottomBarRoutes = remember {
+        setOf(
+            Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
+            Screen.Extras.route,
+        )
+    }
     val isVisible = currentRoute in bottomBarRoutes
 
     if (!isVisible) return
