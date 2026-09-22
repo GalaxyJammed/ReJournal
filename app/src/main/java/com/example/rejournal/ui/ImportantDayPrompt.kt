@@ -40,7 +40,7 @@ fun ImportantDayPrompt(
     onRemove: () -> Unit,
     onCancel: () -> Unit
 ) {
-    var message by remember { mutableStateOf(existing?.message ?: "") }
+    var message by remember(existing) { mutableStateOf(existing?.message ?: "") }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(

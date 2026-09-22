@@ -2,8 +2,6 @@ package com.example.rejournal.ui
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,89 +26,53 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.rejournal.data.BigFiveTest
-import com.example.rejournal.data.BigFiveTrait
-import com.example.rejournal.data.ProfilePrefs
+import com.example.rejournal.data.SelfEsteemTest
 import com.example.rejournal.data.TestResultPrefs
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BigFiveTestScreen(onBack: () -> Unit) {
+fun SelfEsteemTestScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val age = remember { ProfilePrefs.getAge(context) }
     var currentIndex by remember { mutableStateOf(0) }
     val answers = remember { mutableStateOf(mutableMapOf<Int, Int>()) }
-    var results by remember { mutableStateOf<Map<BigFiveTrait, Double>?>(null) }
+    var finalScore by remember { mutableStateOf<Int?>(null) }
 
-    val total = BigFiveTest.questions.size
-    val scrollState = rememberScrollState()
+    val total = SelfEsteemTest.questions.size
 
     Scaffold(
-        topBar = { CenterAlignedTopAppBar(title = { Text("Big Five Personality") }, navigationIcon = { BackButton(onBack) }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text("Self-Esteem Quiz") }, navigationIcon = { BackButton(onBack) }) }
     ) { padding: PaddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            results?.let { scores ->
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Your Traits Breakdown", style = MaterialTheme.typography.titleMedium)
-                    
-                    BigFiveTrait.entries.forEachIndexed { index, trait ->
-                        val avg = scores[trait] ?: 3.0
-                        ButterflyCardWrapper(seed = "BigFive_${trait.name}", indexOffset = index, modifier = Modifier.fillMaxWidth()) {
-                            Card(modifier = Modifier.fillMaxWidth(), shape = softCardShape, border = softCardBorder()) {
-                                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(trait.displayName, style = MaterialTheme.typography.titleMedium)
-                                        Text(BigFiveTest.bandFor(avg), style = MaterialTheme.typography.titleMedium)
-                                    }
-                                    Text(
-                                        trait.description,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        "Score: ${String.format("%.1f", avg)} / 5.0",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
+            finalScore?.let { score ->
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("Your Result", style = MaterialTheme.typography.titleMedium)
+                    ButterflyCardWrapper(seed = "SelfEsteemResult", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
+                        Card(modifier = Modifier.fillMaxWidth(), shape = softCardShape, border = softCardBorder()) {
+                            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Score: $score / 50", style = MaterialTheme.typography.headlineMedium)
+                                Text(SelfEsteemTest.interpretation(score), style = MaterialTheme.typography.bodyLarge)
                             }
                         }
                     }
-
-                    age?.let {
-                        Text(
-                            "Age reflection: Longitudinal studies show that Conscientiousness and Agreeableness typically increase as people age, while Neuroticism tends to decrease.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-
                     Text(
-                        "The Big Five (OCEAN) framework is widely used in psychological research to understand human personality variance across five stable dimensions.",
+                        "This quiz is based on the Rosenberg Self-Esteem Scale, a widely used tool for assessing self-worth, but this version is for self-reflection only.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Button(
                             onClick = {
-                                val summary = scores.entries.joinToString(", ") { "${it.key.displayName}: ${BigFiveTest.bandFor(it.value)}" }
-                                val shareText = "Look at the test result I got from ReJournal in the Big Five Personality test! My traits breakdown: $summary. Discover yours with ReJournal!"
+                                val shareText = "I just took the Self-Esteem Quiz on ReJournal and got a score of $score! It's a great tool for self-reflection."
                                 val sendIntent = Intent().apply {
                                     action = Intent.ACTION_SEND
                                     putExtra(Intent.EXTRA_TEXT, shareText)
@@ -121,13 +83,9 @@ fun BigFiveTestScreen(onBack: () -> Unit) {
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Share Results")
+                            Text("Share")
                         }
-                        
-                        OutlinedButton(
-                            onClick = onBack,
-                            modifier = Modifier.weight(1f)
-                        ) {
+                        OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
                             Text("Done")
                         }
                     }
@@ -141,7 +99,7 @@ fun BigFiveTestScreen(onBack: () -> Unit) {
                     drawStopIndicator = {}
                 )
 
-                val question = BigFiveTest.questions[currentIndex]
+                val question = SelfEsteemTest.questions[currentIndex]
                 Text(question.text, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 8.dp))
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -158,7 +116,7 @@ fun BigFiveTestScreen(onBack: () -> Unit) {
                                     if (currentIndex < total - 1) {
                                         currentIndex++
                                     } else {
-                                        results = BigFiveTest.score(answers.value)
+                                        finalScore = SelfEsteemTest.score(answers.value)
                                         TestResultPrefs.incrementTestsCompletedCount(context)
                                     }
                                 },
@@ -173,7 +131,7 @@ fun BigFiveTestScreen(onBack: () -> Unit) {
                                     if (currentIndex < total - 1) {
                                         currentIndex++
                                     } else {
-                                        results = BigFiveTest.score(answers.value)
+                                        finalScore = SelfEsteemTest.score(answers.value)
                                         TestResultPrefs.incrementTestsCompletedCount(context)
                                     }
                                 },

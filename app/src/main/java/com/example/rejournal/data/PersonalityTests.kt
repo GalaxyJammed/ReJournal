@@ -230,3 +230,58 @@ object BigFiveTest {
         else -> "High"
     }
 }
+
+data class GeneralQuestion(val id: Int, val text: String, val polarity: Int = 1)
+
+object SelfEsteemTest {
+    val questions = listOf(
+        GeneralQuestion(1, "On the whole, I am satisfied with myself.", 1),
+        GeneralQuestion(2, "At times I think I am no good at all.", -1),
+        GeneralQuestion(3, "I feel that I have a number of good qualities.", 1),
+        GeneralQuestion(4, "I am able to do things as well as most other people.", 1),
+        GeneralQuestion(5, "I feel I do not have much to be proud of.", -1),
+        GeneralQuestion(6, "I certainly feel useless at times.", -1),
+        GeneralQuestion(7, "I feel that I'm a person of worth, at least on an equal plane with others.", 1),
+        GeneralQuestion(8, "I wish I could have more respect for myself.", -1),
+        GeneralQuestion(9, "All in all, I am inclined to feel that I am a failure.", -1),
+        GeneralQuestion(10, "I take a positive attitude toward myself.", 1)
+    )
+
+    fun score(answers: Map<Int, Int>): Int {
+        return questions.sumOf { q ->
+            val ans = answers[q.id] ?: 3
+            if (q.polarity == 1) ans else (6 - ans)
+        }
+    }
+
+    fun interpretation(score: Int): String = when {
+        score < 25 -> "Your score suggests low self-esteem. You might be focusing more on your perceived flaws than your strengths."
+        score <= 35 -> "Your score suggests a moderate, healthy level of self-esteem."
+        else -> "Your score suggests high self-esteem and a strong sense of self-worth."
+    }
+}
+
+object ResilienceTest {
+    val questions = listOf(
+        GeneralQuestion(1, "I tend to bounce back quickly after hard times.", 1),
+        GeneralQuestion(2, "I have a hard time making it through stressful events.", -1),
+        GeneralQuestion(3, "It does not take me long to recover from a stressful event.", 1),
+        GeneralQuestion(4, "It is hard for me to snap back when something bad happens.", -1),
+        GeneralQuestion(5, "I usually come through difficult times with little trouble.", 1),
+        GeneralQuestion(6, "I tend to take a long time to get over set-backs in my life.", -1)
+    )
+
+    fun score(answers: Map<Int, Int>): Double {
+        val total = questions.sumOf { q ->
+            val ans = answers[q.id] ?: 3
+            if (q.polarity == 1) ans else (6 - ans)
+        }
+        return total.toDouble() / questions.size
+    }
+
+    fun bandFor(average: Double): String = when {
+        average < 2.5 -> "Low Resilience"
+        average <= 3.5 -> "Moderate Resilience"
+        else -> "High Resilience"
+    }
+}

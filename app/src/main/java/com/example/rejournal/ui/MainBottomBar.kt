@@ -47,6 +47,15 @@ fun MainBottomBar(
             currentRoute == Screen.PhotoAlbum.route ||
             currentRoute == Screen.VoiceMemoAlbum.route ||
             currentRoute == Screen.Settings.route
+
+    val bottomBarRoutes = setOf(
+        Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
+        Screen.Extras.route,
+    )
+    val isVisible = currentRoute in bottomBarRoutes
+
+    if (!isVisible) return
+
     Box(
         modifier = Modifier
             .fillMaxWidth()

@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import java.util.Random
 import kotlin.math.abs
 
+import androidx.compose.ui.graphics.graphicsLayer
+
 enum class ButterflyType {
     STANDARD, DETAILED, FLYING
 }
@@ -35,7 +37,10 @@ fun ButterflyCardWrapper(
     indexOffset: Int = 0,
     content: @Composable BoxScope.() -> Unit
 ) {
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier,
+        propagateMinConstraints = false
+    ) {
         content()
 
         val sessionRandomKey = remember { Random().nextInt(100000) }
@@ -84,6 +89,7 @@ fun ButterflyCardWrapper(
                     .then(offsetModifier)
                     .size(sizeDp)
                     .rotate(rotation)
+                    .graphicsLayer(clip = false)
             ) {
                 DecorativeButterfly(type = type)
             }

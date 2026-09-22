@@ -55,12 +55,14 @@ import java.util.Locale
 import com.example.rejournal.data.ActivityFrequency
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.SentimentVerySatisfied
@@ -69,6 +71,7 @@ import androidx.compose.material.icons.filled.WorkOutline
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.HorizontalDivider
 import com.example.rejournal.data.ActivityIcons
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.ui.verticalScrollbar
@@ -172,11 +175,11 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                                 "${stats.totalEntries} day${if (stats.totalEntries == 1) "" else "s"} logged",
                                 style = MaterialTheme.typography.titleMedium
                             )
-                            StatLine(Icons.Filled.EmojiEmotions, "Average mood: ${String.format("%.1f", stats.averageMood)} / 5")
+                            StatLine(Icons.Filled.AddReaction, "Average mood: ${String.format("%.1f", stats.averageMood)} / 5")
                             StatLine(Icons.Filled.TrendingUp, "Average energy: ${String.format("%.1f", stats.averageEnergy)} / 5")
                             StatLine(Icons.Filled.WorkOutline, "Average productivity: ${String.format("%.1f", stats.averageProductivity)} / 5")
                             StatLine(Icons.Filled.Psychology, "Average stress: ${String.format("%.1f", stats.averageStress)} / 5")
-                            StatLine(Icons.Filled.Bedtime, "Average sleep: ${String.format("%.1f", stats.averageSleep)} / 5")
+                            StatLine(Icons.Filled.Hotel, "Average sleep: ${String.format("%.1f", stats.averageSleep)} / 5")
                         }
                     }
                 }
@@ -326,7 +329,8 @@ private fun InsightsSection(
                             border = softCardBorder()
                         ) {
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("On your best day(s)", style = MaterialTheme.typography.labelMedium)
+                                Text("Best day(s)", style = MaterialTheme.typography.labelMedium)
+                                HorizontalDivider()
                                 bestDayActivities.take(4).forEach { freq ->
                                     Text("${freq.tag} (${freq.count}x)", style = MaterialTheme.typography.bodySmall)
                                 }
@@ -342,7 +346,8 @@ private fun InsightsSection(
                             border = softCardBorder()
                         ) {
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("On your toughest day(s)", style = MaterialTheme.typography.labelMedium)
+                                Text("Toughest day(s)", style = MaterialTheme.typography.labelMedium)
+                                HorizontalDivider()
                                 worstDayActivities.take(4).forEach { freq ->
                                     Text("${freq.tag} (${freq.count}x)", style = MaterialTheme.typography.bodySmall)
                                 }

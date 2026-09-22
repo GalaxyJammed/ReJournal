@@ -45,4 +45,6 @@ sealed class Screen(val route: String) {
     object NpiTest : Screen("npiTest")
     object DarkTriadTest : Screen("darkTriadTest")
     object BigFiveTest : Screen("bigFiveTest")
+    object SelfEsteemTest : Screen("selfEsteemTest")
+    object ResilienceTest : Screen("resilienceTest")
 }

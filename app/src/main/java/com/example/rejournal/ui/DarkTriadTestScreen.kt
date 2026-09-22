@@ -31,6 +31,7 @@ import com.example.rejournal.data.DarkTriadTrait
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.ui.platform.LocalContext
 import com.example.rejournal.data.ProfilePrefs
+import com.example.rejournal.data.TestResultPrefs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,6 +144,7 @@ fun DarkTriadTestScreen(onBack: () -> Unit) {
                                         currentIndex++
                                     } else {
                                         results = DarkTriadTest.scoreByTrait(answers.value)
+                                        TestResultPrefs.incrementTestsCompletedCount(context)
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth()
@@ -157,6 +159,7 @@ fun DarkTriadTestScreen(onBack: () -> Unit) {
                                         currentIndex++
                                     } else {
                                         results = DarkTriadTest.scoreByTrait(answers.value)
+                                        TestResultPrefs.incrementTestsCompletedCount(context)
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth()

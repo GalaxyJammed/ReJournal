@@ -29,6 +29,7 @@ import com.example.rejournal.data.NpiTest
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.ui.platform.LocalContext
 import com.example.rejournal.data.ProfilePrefs
+import com.example.rejournal.data.TestResultPrefs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,6 +123,7 @@ fun NpiTestScreen(onBack: () -> Unit) {
                         currentIndex++
                     } else {
                         finalScore = NpiTest.score(answers.value)
+                        TestResultPrefs.incrementTestsCompletedCount(context)
                     }
                 }
 

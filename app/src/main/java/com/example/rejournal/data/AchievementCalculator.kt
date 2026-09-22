@@ -4,15 +4,19 @@ import android.content.Context
 
 object AchievementCalculator {
 
-    fun currentValue(metric: AchievementMetric, entries: List<MoodEntry>, goalCompletions: Int, timeCapsuleCount: Int): Int {
+    fun currentValue(metric: AchievementMetric, entries: List<MoodEntry>, goalCompletions: Int, timeCapsuleCount: Int, testsTakenCount: Int = 0): Int {
         return when (metric) {
             AchievementMetric.TOTAL_ENTRIES -> entries.size
             AchievementMetric.BEST_STREAK -> StreakCalculator.calculate(entries).longestStreak
             AchievementMetric.GOALS_COMPLETED -> goalCompletions
-            AchievementMetric.HAS_PHOTO -> if (entries.any { it.photoPaths.isNotEmpty() }) 1 else 0
-            AchievementMetric.HAS_AUDIO -> if (entries.any { it.audioPaths.isNotEmpty() }) 1 else 0
-            AchievementMetric.HAS_FAVORITE -> if (entries.any { it.isFavorite }) 1 else 0
-            AchievementMetric.HAS_TIME_CAPSULE -> if (timeCapsuleCount > 0) 1 else 0
+            AchievementMetric.HAS_PHOTO -> entries.count { it.photoPaths.isNotEmpty() }
+            AchievementMetric.HAS_AUDIO -> entries.count { it.audioPaths.isNotEmpty() }
+            AchievementMetric.HAS_FAVORITE -> entries.count { it.isFavorite }
+            AchievementMetric.HAS_TIME_CAPSULE -> timeCapsuleCount
+            AchievementMetric.WELLNESS_DAYS -> entries.count { it.energy >= 4 && it.stress <= 2 && it.sleep >= 4 }
+            AchievementMetric.UNIQUE_TAGS -> entries.flatMap { it.activities }.distinct().size
+            AchievementMetric.THOROUGH_LOGS -> entries.count { it.note.length > 200 }
+            AchievementMetric.TESTS_TAKEN -> testsTakenCount
         }
     }
 
@@ -26,12 +30,13 @@ object AchievementCalculator {
         context: Context,
         entries: List<MoodEntry>,
         goalCompletions: Int,
-        timeCapsuleCount: Int
+        timeCapsuleCount: Int,
+        testsTakenCount: Int = 0
     ): Set<String> {
         val alreadyUnlocked = AchievementPrefs.getUnlockedIds(context)
         val newly = mutableSetOf<String>()
         AchievementDefinitions.groups.forEach { group ->
-            val value = currentValue(group.metric, entries, goalCompletions, timeCapsuleCount)
+            val value = currentValue(group.metric, entries, goalCompletions, timeCapsuleCount, testsTakenCount)
             group.tiers.forEach { tier ->
                 if (tier.id !in alreadyUnlocked && value >= tier.target) newly.add(tier.id)
             }

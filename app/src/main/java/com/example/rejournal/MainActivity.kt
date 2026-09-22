@@ -3,9 +3,15 @@ package com.example.rejournal
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -72,6 +78,8 @@ import com.example.rejournal.ui.MbtiTestScreen
 import com.example.rejournal.ui.NpiTestScreen
 import com.example.rejournal.ui.DarkTriadTestScreen
 import com.example.rejournal.ui.BigFiveTestScreen
+import com.example.rejournal.ui.SelfEsteemTestScreen
+import com.example.rejournal.ui.ResilienceTestScreen
 import com.example.rejournal.data.ProfilePrefs
 import com.example.rejournal.ui.OnboardingScreen
 
@@ -130,7 +138,7 @@ fun AppNavHost(repository: MoodRepository) {
         viewModel.autoSyncCalendar()
     }
 
-    val animationSpec = tween<androidx.compose.ui.unit.IntOffset>(durationMillis = 300)
+
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -138,21 +146,25 @@ fun AppNavHost(repository: MoodRepository) {
         Screen.Log.route, Screen.Stats.route, Screen.Trend.route,
         Screen.Extras.route,
     )
+    val routeToIndex = mapOf(
+        Screen.Log.route to 0,
+        Screen.Stats.route to 1,
+        Screen.Trend.route to 2,
+        Screen.Extras.route to 3
+    )
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            if (currentRoute in bottomBarRoutes) {
-                MainBottomBar(
-                    currentRoute = currentRoute,
-                    onEntriesClick = { navController.navigateToBottomDestination(Screen.Log.route) },
-                    onStatsClick = { navController.navigateToBottomDestination(Screen.Stats.route) },
-                    onAddClick = { navController.navigate(Screen.Questionnaire.createRoute(LocalDate.now())) },
-                    onTrendClick = { navController.navigateToBottomDestination(Screen.Trend.route) },
-                    onExtrasClick = { navController.navigateToBottomDestination(Screen.Extras.route) }
-                )
-            }
+            MainBottomBar(
+                currentRoute = currentRoute,
+                onEntriesClick = { navController.navigateToBottomDestination(Screen.Log.route) },
+                onStatsClick = { navController.navigateToBottomDestination(Screen.Stats.route) },
+                onAddClick = { navController.navigate(Screen.Questionnaire.createRoute(LocalDate.now())) },
+                onTrendClick = { navController.navigateToBottomDestination(Screen.Trend.route) },
+                onExtrasClick = { navController.navigateToBottomDestination(Screen.Extras.route) }
+            )
         }
     ) { outerPadding ->
         NavHost(
@@ -162,16 +174,104 @@ fun AppNavHost(repository: MoodRepository) {
                 .fillMaxSize()
                 .padding(outerPadding),
             enterTransition = {
-                slideInHorizontally(animationSpec = animationSpec, initialOffsetX = { fullWidth -> fullWidth })
+                val targetRoute = targetState.destination.route
+                val initialRoute = initialState.destination.route
+                
+                when {
+                    initialRoute == null -> fadeIn(animationSpec = tween(1))
+                    
+                    targetRoute?.startsWith("questionnaire") == true -> 
+                        slideInVertically(animationSpec = tween(450), initialOffsetY = { it }) + fadeIn(animationSpec = tween(350))
+                    
+                    targetRoute in bottomBarRoutes && initialRoute in bottomBarRoutes -> {
+                        val targetIdx = routeToIndex[targetRoute] ?: 0
+                        val initialIdx = routeToIndex[initialRoute] ?: 0
+                        if (targetIdx > initialIdx) {
+                            slideInHorizontally(animationSpec = tween(450), initialOffsetX = { it })
+                        } else {
+                            slideInHorizontally(animationSpec = tween(450), initialOffsetX = { -it })
+                        }
+                    }
+                    
+                    (initialRoute == Screen.Extras.route && targetRoute !in bottomBarRoutes) ||
+                    (targetRoute == Screen.Extras.route && initialRoute !in bottomBarRoutes) ->
+                        fadeIn(animationSpec = tween(450)) + scaleIn(animationSpec = tween(450), initialScale = 0.94f)
+                        
+                    else -> slideInHorizontally(animationSpec = tween(450), initialOffsetX = { it })
+                }
             },
             exitTransition = {
-                slideOutHorizontally(animationSpec = animationSpec, targetOffsetX = { fullWidth -> -fullWidth })
+                val targetRoute = targetState.destination.route
+                val initialRoute = initialState.destination.route
+                
+                when {
+                    targetRoute?.startsWith("questionnaire") == true -> fadeOut(animationSpec = tween(400))
+                    
+                    targetRoute in bottomBarRoutes && initialRoute in bottomBarRoutes -> {
+                        val targetIdx = routeToIndex[targetRoute] ?: 0
+                        val initialIdx = routeToIndex[initialRoute] ?: 0
+                        if (targetIdx > initialIdx) {
+                            slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { -it })
+                        } else {
+                            slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { it })
+                        }
+                    }
+                    
+                    (initialRoute == Screen.Extras.route && targetRoute !in bottomBarRoutes) ||
+                    (targetRoute == Screen.Extras.route && initialRoute !in bottomBarRoutes) ->
+                        fadeOut(animationSpec = tween(400)) + scaleOut(animationSpec = tween(400), targetScale = 0.94f)
+                        
+                    else -> slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { -it })
+                }
             },
             popEnterTransition = {
-                slideInHorizontally(animationSpec = animationSpec, initialOffsetX = { fullWidth -> -fullWidth })
+                val targetRoute = targetState.destination.route
+                val initialRoute = initialState.destination.route
+                
+                when {
+                    initialRoute?.startsWith("questionnaire") == true -> fadeIn(animationSpec = tween(400))
+                    
+                    targetRoute in bottomBarRoutes && initialRoute in bottomBarRoutes -> {
+                        val targetIdx = routeToIndex[targetRoute] ?: 0
+                        val initialIdx = routeToIndex[initialRoute] ?: 0
+                        if (targetIdx > initialIdx) {
+                            slideInHorizontally(animationSpec = tween(450), initialOffsetX = { it })
+                        } else {
+                            slideInHorizontally(animationSpec = tween(450), initialOffsetX = { -it })
+                        }
+                    }
+                    
+                    (initialRoute == Screen.Extras.route && targetRoute !in bottomBarRoutes) ||
+                    (targetRoute == Screen.Extras.route && initialRoute !in bottomBarRoutes) ->
+                        fadeIn(animationSpec = tween(450)) + scaleIn(animationSpec = tween(450), initialScale = 0.94f)
+                        
+                    else -> slideInHorizontally(animationSpec = tween(450), initialOffsetX = { -it })
+                }
             },
             popExitTransition = {
-                slideOutHorizontally(animationSpec = animationSpec, targetOffsetX = { fullWidth -> fullWidth })
+                val targetRoute = targetState.destination.route
+                val initialRoute = initialState.destination.route
+                
+                when {
+                    initialRoute?.startsWith("questionnaire") == true ->
+                        slideOutVertically(animationSpec = tween(450), targetOffsetY = { it }) + fadeOut(animationSpec = tween(350))
+                    
+                    targetRoute in bottomBarRoutes && initialRoute in bottomBarRoutes -> {
+                        val targetIdx = routeToIndex[targetRoute] ?: 0
+                        val initialIdx = routeToIndex[initialRoute] ?: 0
+                        if (targetIdx > initialIdx) {
+                            slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { -it })
+                        } else {
+                            slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { it })
+                        }
+                    }
+                    
+                    (initialRoute == Screen.Extras.route && targetRoute !in bottomBarRoutes) ||
+                    (targetRoute == Screen.Extras.route && initialRoute !in bottomBarRoutes) ->
+                        fadeOut(animationSpec = tween(400)) + scaleOut(animationSpec = tween(400), targetScale = 0.94f)
+                        
+                    else -> slideOutHorizontally(animationSpec = tween(450), targetOffsetX = { it })
+                }
             }
         ) {
             composable(Screen.Onboarding.route) {
@@ -380,6 +480,8 @@ fun AppNavHost(repository: MoodRepository) {
                     onNpiClick = { navController.navigate(Screen.NpiTest.route) },
                     onDarkTriadClick = { navController.navigate(Screen.DarkTriadTest.route) },
                     onBigFiveClick = { navController.navigate(Screen.BigFiveTest.route) },
+                    onSelfEsteemClick = { navController.navigate(Screen.SelfEsteemTest.route) },
+                    onResilienceClick = { navController.navigate(Screen.ResilienceTest.route) },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -394,6 +496,12 @@ fun AppNavHost(repository: MoodRepository) {
             }
             composable(Screen.BigFiveTest.route) {
                 BigFiveTestScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.SelfEsteemTest.route) {
+                SelfEsteemTestScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.ResilienceTest.route) {
+                ResilienceTestScreen(onBack = { navController.popBackStack() })
             }
         }
     }

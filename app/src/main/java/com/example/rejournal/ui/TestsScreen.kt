@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.CameraFront
 import androidx.compose.material.icons.filled.Water
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Favorite
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 import com.example.rejournal.ui.components.IconPill
 import com.example.rejournal.ui.components.PastelIcon
@@ -39,6 +41,8 @@ fun TestsScreen(
     onNpiClick: () -> Unit,
     onDarkTriadClick: () -> Unit,
     onBigFiveClick: () -> Unit,
+    onSelfEsteemClick: () -> Unit,
+    onResilienceClick: () -> Unit,
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -67,6 +71,10 @@ fun TestsScreen(
                         TestRow(Icons.Filled.CameraFront, "Narcissistic Traits", "16 questions", onNpiClick)
                         HorizontalDivider()
                         TestRow(Icons.Filled.WarningAmber, "Dark Traits Reflection", "27 questions", onDarkTriadClick)
+                        HorizontalDivider()
+                        TestRow(Icons.Filled.Favorite, "Self-Esteem Quiz", "10 questions", onSelfEsteemClick)
+                        HorizontalDivider()
+                        TestRow(Icons.Filled.Star, "Resilience Assessment", "6 questions", onResilienceClick)
                     }
                 }
             }

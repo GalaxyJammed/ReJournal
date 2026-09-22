@@ -31,6 +31,7 @@ import com.example.rejournal.data.MbtiTest
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 import androidx.compose.ui.platform.LocalContext
 import com.example.rejournal.data.ProfilePrefs
+import com.example.rejournal.data.TestResultPrefs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -130,6 +131,7 @@ fun MbtiTestScreen(onBack: () -> Unit) {
                                         currentIndex++
                                     } else {
                                         result = MbtiTest.score(answers.value)
+                                        TestResultPrefs.incrementTestsCompletedCount(context)
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth()
@@ -144,6 +146,7 @@ fun MbtiTestScreen(onBack: () -> Unit) {
                                         currentIndex++
                                     } else {
                                         result = MbtiTest.score(answers.value)
+                                        TestResultPrefs.incrementTestsCompletedCount(context)
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth()
