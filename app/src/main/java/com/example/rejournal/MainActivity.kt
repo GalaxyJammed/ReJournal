@@ -53,7 +53,9 @@ import com.example.rejournal.ui.LogScreen
 import com.example.rejournal.ui.PhotoAlbumScreen
 import com.example.rejournal.ui.PhotoDetailScreen
 import com.example.rejournal.ui.VoiceMemoAlbumScreen
+import com.example.rejournal.ui.EmotionalMixtapeScreen
 import com.example.rejournal.ui.MainBottomBar
+import com.example.rejournal.ui.MicroWinsScreen
 import com.example.rejournal.ui.MoodViewModel
 import com.example.rejournal.ui.QuestionnaireScreen
 import com.example.rejournal.ui.Screen
@@ -105,7 +107,12 @@ class MainActivity : FragmentActivity() {
         MoodVisualsState.emojis.value = appearance.getActiveEmojis(this)
 
         val database = (application as RejournalApplication).database
-        val repository = MoodRepository(database.moodDao(), database.importantDayDao(), database.timeCapsuleDao())
+        val repository = MoodRepository(
+            database.moodDao(),
+            database.importantDayDao(),
+            database.timeCapsuleDao(),
+            database.microWinDao()
+        )
 
         setContent {
             ReJournalTheme {
@@ -174,7 +181,8 @@ fun AppNavHost(repository: MoodRepository) {
                 currentRoute = currentRoute,
                 onEntriesClick = { navController.navigateToBottomDestination(Screen.Log.route) },
                 onStatsClick = { navController.navigateToBottomDestination(Screen.Stats.route) },
-                onAddClick = { navController.navigate(Screen.Questionnaire.createRoute(LocalDate.now())) },
+                onLogTodayClick = { navController.navigate(Screen.Questionnaire.createRoute(LocalDate.now())) },
+                onMicroWinClick = { navController.navigate(Screen.MicroWins.route) },
                 onTrendClick = { navController.navigateToBottomDestination(Screen.Trend.route) },
                 onExtrasClick = { navController.navigateToBottomDestination(Screen.Extras.route) }
             )
@@ -199,8 +207,6 @@ fun AppNavHost(repository: MoodRepository) {
                         if (tIdx > iIdx) slideInHorizontally(spec, initialOffsetX = { it })
                         else slideInHorizontally(spec, initialOffsetX = { -it })
                     }
-                    (initial == Screen.Extras.route && target !in bottomBarRoutes) || (target == Screen.Extras.route && initial !in bottomBarRoutes) ->
-                        fadeIn(tween(250)) + scaleIn(tween(250), initialScale = 0.96f) + slideInHorizontally(tween(250), initialOffsetX = { if (target == Screen.Extras.route) -60 else 60 })
                     else -> slideInHorizontally(spec, initialOffsetX = { it })
                 }
             },
@@ -218,8 +224,6 @@ fun AppNavHost(repository: MoodRepository) {
                         if (tIdx > iIdx) slideOutHorizontally(spec, targetOffsetX = { -it })
                         else slideOutHorizontally(spec, targetOffsetX = { it })
                     }
-                    (initial == Screen.Extras.route && target !in bottomBarRoutes) || (target == Screen.Extras.route && initial !in bottomBarRoutes) ->
-                        fadeOut(tween(220)) + scaleOut(tween(220), targetScale = 0.96f) + slideOutHorizontally(tween(220), targetOffsetX = { if (initial == Screen.Extras.route) -60 else 60 })
                     else -> slideOutHorizontally(spec, targetOffsetX = { -it })
                 }
             },
@@ -237,8 +241,6 @@ fun AppNavHost(repository: MoodRepository) {
                         if (tIdx > iIdx) slideInHorizontally(spec, initialOffsetX = { it })
                         else slideInHorizontally(spec, initialOffsetX = { -it })
                     }
-                    (initial == Screen.Extras.route && target !in bottomBarRoutes) || (target == Screen.Extras.route && initial !in bottomBarRoutes) ->
-                        fadeIn(tween(250)) + scaleIn(tween(250), initialScale = 0.96f) + slideInHorizontally(tween(250), initialOffsetX = { if (target == Screen.Extras.route) -60 else 60 })
                     else -> slideInHorizontally(spec, initialOffsetX = { -it })
                 }
             },
@@ -255,8 +257,6 @@ fun AppNavHost(repository: MoodRepository) {
                         if (tIdx > iIdx) slideOutHorizontally(spec, targetOffsetX = { -it })
                         else slideOutHorizontally(spec, targetOffsetX = { it })
                     }
-                    (initial == Screen.Extras.route && target !in bottomBarRoutes) || (target == Screen.Extras.route && initial !in bottomBarRoutes) ->
-                        fadeOut(tween(220)) + scaleOut(tween(220), targetScale = 0.96f) + slideOutHorizontally(tween(220), targetOffsetX = { if (initial == Screen.Extras.route) -60 else 60 })
                     else -> slideOutHorizontally(spec, targetOffsetX = { it })
                 }
             }
@@ -292,8 +292,10 @@ fun AppNavHost(repository: MoodRepository) {
                     ExtrasScreen(
                         viewModel = viewModel,
                         onGoalsClick = { navController.navigate(Screen.Goals.route) },
+                        onMicroWinsClick = { navController.navigate(Screen.MicroWins.route) },
                         onPhotoAlbumClick = { navController.navigate(Screen.PhotoAlbum.route) },
                         onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
+                        onEmotionalMixtapesClick = { navController.navigate(Screen.EmotionalMixtape.route) },
                         onImportantDaysClick = { navController.navigate(Screen.ImportantDays.route) },
                         onSettingsClick = { navController.navigate(Screen.Settings.route) },
                         onFavoriteDaysClick = { navController.navigate(Screen.FavoriteDays.route) },
@@ -303,6 +305,14 @@ fun AppNavHost(repository: MoodRepository) {
                         onSyncClick = { navController.navigate(Screen.Sync.route) },
                         onAboutClick = { navController.navigate(Screen.About.route) },
                         onTestsClick = { navController.navigate(Screen.Tests.route) },
+                    )
+                }
+            }
+            composable(Screen.MicroWins.route) {
+                Box(Modifier.fillMaxSize()) {
+                    MicroWinsScreen(
+                        viewModel = viewModel,
+                        onBack = { navController.popBackStack() }
                     )
                 }
             }
@@ -332,6 +342,9 @@ fun AppNavHost(repository: MoodRepository) {
             }
             composable(Screen.VoiceMemoAlbum.route) {
                 Box(Modifier.fillMaxSize()) { VoiceMemoAlbumScreen(viewModel = viewModel, onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) }, onBack = { navController.popBackStack() }) }
+            }
+            composable(Screen.EmotionalMixtape.route) {
+                Box(Modifier.fillMaxSize()) { EmotionalMixtapeScreen(viewModel = viewModel, onGoToDay = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) }, onBack = { navController.popBackStack() }) }
             }
             composable(Screen.ImportantDays.route) { Box(Modifier.fillMaxSize()) { ImportantDaysScreen(viewModel = viewModel, onBack = { navController.popBackStack() }) } }
             composable(Screen.Settings.route) { Box(Modifier.fillMaxSize()) { SettingsScreen(viewModel = viewModel, onBack = { navController.popBackStack() }) } }

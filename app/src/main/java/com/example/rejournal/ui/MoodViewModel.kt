@@ -9,6 +9,7 @@ import com.example.rejournal.data.ImportantDay
 import com.example.rejournal.data.MediaFileHelper
 import com.example.rejournal.data.MoodEntry
 import com.example.rejournal.data.MoodRepository
+import com.example.rejournal.data.MixtapeCalculator
 import com.example.rejournal.data.StreakCalculator
 import com.example.rejournal.data.StreakInfo
 import com.example.rejournal.data.TimeCapsule
@@ -30,6 +31,7 @@ import com.example.rejournal.data.CalendarSyncPrefs
 import com.example.rejournal.data.GoalProgressCalculator
 import com.example.rejournal.data.GoalProgressPrefs
 import com.example.rejournal.data.MediaItem
+import com.example.rejournal.data.MicroWin
 import java.time.YearMonth
 
 class MoodViewModel(
@@ -55,6 +57,12 @@ class MoodViewModel(
         initialValue = emptyList()
     )
 
+    val allMicroWins: StateFlow<List<MicroWin>> = repository.allMicroWins.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
+
     val pendingCapsules: StateFlow<List<TimeCapsule>> = allTimeCapsules.map { list ->
         list.filter { it.delivered && !it.opened }
     }.stateIn(
@@ -73,6 +81,20 @@ class MoodViewModel(
     val activeGoalsCount = MutableStateFlow(0)
 
     val timeCapsulesCount: StateFlow<Int> = allTimeCapsules.map { it.size }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = 0
+    )
+
+    val mixtapesCount: StateFlow<Int> = allEntries.map { list ->
+        MixtapeCalculator.calculateForYear(list, LocalDate.now().year).count { it.hasEntries }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = 0
+    )
+
+    val microWinsCount: StateFlow<Int> = allMicroWins.map { it.size }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = 0
@@ -232,6 +254,19 @@ class MoodViewModel(
     fun dismissCapsule(capsule: TimeCapsule) {
         viewModelScope.launch {
             repository.saveTimeCapsule(capsule.copy(opened = true))
+        }
+    }
+
+    fun saveMicroWin(title: String, date: LocalDate = LocalDate.now()) {
+        if (title.isBlank()) return
+        viewModelScope.launch {
+            repository.saveMicroWin(MicroWin(title = title.trim(), date = date))
+        }
+    }
+
+    fun deleteMicroWin(microWin: MicroWin) {
+        viewModelScope.launch {
+            repository.deleteMicroWin(microWin)
         }
     }
 

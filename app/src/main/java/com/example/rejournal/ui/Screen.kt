@@ -29,6 +29,8 @@ sealed class Screen(val route: String) {
     }
     object ImportantDays : Screen("importantDays")
     object FavoriteDays : Screen("favoriteDays")
+    object MicroWins : Screen("microWins")
+    object EmotionalMixtape : Screen("emotionalMixtape")
 
     object TimeCapsules : Screen("timeCapsules")
     object CreateTimeCapsule : Screen("createTimeCapsule")

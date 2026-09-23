@@ -4,9 +4,10 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -14,6 +15,32 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+@Composable
+fun Modifier.horizontalScrollbar(
+    scrollState: ScrollState,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+): Modifier {
+    return this.then(
+        Modifier.drawWithContent {
+            drawContent()
+            val maxValue = scrollState.maxValue
+            if (maxValue > 0) {
+                val viewportWidth = size.width
+                val contentWidth = viewportWidth + maxValue
+                val thumbWidth = (viewportWidth / contentWidth * viewportWidth)
+                    .coerceIn(16.dp.toPx(), viewportWidth * 0.2f)
+                val scrollFraction = scrollState.value.toFloat() / maxValue
+                val thumbX = scrollFraction * (viewportWidth - thumbWidth)
+                drawRoundRect(
+                    color = color,
+                    topLeft = Offset(thumbX, size.height - 2.dp.toPx()),
+                    size = Size(thumbWidth, 2.5.dp.toPx()),
+                    cornerRadius = CornerRadius(2.dp.toPx())
+                )
+            }
+        }
+    )
+}
 
 @Composable
 fun Modifier.verticalScrollbar(scrollState: ScrollState, color: Color = MaterialTheme.colorScheme.onSurfaceVariant): Modifier {
@@ -41,7 +68,7 @@ fun Modifier.verticalScrollbar(scrollState: ScrollState, color: Color = Material
 
 @Composable
 fun Modifier.verticalScrollbar(listState: LazyListState, color: Color = MaterialTheme.colorScheme.onSurfaceVariant): Modifier {
-    val layoutInfo by androidx.compose.runtime.derivedStateOf { listState.layoutInfo }
+    val layoutInfo by remember { derivedStateOf { listState.layoutInfo } }
     return this.then(
         Modifier.drawWithContent {
             drawContent()

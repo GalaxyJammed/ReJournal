@@ -9,8 +9,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [MoodEntry::class, ImportantDay::class, TimeCapsule::class],
-    version = 7,
+    entities = [MoodEntry::class, ImportantDay::class, TimeCapsule::class, MicroWin::class],
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -18,6 +18,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun moodDao(): MoodDao
     abstract fun importantDayDao(): ImportantDayDao
     abstract fun timeCapsuleDao(): TimeCapsuleDao
+    abstract fun microWinDao(): MicroWinDao
 
     companion object {
         @Volatile
@@ -79,6 +80,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS micro_wins (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "title TEXT NOT NULL, " +
+                            "date TEXT NOT NULL)"
+                )
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -88,7 +100,8 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                     .addMigrations(
                         MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4,
-                        MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7
+                        MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
+                        MIGRATION_7_8
                     )
                     .build()
                 INSTANCE = instance

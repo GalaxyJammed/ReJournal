@@ -39,6 +39,7 @@ import com.example.rejournal.ui.components.PastelIcon
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Person
@@ -53,8 +54,10 @@ import androidx.compose.material.icons.filled.Quiz
 fun ExtrasScreen(
     viewModel: MoodViewModel,
     onGoalsClick: () -> Unit,
+    onMicroWinsClick: () -> Unit,
     onPhotoAlbumClick: () -> Unit,
     onVoiceMemoAlbumClick: () -> Unit,
+    onEmotionalMixtapesClick: () -> Unit,
     onImportantDaysClick: () -> Unit,
     onFavoriteDaysClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -66,9 +69,11 @@ fun ExtrasScreen(
     onTestsClick: () -> Unit
 ) {
     val activeGoalsCount by viewModel.activeGoalsCount.collectAsState()
+    val microWinsCount by viewModel.microWinsCount.collectAsState()
     val timeCapsulesCount by viewModel.timeCapsulesCount.collectAsState()
     val photoAlbumCount by viewModel.photoAlbumCount.collectAsState()
     val voiceMemosCount by viewModel.voiceMemosCount.collectAsState()
+    val mixtapesCount by viewModel.mixtapesCount.collectAsState()
     val importantDaysCount by viewModel.importantDaysCount.collectAsState()
     val favoriteDaysCount by viewModel.favoriteDaysCount.collectAsState()
 
@@ -90,6 +95,8 @@ fun ExtrasScreen(
             ExtrasCard(titleSeed = "Goals", index = 0) {
                 ExtrasRow(Icons.Filled.EmojiEvents, "Goals", onGoalsClick, count = activeGoalsCount)
                 HorizontalDivider()
+                ExtrasRow(Icons.Filled.Star, "Micro-Wins", onMicroWinsClick, count = microWinsCount)
+                HorizontalDivider()
                 ExtrasRow(Icons.Filled.History, "Time Capsules", onTimeCapsulesClick, count = timeCapsulesCount)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.MilitaryTech, "Achievements", onAchievementsClick)
@@ -98,6 +105,8 @@ fun ExtrasScreen(
             }
 
             ExtrasCard(titleSeed = "Media", index = 1) {
+                ExtrasRow(Icons.Filled.Album, "Emotional Mixtapes", onEmotionalMixtapesClick, count = mixtapesCount)
+                HorizontalDivider()
                 ExtrasRow(Icons.Filled.PhotoLibrary, "Photo Album", onPhotoAlbumClick, count = photoAlbumCount)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.Mic, "Voice Memos", onVoiceMemoAlbumClick, count = voiceMemosCount)

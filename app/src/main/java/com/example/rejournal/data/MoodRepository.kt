@@ -6,11 +6,13 @@ import java.time.LocalDate
 class MoodRepository(
     private val dao: MoodDao,
     private val importantDayDao: ImportantDayDao,
-    private val timeCapsuleDao: TimeCapsuleDao
+    private val timeCapsuleDao: TimeCapsuleDao,
+    private val microWinDao: MicroWinDao
 ) {
     val allEntries: Flow<List<MoodEntry>> = dao.getAllEntries()
     val allImportantDays: Flow<List<ImportantDay>> = importantDayDao.getAll()
     val allTimeCapsules: Flow<List<TimeCapsule>> = timeCapsuleDao.getAll()
+    val allMicroWins: Flow<List<MicroWin>> = microWinDao.getAll()
 
     suspend fun saveEntry(entry: MoodEntry) = dao.insert(entry)
     suspend fun deleteEntry(entry: MoodEntry) = dao.delete(entry)
@@ -30,4 +32,7 @@ class MoodRepository(
     suspend fun saveTimeCapsule(capsule: TimeCapsule) = timeCapsuleDao.insert(capsule)
     suspend fun deleteTimeCapsule(capsule: TimeCapsule) = timeCapsuleDao.delete(capsule)
     suspend fun getUndeliveredCapsulesOnce(): List<TimeCapsule> = timeCapsuleDao.getUndeliveredOnce()
+
+    suspend fun saveMicroWin(microWin: MicroWin) = microWinDao.insert(microWin)
+    suspend fun deleteMicroWin(microWin: MicroWin) = microWinDao.delete(microWin)
 }

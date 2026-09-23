@@ -9,10 +9,12 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "3.1.1",
+            version = "3.2.0",
             date = "23/9/2026",
             highlights = listOf(
-                "Made some animations feel even smoother (There is an issue that can't be solved as this is a Github release app and not a playstore release app. Once its fully published on the playstore input lag will naturally disappear)"
+                "Changed fade in/fade out animations for sliding animations",
+                "Added a micro-wins area when pressing the '+' that logs small wins throughout your day and in the end of the month shows you all of them to help users be motivated",
+
             )
         )
     )
