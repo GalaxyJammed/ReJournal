@@ -25,7 +25,7 @@ A simple, private mood journaling app for Android - inspired by other mental hea
   <em>"Your soul will feel rejuvenated"</em>
 </div>
 
-This project was created as a way to let people freely use mental health journal logs. I've seen a lot of apps like these either contain ads or subscriptions and I thought that was unnecessary for something as important as mental health, so I decided to create my own free version of it. What started as a simple mood logger has since grown into a much fuller journaling companion - with goals, achievements, time capsules, and a fair bit of soul along the way.
+Completely free, ad-free, distraction-free mental health journaling app with a variety of features to help you out!
 
 ---
 
