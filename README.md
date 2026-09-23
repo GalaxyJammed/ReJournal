@@ -25,7 +25,7 @@ A simple, private mood journaling app for Android - inspired by other mental hea
   <em>"Your soul will feel rejuvenated"</em>
 </div>
 
-Completely free, ad-free, distraction-free mental health journaling app with a variety of features to help you out!
+Completely subscription-free, ad-free, distraction-free mental health journaling app with a variety of features to help you out!
 
 ---
 
