@@ -16,8 +16,9 @@
 ---
 
 ## Introduction
-
+<div align="center">
 A simple, private mood journaling app for Android - inspired by other mental health journal apps. Log how you're feeling each day, track patterns over time, and build a habit of daily check-ins, all with your data stored locally on your device.
+</div>
 
 <div align="center">
   <img width="100" height="100" alt="monarch-butterfly" src="https://github.com/user-attachments/assets/b54b264f-cc0d-4fde-acda-894b3faa9e54" />
@@ -25,7 +26,9 @@ A simple, private mood journaling app for Android - inspired by other mental hea
   <em>"Your soul will feel rejuvenated"</em>
 </div>
 
-This project was created as a way to let people freely use mental health journal logs. I've seen a lot of apps like these either contain ads or subscriptions and I thought that was unnecessary for something as important as mental health, so I decided to create my own free version of it. What started as a simple mood logger has since grown into a much fuller journaling companion - with goals, achievements, time capsules, and a fair bit of soul along the way.
+<div align="center">
+Completely subscription-free, ad-free, distraction-free mental health journaling app with a variety of features to help you out!
+</div>
 
 ---
 
@@ -37,6 +40,7 @@ This project was created as a way to let people freely use mental health journal
 - **Rich text notes**: bold, italic, underline, strikethrough, bullet/numbered lists, and custom text colors, plus a full-screen "Expand Note" mode
 - Attach **photos** and **voice memos** to any day (that you can freely download to your own device)
 - Mark a day as a **Favorite** with a tap of the heart icon
+- Add some **Micro-Wins** everyday to boost your morale (e.x Made my bed, completed an assignment etc)
 - Edit or delete any past entry, or back-fill a day you forgot to log
 
 <div align="center">
@@ -62,6 +66,7 @@ This project was created as a way to let people freely use mental health journal
 - **Trend chart** - a mood line graph for the current month, properly spaced by real calendar dates, with filters for mood, sliders, and activities. Tap it to expand into a full, swipeable view of the entire month
 - **Mood Constellation** - turn your trend into a starry, artistic night-sky view where star size reflects how much you logged that day, and save it as an image
 - **Personality Tests** - Do one of our many personality tests to learn more about yourself
+- **Mixtapes** - Each week becomes a mixtape that you can view in organized shelves with other mixtapes. The average of your mood becomes the unique music genre for that week
 
 <div align="center">
 <table>
