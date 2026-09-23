@@ -16,8 +16,9 @@
 ---
 
 ## Introduction
-
+<div align="center">
 A simple, private mood journaling app for Android - inspired by other mental health journal apps. Log how you're feeling each day, track patterns over time, and build a habit of daily check-ins, all with your data stored locally on your device.
+</div>
 
 <div align="center">
   <img width="100" height="100" alt="monarch-butterfly" src="https://github.com/user-attachments/assets/b54b264f-cc0d-4fde-acda-894b3faa9e54" />
@@ -25,7 +26,9 @@ A simple, private mood journaling app for Android - inspired by other mental hea
   <em>"Your soul will feel rejuvenated"</em>
 </div>
 
+<div align="center">
 Completely subscription-free, ad-free, distraction-free mental health journaling app with a variety of features to help you out!
+</div>
 
 ---
 
