@@ -33,9 +33,9 @@ fun Modifier.horizontalScrollbar(
                 val thumbX = scrollFraction * (viewportWidth - thumbWidth)
                 drawRoundRect(
                     color = color,
-                    topLeft = Offset(thumbX, size.height - 2.dp.toPx()),
-                    size = Size(thumbWidth, 2.5.dp.toPx()),
-                    cornerRadius = CornerRadius(2.dp.toPx())
+                    topLeft = Offset(thumbX, (size.height - 3.dp.toPx()) / 2f),
+                    size = Size(thumbWidth, 3.dp.toPx()),
+                    cornerRadius = CornerRadius(1.5.dp.toPx())
                 )
             }
         }

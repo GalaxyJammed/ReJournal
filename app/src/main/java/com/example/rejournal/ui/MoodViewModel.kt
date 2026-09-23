@@ -16,6 +16,8 @@ import com.example.rejournal.data.TimeCapsule
 import com.example.rejournal.notifications.ImportantDayScheduler
 import com.example.rejournal.notifications.TimeCapsuleScheduler
 import com.example.rejournal.widget.AppWidgetsUpdater
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -140,12 +142,20 @@ class MoodViewModel(
                 refreshGoalStatus()
             }
         }
+        viewModelScope.launch {
+            allMicroWins.collect {
+                refreshGoalStatus()
+            }
+        }
     }
 
     fun refreshGoalStatus() {
-        viewModelScope.launch {
-            GoalProgressCalculator.checkAndCompleteActiveGoals(appContext, allEntries.value)
-            activeGoalsCount.value = GoalProgressPrefs.activeCount(appContext)
+        viewModelScope.launch(Dispatchers.IO) {
+            GoalProgressCalculator.checkAndCompleteActiveGoals(appContext, allEntries.value, allMicroWins.value)
+            val count = GoalProgressPrefs.activeCount(appContext)
+            withContext(Dispatchers.Main) {
+                activeGoalsCount.value = count
+            }
         }
     }
 

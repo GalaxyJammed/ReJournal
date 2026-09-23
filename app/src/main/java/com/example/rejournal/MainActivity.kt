@@ -195,46 +195,48 @@ fun AppNavHost(repository: MoodRepository) {
             enterTransition = {
                 val target = targetState.destination.route
                 val initial = initialState.destination.route
-                val spec = tween<IntOffset>(400, easing = FastOutSlowInEasing)
+                val spec = tween<IntOffset>(220, easing = FastOutSlowInEasing)
+                val fadeSpec = tween<Float>(150)
                 
                 when {
                     initial == null -> fadeIn(tween(100))
-                    target?.startsWith("questionnaire") == true -> 
-                        fadeIn(tween(350)) + scaleIn(tween(350), initialScale = 0.92f) + slideInVertically(tween(350), initialOffsetY = { 80 })
+                    target?.startsWith("questionnaire") == true || target == Screen.MicroWins.route -> 
+                        slideInVertically(tween(280, easing = FastOutSlowInEasing), initialOffsetY = { it }) + fadeIn(fadeSpec)
                     target in bottomBarRoutes && initial in bottomBarRoutes -> {
                         val tIdx = routeToIndex[target] ?: 0
                         val iIdx = routeToIndex[initial] ?: 0
-                        if (tIdx > iIdx) slideInHorizontally(spec, initialOffsetX = { it })
-                        else slideInHorizontally(spec, initialOffsetX = { -it })
+                        if (tIdx > iIdx) slideInHorizontally(spec, initialOffsetX = { it }) + fadeIn(fadeSpec)
+                        else slideInHorizontally(spec, initialOffsetX = { -it }) + fadeIn(fadeSpec)
                     }
-                    else -> slideInHorizontally(spec, initialOffsetX = { it })
+                    else -> slideInHorizontally(spec, initialOffsetX = { it }) + fadeIn(fadeSpec)
                 }
             },
             exitTransition = {
                 val target = targetState.destination.route
                 val initial = initialState.destination.route
-                val spec = tween<IntOffset>(400, easing = FastOutSlowInEasing)
+                val spec = tween<IntOffset>(220, easing = FastOutSlowInEasing)
+                val fadeSpec = tween<Float>(150)
                 when {
-                    initial?.startsWith("questionnaire") == true -> 
-                        fadeOut(tween(300)) + scaleOut(tween(300), targetScale = 0.92f) + slideOutVertically(tween(300), targetOffsetY = { 80 })
-                    target?.startsWith("questionnaire") == true -> fadeOut(tween(300))
+                    initial?.startsWith("questionnaire") == true || initial == Screen.MicroWins.route -> 
+                        slideOutVertically(tween(280, easing = FastOutSlowInEasing), targetOffsetY = { it }) + fadeOut(fadeSpec)
+                    target?.startsWith("questionnaire") == true || target == Screen.MicroWins.route -> fadeOut(fadeSpec)
                     target in bottomBarRoutes && initial in bottomBarRoutes -> {
                         val tIdx = routeToIndex[target] ?: 0
                         val iIdx = routeToIndex[initial] ?: 0
-                        if (tIdx > iIdx) slideOutHorizontally(spec, targetOffsetX = { -it })
-                        else slideOutHorizontally(spec, targetOffsetX = { it })
+                        if (tIdx > iIdx) slideOutHorizontally(spec, targetOffsetX = { -it }) + fadeOut(fadeSpec)
+                        else slideOutHorizontally(spec, targetOffsetX = { it }) + fadeOut(fadeSpec)
                     }
-                    else -> slideOutHorizontally(spec, targetOffsetX = { -it })
+                    else -> slideOutHorizontally(spec, targetOffsetX = { -it }) + fadeOut(fadeSpec)
                 }
             },
             popEnterTransition = {
                 val target = targetState.destination.route
                 val initial = initialState.destination.route
-                val spec = tween<IntOffset>(400, easing = FastOutSlowInEasing)
+                val spec = tween<IntOffset>(250, easing = FastOutSlowInEasing)
                 when {
-                    initial?.startsWith("questionnaire") == true -> fadeIn(tween(300))
-                    target?.startsWith("questionnaire") == true -> 
-                        fadeIn(tween(350)) + scaleIn(tween(350), initialScale = 0.92f) + slideInVertically(tween(350), initialOffsetY = { 80 })
+                    initial?.startsWith("questionnaire") == true || initial == Screen.MicroWins.route -> fadeIn(tween(200))
+                    target?.startsWith("questionnaire") == true || target == Screen.MicroWins.route -> 
+                        slideInVertically(tween(320, easing = FastOutSlowInEasing), initialOffsetY = { it }) + fadeIn(tween(200))
                     target in bottomBarRoutes && initial in bottomBarRoutes -> {
                         val tIdx = routeToIndex[target] ?: 0
                         val iIdx = routeToIndex[initial] ?: 0
@@ -247,10 +249,10 @@ fun AppNavHost(repository: MoodRepository) {
             popExitTransition = {
                 val target = targetState.destination.route
                 val initial = initialState.destination.route
-                val spec = tween<IntOffset>(400, easing = FastOutSlowInEasing)
+                val spec = tween<IntOffset>(250, easing = FastOutSlowInEasing)
                 when {
-                    initial?.startsWith("questionnaire") == true -> 
-                        fadeOut(tween(300)) + scaleOut(tween(300), targetScale = 0.92f) + slideOutVertically(tween(300), targetOffsetY = { 80 })
+                    initial?.startsWith("questionnaire") == true || initial == Screen.MicroWins.route -> 
+                        slideOutVertically(tween(320, easing = FastOutSlowInEasing), targetOffsetY = { it }) + fadeOut(tween(200))
                     target in bottomBarRoutes && initial in bottomBarRoutes -> {
                         val tIdx = routeToIndex[target] ?: 0
                         val iIdx = routeToIndex[initial] ?: 0
@@ -292,7 +294,6 @@ fun AppNavHost(repository: MoodRepository) {
                     ExtrasScreen(
                         viewModel = viewModel,
                         onGoalsClick = { navController.navigate(Screen.Goals.route) },
-                        onMicroWinsClick = { navController.navigate(Screen.MicroWins.route) },
                         onPhotoAlbumClick = { navController.navigate(Screen.PhotoAlbum.route) },
                         onVoiceMemoAlbumClick = { navController.navigate(Screen.VoiceMemoAlbum.route) },
                         onEmotionalMixtapesClick = { navController.navigate(Screen.EmotionalMixtape.route) },

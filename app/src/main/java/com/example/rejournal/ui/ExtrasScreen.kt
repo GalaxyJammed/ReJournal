@@ -1,5 +1,6 @@
 package com.example.rejournal.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -9,19 +10,27 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MilitaryTech
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,25 +45,12 @@ import androidx.compose.ui.unit.dp
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 import com.example.rejournal.ui.components.IconPill
 import com.example.rejournal.ui.components.PastelIcon
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Album
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MilitaryTech
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.QuestionAnswer
-import androidx.compose.material.icons.filled.Psychology
-import androidx.compose.material.icons.filled.Quiz
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExtrasScreen(
     viewModel: MoodViewModel,
     onGoalsClick: () -> Unit,
-    onMicroWinsClick: () -> Unit,
     onPhotoAlbumClick: () -> Unit,
     onVoiceMemoAlbumClick: () -> Unit,
     onEmotionalMixtapesClick: () -> Unit,
@@ -69,7 +65,6 @@ fun ExtrasScreen(
     onTestsClick: () -> Unit
 ) {
     val activeGoalsCount by viewModel.activeGoalsCount.collectAsState()
-    val microWinsCount by viewModel.microWinsCount.collectAsState()
     val timeCapsulesCount by viewModel.timeCapsulesCount.collectAsState()
     val photoAlbumCount by viewModel.photoAlbumCount.collectAsState()
     val voiceMemosCount by viewModel.voiceMemosCount.collectAsState()
@@ -94,8 +89,6 @@ fun ExtrasScreen(
         ) {
             ExtrasCard(titleSeed = "Goals", index = 0) {
                 ExtrasRow(Icons.Filled.EmojiEvents, "Goals", onGoalsClick, count = activeGoalsCount)
-                HorizontalDivider()
-                ExtrasRow(Icons.Filled.Star, "Micro-Wins", onMicroWinsClick, count = microWinsCount)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.History, "Time Capsules", onTimeCapsulesClick, count = timeCapsulesCount)
                 HorizontalDivider()

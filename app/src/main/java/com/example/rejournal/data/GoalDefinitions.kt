@@ -1,6 +1,12 @@
 package com.example.rejournal.data
 
-enum class GoalMetric { PHOTOS, AUDIO_MEMOS, ENTRIES_LOGGED, STREAK, ACTIVITY_TAG, HIGH_ENERGY_DAYS, LOW_STRESS_DAYS, GOOD_SLEEP_DAYS }
+import java.time.LocalDate
+
+enum class GoalMetric {
+    PHOTOS, AUDIO_MEMOS, ENTRIES_LOGGED, STREAK, ACTIVITY_TAG,
+    HIGH_ENERGY_DAYS, LOW_STRESS_DAYS, GOOD_SLEEP_DAYS,
+    MICRO_WINS, EARN_MIXTAPES
+}
 
 data class GoalDefinition(
     val id: String,
@@ -27,6 +33,8 @@ object GoalDefinitions {
         GoalDefinition("habits_streak_14", "14-Day Streak", "Reach a 14 day logging streak", GoalCategory.HABITS, GoalMetric.STREAK, 14),
         GoalDefinition("habits_water_5", "Stay Hydrated", "Tag \"Drinking water\" on 5 days", GoalCategory.HABITS, GoalMetric.ACTIVITY_TAG, 5, activityTag = "Drinking water"),
         GoalDefinition("habits_meditate_5", "Mindful Moments", "Tag \"Meditation\" on 5 days", GoalCategory.HABITS, GoalMetric.ACTIVITY_TAG, 5, activityTag = "Meditation"),
+        GoalDefinition("habits_mixtapes_3", "Earn 3 Mixtapes", "Complete 3 weekly emotional mixtapes", GoalCategory.HABITS, GoalMetric.EARN_MIXTAPES, 3),
+        GoalDefinition("habits_mixtapes_5", "Earn 5 Mixtapes", "Complete 5 weekly emotional mixtapes", GoalCategory.HABITS, GoalMetric.EARN_MIXTAPES, 5),
 
         // Healthier Lifestyle
         GoalDefinition("healthy_eating_5", "Eat Well 5 Times", "Tag \"Eating well\" on 5 days", GoalCategory.HEALTHY_LIFESTYLE, GoalMetric.ACTIVITY_TAG, 5, activityTag = "Eating well"),
@@ -41,6 +49,8 @@ object GoalDefinitions {
         GoalDefinition("growth_audio_5", "Record 5 Voice Memos", "Add 5 voice memos to your entries", GoalCategory.GROWTH, GoalMetric.AUDIO_MEMOS, 5),
         GoalDefinition("growth_journal_deep_3", "Deep Reflection", "Log 3 entries with over 200 words", GoalCategory.GROWTH, GoalMetric.ENTRIES_LOGGED, 3),
         GoalDefinition("growth_creative_3", "Express Yourself", "Tag \"Creative\" on 3 days", GoalCategory.GROWTH, GoalMetric.ACTIVITY_TAG, 3, activityTag = "Creative"),
+        GoalDefinition("growth_microwins_5", "Log 5 Micro-Wins", "Collect 5 small victories and micro-wins", GoalCategory.GROWTH, GoalMetric.MICRO_WINS, 5),
+        GoalDefinition("growth_microwins_10", "Log 10 Micro-Wins", "Collect 10 small victories and micro-wins", GoalCategory.GROWTH, GoalMetric.MICRO_WINS, 10),
 
         // Break Bad Habits
         GoalDefinition("break_streak_30", "30-Day Streak", "Reach a 30 day logging streak", GoalCategory.BREAK_BAD_HABITS, GoalMetric.STREAK, 30),

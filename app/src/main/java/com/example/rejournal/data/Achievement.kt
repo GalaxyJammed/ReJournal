@@ -3,7 +3,8 @@ package com.example.rejournal.data
 enum class AchievementMetric {
     TOTAL_ENTRIES, BEST_STREAK, GOALS_COMPLETED,
     HAS_PHOTO, HAS_AUDIO, HAS_FAVORITE, HAS_TIME_CAPSULE,
-    WELLNESS_DAYS, UNIQUE_TAGS, THOROUGH_LOGS, TESTS_TAKEN
+    WELLNESS_DAYS, UNIQUE_TAGS, THOROUGH_LOGS, TESTS_TAKEN,
+    MICRO_WINS_LOGGED, MIXTAPES_EARNED
 }
 
 data class AchievementTier(val id: String, val target: Int, val title: String, val description: String)
@@ -31,6 +32,20 @@ object AchievementDefinitions {
             AchievementTier("goals_10", 10, "Overachiever", "Complete 10 goals"),
             AchievementTier("goals_25", 25, "Goal Master", "Complete 25 goals"),
             AchievementTier("goals_50", 50, "Limitless", "Complete 50 goals")
+        )),
+        AchievementGroup("microwins", AchievementMetric.MICRO_WINS_LOGGED, listOf(
+            AchievementTier("microwins_1", 1, "Small Victory", "Log your first micro-win"),
+            AchievementTier("microwins_5", 5, "Building Joy", "Log 5 micro-wins"),
+            AchievementTier("microwins_15", 15, "Positivity Collector", "Log 15 micro-wins"),
+            AchievementTier("microwins_30", 30, "Monthly Wins", "Log 30 micro-wins"),
+            AchievementTier("microwins_100", 100, "Trophy Room", "Log 100 micro-wins total")
+        )),
+        AchievementGroup("mixtapes", AchievementMetric.MIXTAPES_EARNED, listOf(
+            AchievementTier("mixtapes_1", 1, "First Track", "Earn your first weekly emotional mixtape"),
+            AchievementTier("mixtapes_3", 3, "Mini EP", "Earn 3 weekly mixtapes"),
+            AchievementTier("mixtapes_5", 5, "Tape Collector", "Earn 5 weekly mixtapes"),
+            AchievementTier("mixtapes_12", 12, "Album Producer", "Earn 12 weekly mixtapes"),
+            AchievementTier("mixtapes_52", 52, "Yearly Library", "Earn 52 weekly mixtapes across your bookshelf")
         )),
         AchievementGroup("photo", AchievementMetric.HAS_PHOTO, listOf(
             AchievementTier("photo_1", 1, "Picture This", "Add your first photo to an entry"),

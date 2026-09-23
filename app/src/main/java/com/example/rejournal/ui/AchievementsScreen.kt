@@ -54,12 +54,17 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
     val timeCapsules by viewModel.allTimeCapsules.collectAsState()
+    val microWins by viewModel.allMicroWins.collectAsState()
+    val mixtapesCount by viewModel.mixtapesCount.collectAsState()
     val goalCompletions = remember(entries) { GoalProgressPrefs.totalCompletions(context) }
 
     var unlockedIds by remember { mutableStateOf(AchievementPrefs.getUnlockedIds(context)) }
 
-    LaunchedEffect(entries, timeCapsules) {
-        val newly = AchievementCalculator.computeNewlyUnlockedTierIds(context, entries, goalCompletions, timeCapsules.size)
+    LaunchedEffect(entries, timeCapsules, microWins, mixtapesCount) {
+        val newly = AchievementCalculator.computeNewlyUnlockedTierIds(
+            context, entries, goalCompletions, timeCapsules.size,
+            microWinsCount = microWins.size, mixtapesCount = mixtapesCount
+        )
         if (newly.isNotEmpty()) {
             AchievementPrefs.markUnlocked(context, newly)
             unlockedIds = AchievementPrefs.getUnlockedIds(context)
@@ -67,7 +72,10 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     }
 
     val groupsCompleted = AchievementDefinitions.groups.count { group ->
-        val value = AchievementCalculator.currentValue(group.metric, entries, goalCompletions, timeCapsules.size)
+        val value = AchievementCalculator.currentValue(
+            group.metric, entries, goalCompletions, timeCapsules.size,
+            microWinsCount = microWins.size, mixtapesCount = mixtapesCount
+        )
         AchievementCalculator.currentTierIndex(group, value) == group.tiers.lastIndex
     }
 
@@ -105,7 +113,10 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 AchievementDefinitions.groups.forEachIndexed { index, group ->
-                    val value = AchievementCalculator.currentValue(group.metric, entries, goalCompletions, timeCapsules.size)
+                    val value = AchievementCalculator.currentValue(
+                        group.metric, entries, goalCompletions, timeCapsules.size,
+                        microWinsCount = microWins.size, mixtapesCount = mixtapesCount
+                    )
                     val tierIndex = AchievementCalculator.currentTierIndex(group, value)
                     AchievementGroupRow(group = group, currentValue = value, tierIndex = tierIndex, index = index + 1)
                 }

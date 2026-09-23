@@ -14,13 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
-import java.util.Random
 import kotlin.math.abs
-
-import androidx.compose.ui.graphics.graphicsLayer
 
 enum class ButterflyType {
     STANDARD, DETAILED, FLYING
@@ -43,8 +41,9 @@ fun ButterflyCardWrapper(
     ) {
         content()
 
-        val sessionRandomKey = remember { Random().nextInt(100000) }
-        val finalHashCode = seed.hashCode() + sessionRandomKey + indexOffset
+        val finalHashCode = remember(seed, indexOffset) {
+            seed.hashCode() + indexOffset
+        }
 
         val shouldShow = remember(finalHashCode) {
             indexOffset == 0 || (abs(finalHashCode) % 100) < 35
@@ -77,10 +76,10 @@ fun ButterflyCardWrapper(
             }
 
             val offsetModifier = when (corner) {
-                ButterflyCorner.TOP_LEFT -> Modifier.offset(x = (-4).dp, y = (-4).dp)
-                ButterflyCorner.TOP_RIGHT -> Modifier.offset(x = 4.dp, y = (-4).dp)
-                ButterflyCorner.BOTTOM_LEFT -> Modifier.offset(x = (-4).dp, y = 4.dp)
-                ButterflyCorner.BOTTOM_RIGHT -> Modifier.offset(x = 4.dp, y = 4.dp)
+                ButterflyCorner.TOP_LEFT -> Modifier.offset(x = 6.dp, y = 6.dp)
+                ButterflyCorner.TOP_RIGHT -> Modifier.offset(x = (-6).dp, y = 6.dp)
+                ButterflyCorner.BOTTOM_LEFT -> Modifier.offset(x = 6.dp, y = (-6).dp)
+                ButterflyCorner.BOTTOM_RIGHT -> Modifier.offset(x = (-6).dp, y = (-6).dp)
             }
 
             Box(
@@ -88,8 +87,9 @@ fun ButterflyCardWrapper(
                     .align(alignment)
                     .then(offsetModifier)
                     .size(sizeDp)
-                    .rotate(rotation)
-                    .graphicsLayer(clip = false)
+                    .graphicsLayer {
+                        rotationZ = rotation
+                    }
             ) {
                 DecorativeButterfly(type = type)
             }
@@ -105,16 +105,21 @@ fun DecorativeButterfly(
     val surfaceColor = MaterialTheme.colorScheme.surface
     val isDark = surfaceColor.luminance() < 0.5f
 
-    val wingColor = if (isDark) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
-    } else {
-        MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f)
+    val colorScheme = MaterialTheme.colorScheme
+    val wingColor = remember(isDark, colorScheme) {
+        if (isDark) {
+            colorScheme.primary.copy(alpha = 0.85f)
+        } else {
+            colorScheme.secondary.copy(alpha = 0.45f)
+        }
     }
 
-    val bodyColor = if (isDark) {
-        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
-    } else {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
+    val bodyColor = remember(isDark, colorScheme) {
+        if (isDark) {
+            colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
+        } else {
+            colorScheme.primary.copy(alpha = 0.75f)
+        }
     }
 
     val paths = remember(type) {

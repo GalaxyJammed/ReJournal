@@ -9,12 +9,12 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "3.2.0",
-            date = "23/9/2026",
+            version = "3.3.0",
+            date = "24/9/2026",
             highlights = listOf(
-                "Changed fade in/fade out animations for sliding animations",
-                "Added a micro-wins area when pressing the '+' that logs small wins throughout your day and in the end of the month shows you all of them to help users be motivated",
-                "Added 'Emotional Mixtapes' every week your average mood/sliders/activities will get put into a mixtape and depending on the vibe will give you your own unique title + music genre"
+                "Made the Emotional Mixtape screen prettier",
+                "Added More goals and Achievements tied to Micro-Wins and Emotional Mixtapes",
+                "Reworked the Goals screen a tiny bit to make the cards look nicer"
 
             )
         )
