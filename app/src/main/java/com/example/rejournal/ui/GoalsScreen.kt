@@ -49,12 +49,13 @@ fun GoalsScreen(
 ) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
+    val microWins by viewModel.allMicroWins.collectAsState()
 
     var totalCompletions by remember { mutableStateOf(GoalProgressPrefs.totalCompletions(context)) }
     var activeGoals by remember { mutableStateOf(GoalProgressPrefs.activeGoals(context)) }
 
-    LaunchedEffect(entries) {
-        GoalProgressCalculator.checkAndCompleteActiveGoals(context, entries)
+    LaunchedEffect(entries, microWins) {
+        GoalProgressCalculator.checkAndCompleteActiveGoals(context, entries, microWins)
         totalCompletions = GoalProgressPrefs.totalCompletions(context)
         activeGoals = GoalProgressPrefs.activeGoals(context)
     }

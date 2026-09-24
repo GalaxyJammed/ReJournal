@@ -22,6 +22,10 @@ class BootReceiver : BroadcastReceiver() {
             )
         }
 
+        if (MicroWinNotificationPrefs.isEnabled(context)) {
+            MicroWinNotificationScheduler.schedule(context)
+        }
+
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {

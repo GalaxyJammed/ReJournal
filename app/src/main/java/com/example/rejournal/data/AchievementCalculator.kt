@@ -14,14 +14,14 @@ object AchievementCalculator {
         mixtapesCount: Int = 0
     ): Int {
         return when (metric) {
-            AchievementMetric.TOTAL_ENTRIES -> entries.size
+            AchievementMetric.TOTAL_ENTRIES -> entries.map { it.date }.distinct().size
             AchievementMetric.BEST_STREAK -> StreakCalculator.calculate(entries).longestStreak
             AchievementMetric.GOALS_COMPLETED -> goalCompletions
             AchievementMetric.HAS_PHOTO -> entries.count { it.photoPaths.isNotEmpty() }
             AchievementMetric.HAS_AUDIO -> entries.count { it.audioPaths.isNotEmpty() }
             AchievementMetric.HAS_FAVORITE -> entries.count { it.isFavorite }
             AchievementMetric.HAS_TIME_CAPSULE -> timeCapsuleCount
-            AchievementMetric.WELLNESS_DAYS -> entries.count { it.energy >= 4 && it.stress <= 2 && it.sleep >= 4 }
+            AchievementMetric.WELLNESS_DAYS -> entries.filter { it.energy >= 4 && it.stress <= 2 && it.sleep >= 4 }.map { it.date }.distinct().size
             AchievementMetric.UNIQUE_TAGS -> entries.flatMap { it.activities }.distinct().size
             AchievementMetric.THOROUGH_LOGS -> entries.count { it.note.length > 200 }
             AchievementMetric.TESTS_TAKEN -> testsTakenCount

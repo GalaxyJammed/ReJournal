@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.rejournal.data.AppDatabase
+import com.example.rejournal.notifications.MicroWinNotificationScheduler
 
 class RejournalApplication : Application() {
     val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
@@ -18,6 +19,7 @@ class RejournalApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels()
+        MicroWinNotificationScheduler.schedule(this)
     }
 
     private fun createNotificationChannels() {
@@ -26,6 +28,10 @@ class RejournalApplication : Application() {
             manager.createNotificationChannel(
                 NotificationChannel("daily_reminder", "Daily Mood Reminder", NotificationManager.IMPORTANCE_DEFAULT)
                     .apply { description = "Reminds you to log your mood each day" }
+            )
+            manager.createNotificationChannel(
+                NotificationChannel("micro_wins", "Micro-Win Reminders", NotificationManager.IMPORTANCE_DEFAULT)
+                    .apply { description = "Reminds you to log a small victory or micro-win for the day" }
             )
             manager.createNotificationChannel(
                 NotificationChannel("important_days", "Important Days", NotificationManager.IMPORTANCE_HIGH)

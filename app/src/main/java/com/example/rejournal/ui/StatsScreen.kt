@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -175,6 +176,7 @@ fun StatsScreen(viewModel: MoodViewModel, onMoodClick: (Int) -> Unit) {
                                 "${stats.totalEntries} day${if (stats.totalEntries == 1) "" else "s"} logged",
                                 style = MaterialTheme.typography.titleMedium
                             )
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                             StatLine(Icons.Filled.AddReaction, "Average mood: ${String.format("%.1f", stats.averageMood)} / 5")
                             StatLine(Icons.Filled.TrendingUp, "Average energy: ${String.format("%.1f", stats.averageEnergy)} / 5")
                             StatLine(Icons.Filled.WorkOutline, "Average productivity: ${String.format("%.1f", stats.averageProductivity)} / 5")
@@ -374,7 +376,10 @@ private fun InsightsSection(
                     border = softCardBorder()
                 ) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        correlationLines.forEach { line ->
+                        correlationLines.forEachIndexed { index, line ->
+                            if (index > 0) {
+                                HorizontalDivider()
+                            }
                             Text(line, style = MaterialTheme.typography.bodyMedium)
                         }
                     }

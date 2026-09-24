@@ -16,14 +16,24 @@ object GoalProgressCalculator {
         return when (definition.metric) {
             GoalMetric.PHOTOS -> sinceStart.sumOf { it.photoPaths.size }
             GoalMetric.AUDIO_MEMOS -> sinceStart.sumOf { it.audioPaths.size }
-            GoalMetric.ENTRIES_LOGGED -> sinceStart.size
-            GoalMetric.STREAK -> StreakCalculator.calculate(sinceStart).currentStreak
-            GoalMetric.ACTIVITY_TAG -> sinceStart.count { definition.activityTag in it.activities }
-            GoalMetric.HIGH_ENERGY_DAYS -> sinceStart.count { it.energy >= 4 }
-            GoalMetric.LOW_STRESS_DAYS -> sinceStart.count { it.stress <= 2 }
-            GoalMetric.GOOD_SLEEP_DAYS -> sinceStart.count { it.sleep >= 4 }
+            GoalMetric.ENTRIES_LOGGED -> sinceStart.map { it.date }.distinct().size
+            GoalMetric.STREAK -> {
+                val streakInfo = StreakCalculator.calculate(sinceStart)
+                maxOf(streakInfo.currentStreak, streakInfo.longestStreak)
+            }
+            GoalMetric.ACTIVITY_TAG -> {
+                val tag = definition.activityTag
+                if (tag == null) 0 else sinceStart.filter { tag in it.activities }.map { it.date }.distinct().size
+            }
+            GoalMetric.HIGH_ENERGY_DAYS -> sinceStart.filter { it.energy >= 4 }.map { it.date }.distinct().size
+            GoalMetric.LOW_STRESS_DAYS -> sinceStart.filter { it.stress <= 2 }.map { it.date }.distinct().size
+            GoalMetric.GOOD_SLEEP_DAYS -> sinceStart.filter { it.sleep >= 4 }.map { it.date }.distinct().size
             GoalMetric.MICRO_WINS -> microWins.count { !it.date.isBefore(startDate) }
-            GoalMetric.EARN_MIXTAPES -> MixtapeCalculator.calculateForYear(sinceStart, LocalDate.now().year).count { it.hasEntries }
+            GoalMetric.EARN_MIXTAPES -> {
+                val years = MixtapeCalculator.getAvailableYears(sinceStart)
+                years.sumOf { yr -> MixtapeCalculator.calculateForYear(sinceStart, yr).count { it.hasEntries } }
+            }
+            GoalMetric.THOROUGH_LOGS -> sinceStart.count { it.note.length > 200 }
         }
     }
 

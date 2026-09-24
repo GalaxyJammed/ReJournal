@@ -44,13 +44,14 @@ fun GoalDetailScreen(
 ) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
+    val microWins by viewModel.allMicroWins.collectAsState()
     val definition = remember(goalId) { GoalDefinitions.byId(goalId) }
     val scope = rememberCoroutineScope()
 
     var state by remember(goalId) { mutableStateOf(GoalProgressPrefs.getState(context, goalId)) }
 
-    LaunchedEffect(entries) {
-        GoalProgressCalculator.checkAndCompleteActiveGoals(context, entries)
+    LaunchedEffect(entries, microWins) {
+        GoalProgressCalculator.checkAndCompleteActiveGoals(context, entries, microWins)
         state = GoalProgressPrefs.getState(context, goalId)
     }
 
@@ -59,7 +60,7 @@ fun GoalDetailScreen(
         return
     }
 
-    val progress = GoalProgressCalculator.currentProgress(definition, state, entries)
+    val progress = GoalProgressCalculator.currentProgress(definition, state, entries, microWins)
     val successRate = if (state.attempts > 0) (state.completions * 100 / state.attempts) else null
 
     Scaffold(

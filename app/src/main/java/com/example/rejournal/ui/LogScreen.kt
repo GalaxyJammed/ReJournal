@@ -67,6 +67,7 @@ import com.example.rejournal.data.AchievementDefinitions
 import com.example.rejournal.data.AchievementPrefs
 import com.example.rejournal.data.AchievementTier
 import com.example.rejournal.data.GoalProgressPrefs
+import com.example.rejournal.data.TestResultPrefs
 import androidx.compose.material.icons.filled.Favorite
 import com.example.rejournal.ui.verticalScrollbar
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -152,13 +153,19 @@ fun LogScreen(
     var currentYear by remember { mutableStateOf(LocalDate.now().year) }
 
     val timeCapsulesForAchievements by viewModel.allTimeCapsules.collectAsState()
+    val microWinsForAchievements by viewModel.allMicroWins.collectAsState()
+    val mixtapesCountForAchievements by viewModel.mixtapesCount.collectAsState()
     val goalCompletionsForAchievements =
         remember(entries) { GoalProgressPrefs.totalCompletions(context) }
     var achievementQueue by remember { mutableStateOf(listOf<AchievementTier>()) }
 
-    LaunchedEffect(entries, timeCapsulesForAchievements) {
+    LaunchedEffect(entries, timeCapsulesForAchievements, microWinsForAchievements, mixtapesCountForAchievements) {
+        val testsTakenCount = TestResultPrefs.getTestsCompletedCount(context)
         val newly = AchievementCalculator.computeNewlyUnlockedTierIds(
-            context, entries, goalCompletionsForAchievements, timeCapsulesForAchievements.size
+            context, entries, goalCompletionsForAchievements, timeCapsulesForAchievements.size,
+            testsTakenCount = testsTakenCount,
+            microWinsCount = microWinsForAchievements.size,
+            mixtapesCount = mixtapesCountForAchievements
         )
         if (newly.isNotEmpty()) {
             AchievementPrefs.markUnlocked(context, newly)

@@ -5,7 +5,7 @@ import java.time.LocalDate
 enum class GoalMetric {
     PHOTOS, AUDIO_MEMOS, ENTRIES_LOGGED, STREAK, ACTIVITY_TAG,
     HIGH_ENERGY_DAYS, LOW_STRESS_DAYS, GOOD_SLEEP_DAYS,
-    MICRO_WINS, EARN_MIXTAPES
+    MICRO_WINS, EARN_MIXTAPES, THOROUGH_LOGS
 }
 
 data class GoalDefinition(
@@ -47,7 +47,7 @@ object GoalDefinitions {
         GoalDefinition("growth_reading_5", "Read 5 Times", "Tag \"Reading\" on 5 days", GoalCategory.GROWTH, GoalMetric.ACTIVITY_TAG, 5, activityTag = "Reading"),
         GoalDefinition("growth_photos_5", "Snap 5 Photos", "Add 5 photos to your entries", GoalCategory.GROWTH, GoalMetric.PHOTOS, 5),
         GoalDefinition("growth_audio_5", "Record 5 Voice Memos", "Add 5 voice memos to your entries", GoalCategory.GROWTH, GoalMetric.AUDIO_MEMOS, 5),
-        GoalDefinition("growth_journal_deep_3", "Deep Reflection", "Log 3 entries with over 200 words", GoalCategory.GROWTH, GoalMetric.ENTRIES_LOGGED, 3),
+        GoalDefinition("growth_journal_deep_3", "Deep Reflection", "Log 3 entries with over 200 words", GoalCategory.GROWTH, GoalMetric.THOROUGH_LOGS, 3),
         GoalDefinition("growth_creative_3", "Express Yourself", "Tag \"Creative\" on 3 days", GoalCategory.GROWTH, GoalMetric.ACTIVITY_TAG, 3, activityTag = "Creative"),
         GoalDefinition("growth_microwins_5", "Log 5 Micro-Wins", "Collect 5 small victories and micro-wins", GoalCategory.GROWTH, GoalMetric.MICRO_WINS, 5),
         GoalDefinition("growth_microwins_10", "Log 10 Micro-Wins", "Collect 10 small victories and micro-wins", GoalCategory.GROWTH, GoalMetric.MICRO_WINS, 10),

@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -86,7 +87,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.AppTheme
+import com.example.rejournal.data.AppThemeCategory
 import com.example.rejournal.data.BackupHelper
+import androidx.compose.material.icons.filled.Star
 import com.example.rejournal.data.ExportHelper
 import com.example.rejournal.data.LockPrefs
 import com.example.rejournal.data.MoodAppearancePrefs
@@ -94,6 +97,8 @@ import com.example.rejournal.data.MoodDisplayMode
 import com.example.rejournal.data.MoodEmojiSets
 import com.example.rejournal.data.MoodPalettes
 import com.example.rejournal.data.ThemePrefs
+import com.example.rejournal.notifications.MicroWinNotificationPrefs
+import com.example.rejournal.notifications.MicroWinNotificationScheduler
 import com.example.rejournal.notifications.ReminderPrefs
 import com.example.rejournal.notifications.ReminderScheduler
 import com.example.rejournal.ui.theme.MoodVisualsState
@@ -106,10 +111,12 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
     val entries by viewModel.allEntries.collectAsState()
     var selectedTheme by remember { mutableStateOf(ThemePrefs.getTheme(context)) }
+    var selectedThemeCategory by remember { mutableStateOf(selectedTheme.category) }
     var darkMode by remember { mutableStateOf(ThemePrefs.isDarkMode(context)) }
     var enabled by remember { mutableStateOf(ReminderPrefs.isEnabled(context)) }
     var hour by remember { mutableStateOf(ReminderPrefs.getHour(context)) }
     var minute by remember { mutableStateOf(ReminderPrefs.getMinute(context)) }
+    var microWinEnabled by remember { mutableStateOf(MicroWinNotificationPrefs.isEnabled(context)) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showExactAlarmDialog by remember { mutableStateOf(false) }
 
@@ -239,6 +246,40 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         }
                     }
                 }
+
+                HorizontalDivider()
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        IconPill(icon = Icons.Filled.Star)
+                        Column(modifier = Modifier.padding(start = 16.dp)) {
+                            Text("Micro-Win reminder", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                "Random daily reminder if not logged yet",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    Switch(
+                        checked = microWinEnabled,
+                        onCheckedChange = { checked ->
+                            if (checked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                            microWinEnabled = checked
+                            MicroWinNotificationPrefs.setEnabled(context, checked)
+                            if (checked) {
+                                MicroWinNotificationScheduler.schedule(context)
+                            } else {
+                                MicroWinNotificationScheduler.cancel(context)
+                            }
+                        }
+                    )
+                }
             }
 
             CategoryLabel("App Lock", topPadding = 20.dp)
@@ -321,7 +362,33 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
 
             CategoryLabel("Mood Appearance", topPadding = 20.dp)
             SettingsCard(seed = "SettingsMoodAppearance", index = 2) {
-                Box(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconPill(icon = Icons.Filled.EmojiEmotions)
+                            Text("Mood Icons", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
+                        }
+                        if (moodMode == MoodDisplayMode.CIRCLE) {
+                            IconButton(onClick = { moodPalettesExpanded = !moodPalettesExpanded }) {
+                                PastelIcon(
+                                    if (moodPalettesExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = if (moodPalettesExpanded) "Show fewer palettes" else "Show more palettes"
+                                )
+                            }
+                        } else {
+                            Box(modifier = Modifier.size(48.dp))
+                        }
+                    }
+
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         MoodDisplayMode.entries.forEachIndexed { index, mode ->
                             SegmentedButton(
@@ -337,25 +404,8 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                             }
                         }
                     }
-                }
 
-                if (moodMode == MoodDisplayMode.EMOJI) {
-                    HorizontalDivider()
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconPill(icon = Icons.Filled.EmojiEmotions)
-                                Text("Emoji Set", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
-                            }
-                        }
-
+                    if (moodMode == MoodDisplayMode.EMOJI) {
                         val allSetNames = remember { MoodEmojiSets.presets.keys.toList() + "Custom" }
 
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -383,31 +433,8 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                             }
                         }
                     }
-                }
 
-                if (moodMode == MoodDisplayMode.CIRCLE) {
-                    HorizontalDivider()
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconPill(icon = Icons.Filled.ColorLens)
-                                Text("Mood Palette", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp))
-                            }
-                            IconButton(onClick = { moodPalettesExpanded = !moodPalettesExpanded }) {
-                                PastelIcon(
-                                    if (moodPalettesExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                    contentDescription = if (moodPalettesExpanded) "Show fewer palettes" else "Show more palettes"
-                                )
-                            }
-                        }
-
+                    if (moodMode == MoodDisplayMode.CIRCLE) {
                         val allPaletteNames = remember { MoodPalettes.presets.keys.toList() + "Custom" }
                         val collapsedPalettes = allPaletteNames.take(3)
                         val remainingPalettes = allPaletteNames.drop(3)
@@ -467,24 +494,26 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         }
                     }
 
-                    val orderedThemes = remember {
-                        listOf(
-                            AppTheme.CLASSIC,
-                            AppTheme.SLOW_BURGUNDY,
-                            AppTheme.SUNSET,
-                            AppTheme.WARM_PASTEL,
-                            AppTheme.ARTISTIC_GREEN,
-                            AppTheme.MINT,
-                            AppTheme.EMPATHETIC_BLUE,
-                            AppTheme.BLUE,
-                            AppTheme.LAVENDER,
-                            AppTheme.IRRITATED_PURPLE,
-                            AppTheme.SLEEPY_PINK
-                        )
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        AppThemeCategory.entries.forEachIndexed { index, category ->
+                            SegmentedButton(
+                                shape = SegmentedButtonDefaults.itemShape(index = index, count = AppThemeCategory.entries.size),
+                                selected = selectedThemeCategory == category,
+                                onClick = {
+                                    selectedThemeCategory = category
+                                }
+                            ) {
+                                Text(if (category == AppThemeCategory.MONO) "Mono" else "Multi")
+                            }
+                        }
                     }
 
-                    val collapsedThemes = orderedThemes.take(3)
-                    val remainingThemes = orderedThemes.drop(3)
+                    val filteredThemes = remember(selectedThemeCategory) {
+                        AppTheme.entries.filter { it.category == selectedThemeCategory }
+                    }
+
+                    val collapsedThemes = filteredThemes.take(3)
+                    val remainingThemes = filteredThemes.drop(3)
 
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),

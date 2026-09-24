@@ -1,5 +1,6 @@
 package com.example.rejournal
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -122,6 +123,11 @@ class MainActivity : FragmentActivity() {
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
 }
 
 @Composable
@@ -133,7 +139,7 @@ fun AppRoot(repository: MoodRepository, activity: FragmentActivity) {
     if (lockEnabled && !app.isUnlockedThisSession) {
         LockScreen(activity = activity, onUnlocked = { app.isUnlockedThisSession = true })
     } else {
-        AppNavHost(repository = repository)
+        AppNavHost(repository = repository, activity = activity)
     }
 }
 
@@ -146,13 +152,23 @@ private fun NavController.navigateToBottomDestination(route: String) {
 }
 
 @Composable
-fun AppNavHost(repository: MoodRepository) {
+fun AppNavHost(repository: MoodRepository, activity: FragmentActivity) {
     val navController = rememberNavController()
     val appContext = LocalContext.current.applicationContext
     val viewModel: MoodViewModel = viewModel(factory = MoodViewModel.Factory(repository, appContext))
 
     LaunchedEffect(Unit) {
         viewModel.autoSyncCalendar()
+    }
+
+    LaunchedEffect(activity.intent) {
+        val destination = activity.intent?.getStringExtra("destination")
+        if (destination == "micro_wins") {
+            navController.navigate(Screen.MicroWins.route) {
+                launchSingleTop = true
+            }
+            activity.intent?.removeExtra("destination")
+        }
     }
 
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -313,6 +329,15 @@ fun AppNavHost(repository: MoodRepository) {
                 Box(Modifier.fillMaxSize()) {
                     MicroWinsScreen(
                         viewModel = viewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+            }
+            composable(Screen.Search.route) {
+                Box(Modifier.fillMaxSize()) {
+                    SearchScreen(
+                        viewModel = viewModel,
+                        onResultClick = { date -> navController.navigate(Screen.Questionnaire.createRoute(date)) },
                         onBack = { navController.popBackStack() }
                     )
                 }

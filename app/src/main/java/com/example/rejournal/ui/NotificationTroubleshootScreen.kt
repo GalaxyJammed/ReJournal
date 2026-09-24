@@ -64,7 +64,7 @@ fun NotificationTroubleshootScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                "If reminders, important days, or time capsules aren't notifying you, check these device settings.",
+                "If daily reminders, micro-win reminders, important days, or time capsules aren't notifying you, check these device settings.",
                 style = MaterialTheme.typography.bodyMedium
             )
 

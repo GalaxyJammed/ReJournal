@@ -79,6 +79,8 @@
 
         <receiver android:name=".notifications.TimeCapsuleReceiver" android:exported="false" />
 
+        <receiver android:name=".notifications.MicroWinReceiver" android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

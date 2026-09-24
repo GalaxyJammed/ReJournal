@@ -40,6 +40,7 @@ import com.example.rejournal.data.AchievementDefinitions
 import com.example.rejournal.data.AchievementGroup
 import com.example.rejournal.data.AchievementPrefs
 import com.example.rejournal.data.GoalProgressPrefs
+import com.example.rejournal.data.TestResultPrefs
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -56,6 +57,7 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val timeCapsules by viewModel.allTimeCapsules.collectAsState()
     val microWins by viewModel.allMicroWins.collectAsState()
     val mixtapesCount by viewModel.mixtapesCount.collectAsState()
+    val testsTakenCount = remember(entries) { TestResultPrefs.getTestsCompletedCount(context) }
     val goalCompletions = remember(entries) { GoalProgressPrefs.totalCompletions(context) }
 
     var unlockedIds by remember { mutableStateOf(AchievementPrefs.getUnlockedIds(context)) }
@@ -63,7 +65,9 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     LaunchedEffect(entries, timeCapsules, microWins, mixtapesCount) {
         val newly = AchievementCalculator.computeNewlyUnlockedTierIds(
             context, entries, goalCompletions, timeCapsules.size,
-            microWinsCount = microWins.size, mixtapesCount = mixtapesCount
+            testsTakenCount = TestResultPrefs.getTestsCompletedCount(context),
+            microWinsCount = microWins.size,
+            mixtapesCount = mixtapesCount
         )
         if (newly.isNotEmpty()) {
             AchievementPrefs.markUnlocked(context, newly)
@@ -74,7 +78,9 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val groupsCompleted = AchievementDefinitions.groups.count { group ->
         val value = AchievementCalculator.currentValue(
             group.metric, entries, goalCompletions, timeCapsules.size,
-            microWinsCount = microWins.size, mixtapesCount = mixtapesCount
+            testsTakenCount = testsTakenCount,
+            microWinsCount = microWins.size,
+            mixtapesCount = mixtapesCount
         )
         AchievementCalculator.currentTierIndex(group, value) == group.tiers.lastIndex
     }
@@ -115,7 +121,9 @@ fun AchievementsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 AchievementDefinitions.groups.forEachIndexed { index, group ->
                     val value = AchievementCalculator.currentValue(
                         group.metric, entries, goalCompletions, timeCapsules.size,
-                        microWinsCount = microWins.size, mixtapesCount = mixtapesCount
+                        testsTakenCount = testsTakenCount,
+                        microWinsCount = microWins.size,
+                        mixtapesCount = mixtapesCount
                     )
                     val tierIndex = AchievementCalculator.currentTierIndex(group, value)
                     AchievementGroupRow(group = group, currentValue = value, tierIndex = tierIndex, index = index + 1)
