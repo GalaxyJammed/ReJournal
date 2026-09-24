@@ -11,14 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
-import kotlin.math.abs
+import java.util.Random
 
 enum class ButterflyType {
     STANDARD, DETAILED, FLYING
@@ -41,30 +39,30 @@ fun ButterflyCardWrapper(
     ) {
         content()
 
-        val finalHashCode = remember(seed, indexOffset) {
-            seed.hashCode() + indexOffset
+        val screenEntryRandomKey = remember { Random().nextInt(1000000) }
+
+        val randomSeed = remember(seed, indexOffset, screenEntryRandomKey) {
+            Random((seed.hashCode() + indexOffset + screenEntryRandomKey).toLong())
         }
 
-        val shouldShow = remember(finalHashCode) {
-            indexOffset == 0 || (abs(finalHashCode) % 100) < 35
+        val shouldShow = remember(randomSeed) {
+            indexOffset == 0 || randomSeed.nextInt(100) < 35
         }
 
-        val type = remember(finalHashCode) {
-            val idx = abs(finalHashCode) % 3
-            ButterflyType.entries[idx]
+        val type = remember(randomSeed) {
+            ButterflyType.entries[randomSeed.nextInt(ButterflyType.entries.size)]
         }
 
-        val corner = remember(finalHashCode) {
-            ButterflyCorner.entries[indexOffset % 4]
+        val corner = remember(randomSeed) {
+            ButterflyCorner.entries[randomSeed.nextInt(ButterflyCorner.entries.size)]
         }
-        
-        val rotation = remember(finalHashCode) {
-            val deg = ((abs(finalHashCode) shr 4) % 60) - 30
-            deg.toFloat()
+
+        val rotation = remember(randomSeed) {
+            (randomSeed.nextInt(60) - 30).toFloat()
         }
-        val sizeDp = remember(finalHashCode) {
-            val s = 16 + ((abs(finalHashCode) shr 7) % 9)
-            s.dp
+
+        val sizeDp = remember(randomSeed) {
+            (16 + randomSeed.nextInt(10)).dp
         }
 
         if (shouldShow) {

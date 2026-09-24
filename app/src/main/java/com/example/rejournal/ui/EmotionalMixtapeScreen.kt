@@ -104,17 +104,14 @@ fun EmotionalMixtapeScreen(
     var selectedYear by remember(availableYears) { mutableIntStateOf(availableYears.firstOrNull() ?: LocalDate.now().year) }
     var newestFirst by remember { mutableStateOf(true) }
 
-    // Always compute baseline ascending weeks (Week 1..52)
     val allWeeksAscending = remember(entries, selectedYear) {
         MixtapeCalculator.calculateForYear(entries, selectedYear, newestFirst = false)
     }
 
-    // Chunk into 10-week shelves
     val shelvesAscending = remember(allWeeksAscending) {
         allWeeksAscending.chunked(10)
     }
 
-    // Top-to-bottom shelf order
     val displayedShelves = remember(shelvesAscending, newestFirst) {
         if (newestFirst) shelvesAscending.reversed() else shelvesAscending
     }
@@ -143,7 +140,6 @@ fun EmotionalMixtapeScreen(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Sleek, Compact Top Header Bar with Butterfly decoration (Year, Recorded Count, Vibe & Sort Toggle)
             CompactHeaderCard(
                 availableYears = availableYears,
                 selectedYear = selectedYear,
@@ -153,7 +149,6 @@ fun EmotionalMixtapeScreen(
                 onToggleSort = { newestFirst = !newestFirst }
             )
 
-            // Bookshelf Title
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -175,7 +170,6 @@ fun EmotionalMixtapeScreen(
                 )
             }
 
-            // Bookshelf Shelves
             displayedShelves.forEachIndexed { index, shelfTapes ->
                 BookshelfRack(
                     shelfNumber = index + 1,
@@ -186,7 +180,6 @@ fun EmotionalMixtapeScreen(
         }
     }
 
-    // Modal Bottom Sheet for Mixtape Details / Retro Player
     selectedMixtape?.let { mixtape ->
         MixtapeDetailModal(
             mixtape = mixtape,
@@ -262,13 +255,11 @@ private fun CompactHeaderCard(
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Top Row: Year Selector on Left, Recorded Stats Badge & Sort Toggle on Right
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Year Controls
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val currentIndex = availableYears.indexOf(selectedYear)
                         val canGoOlder = currentIndex < availableYears.size - 1
@@ -299,7 +290,6 @@ private fun CompactHeaderCard(
                         }
                     }
 
-                    // Stats Badge & Sort Toggle Button
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -331,7 +321,6 @@ private fun CompactHeaderCard(
                     }
                 }
 
-                // Smooth Custom Progress Bar (Zero Cutoffs / Dots)
                 CustomProgressBar(
                     progress = progress,
                     color = MaterialTheme.colorScheme.primary,
@@ -340,7 +329,6 @@ private fun CompactHeaderCard(
                         .height(6.dp)
                 )
 
-                // Bottom Subtitle Row: Dominant Vibe
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -391,7 +379,6 @@ private fun BookshelfRack(
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
     ) {
-        // Shelf Header Label with Recorded Ratio (e.g. SHELF 1 (3/10))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -420,7 +407,6 @@ private fun BookshelfRack(
 
         val horizontalScrollState = rememberScrollState()
 
-        // Wooden Bookshelf Box Frame
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -452,7 +438,6 @@ private fun BookshelfRack(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                // Cassette Tapes Row (Scrollable)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -468,7 +453,6 @@ private fun BookshelfRack(
                     }
                 }
 
-                // Dedicated Scrollbar Bar residing 100% in the brown wood background below cassettes
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -478,7 +462,6 @@ private fun BookshelfRack(
             }
         }
 
-        // Shelf Bottom Plank Shadow Line
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -539,7 +522,6 @@ private fun CassetteTapeItem(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Tape Top Sticker Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -565,7 +547,6 @@ private fun CassetteTapeItem(
                 )
             }
 
-            // Cassette Center Tape Spool Window
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -581,10 +562,8 @@ private fun CassetteTapeItem(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left Spool Wheel
                     CassetteSpoolWheel(isRecorded = isRecorded, accentColor = style.accentColor)
 
-                    // Tape Strip Center
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -593,12 +572,10 @@ private fun CassetteTapeItem(
                             .background(Color(0xFF2A1B14), RoundedCornerShape(2.dp))
                     )
 
-                    // Right Spool Wheel
                     CassetteSpoolWheel(isRecorded = isRecorded, accentColor = style.accentColor)
                 }
             }
 
-            // Tape Bottom Title Label
             Text(
                 text = if (isRecorded) mixtape.title else "Unrecorded",
                 style = MaterialTheme.typography.labelSmall,
@@ -662,14 +639,12 @@ private fun MixtapeDetailModal(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Animated Cassette Player Component
             RetroCassettePlayer(
                 mixtape = mixtape,
                 isPlaying = isPlaying,
                 onTogglePlay = { isPlaying = !isPlaying }
             )
 
-            // Title & Vibe Header
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -704,7 +679,6 @@ private fun MixtapeDetailModal(
             }
 
             if (mixtape.hasEntries) {
-                // Sliders & Mood Breakdown Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = softCardShape,
@@ -755,7 +729,6 @@ private fun MixtapeDetailModal(
                     }
                 }
 
-                // Top Activity Tags matching app-wide ActivityTagsPrefs
                 if (mixtape.topActivities.isNotEmpty()) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -803,7 +776,6 @@ private fun MixtapeDetailModal(
                     }
                 }
 
-                // Tracklist (Logged Entries)
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -834,7 +806,6 @@ private fun MixtapeDetailModal(
                 )
             }
 
-            // Bottom Actions
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -910,7 +881,6 @@ private fun RetroCassettePlayer(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Cassette Top Label Bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -934,7 +904,6 @@ private fun RetroCassettePlayer(
                 )
             }
 
-            // Cassette Center Spool Window & Equalizer
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -950,13 +919,11 @@ private fun RetroCassettePlayer(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left Rotating Reel
                     AnimatedSpool(
                         angle = if (isPlaying && mixtape.hasEntries) rotationAngle else 0f,
                         accentColor = style.accentColor
                     )
 
-                    // Tape Center & Visualizer Bars
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -970,7 +937,6 @@ private fun RetroCassettePlayer(
                         )
                     }
 
-                    // Right Rotating Reel
                     AnimatedSpool(
                         angle = if (isPlaying && mixtape.hasEntries) rotationAngle else 0f,
                         accentColor = style.accentColor
@@ -978,7 +944,6 @@ private fun RetroCassettePlayer(
                 }
             }
 
-            // Play / Pause Controls Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1028,7 +993,6 @@ private fun AnimatedSpool(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val center = Offset(size.width / 2, size.height / 2)
             val radius = size.width / 2
-            // 3 spokes for cassette spool
             for (i in 0 until 3) {
                 val rad = Math.toRadians((i * 120).toDouble())
                 val endX = center.x + (radius - 6) * Math.cos(rad).toFloat()
