@@ -97,6 +97,7 @@ Completely subscription-free, ad-free, distraction-free mental health journaling
 - Best & toughest day of the week/month/year (based on your averages)
 - **Additional Stats**: most-logged activities, mood-by-activity ranking, activities on your best/worst days, and simple correlation insights (e.g. "Higher Sleep tends to line up with better mood days")
 - Tap any mood on the breakdown chart to see **all-time patterns** for that specific mood - common activities, common weekdays, and average slider values
+- **Journaling Highlights** to view statistics about your note-taking inside of the day logger
 
 ### 🎯 Goals, Achievements & Time Capsules
 - **Goals**: pick a category (Fitness, Habits, Healthier Lifestyle, Growth, Break Bad Habits) and work toward a suggested goal, with up to 3 active at once
