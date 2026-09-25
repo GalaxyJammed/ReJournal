@@ -21,7 +21,7 @@ A simple, private mood journaling app for Android - inspired by other mental hea
 </div>
 
 <div align="center">
-  <img width="100" height="100" alt="monarch-butterfly" src="https://github.com/user-attachments/assets/b54b264f-cc0d-4fde-acda-894b3faa9e54" />
+  <img width="100" height="100" alt="monarch-butterfly" src="https://github.com/user-attachments/assets/5a51f79f-a130-4f1a-9a08-0cf18d6acfab" />
   <br>
   <em>"Your soul will feel rejuvenated"</em>
 </div>
