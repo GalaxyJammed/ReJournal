@@ -2,7 +2,6 @@ package com.example.rejournal.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 import com.example.rejournal.ui.components.PastelIcon
+import com.example.rejournal.ui.components.bouncyClick
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -261,7 +261,7 @@ fun LogScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
-                        .clickable {
+                        .bouncyClick(pressedScale = 0.95f) {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(update.releaseUrl))
                             context.startActivity(intent)
                         },
@@ -468,7 +468,7 @@ private fun CalendarMonthView(
                                             Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
                                         } else Modifier
                                     )
-                                    .clickable { onDayClick(date) },
+                                    .bouncyClick(pressedScale = 0.82f) { onDayClick(date) },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
@@ -567,7 +567,7 @@ private fun YearPixelsView(
                                     } else Modifier
                                 )
                                 .background(color, RoundedCornerShape(2.dp))
-                                .clickable(enabled = !isFuture) { onDayClick(date) }
+                                .bouncyClick(enabled = !isFuture, pressedScale = 0.80f) { onDayClick(date) }
                         )
                     } else {
                         Spacer(modifier = Modifier.size(11.dp))

@@ -1,6 +1,5 @@
 package com.example.rejournal.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -45,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 import com.example.rejournal.ui.components.IconPill
 import com.example.rejournal.ui.components.PastelIcon
+import com.example.rejournal.ui.components.bouncyClick
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +144,7 @@ private fun ExtrasRow(icon: ImageVector, label: String, onClick: () -> Unit, cou
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .bouncyClick(pressedScale = 0.96f, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween

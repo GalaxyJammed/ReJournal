@@ -9,14 +9,14 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "3.4.0",
-            date = "25/9/2026",
+            version = "3.5.0",
+            date = "26/9/2026",
             highlights = listOf(
-                "Added a notification for Micro-Wins for 3-9PM (can be toggled in Settings)",
-                "Added 9 multi-color themes instead of just having mono-color themes",
-                "Changed the UI of the settings to look nicer",
-                "Small GUI changes on the Stats screen to look nicer",
-                "Fixed Search screen crashing when tapping on it"
+                "Made the Stats screen prettier",
+                "Added a 'Journaling Highlights' in 'Additional Stats' shows statistics about the notes written",
+                "Changed App Logo to a more friendly one",
+                "Added some more quality of life animations to make the app more lively",
+                "Fixed Achievements and Goals not tracking properly"
 
             )
         )

@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import com.example.rejournal.ui.components.bouncyClick
 import com.example.rejournal.data.MediaGalleryHelper
 import com.example.rejournal.data.MediaItem
 import com.example.rejournal.ui.components.ButterflyCardWrapper
@@ -93,7 +94,7 @@ private fun PhotoThumb(item: MediaItem, index: Int, onClick: () -> Unit) {
             Card(
                 modifier = Modifier
                     .aspectRatio(1f)
-                    .clickable(onClick = onClick),
+                    .bouncyClick(pressedScale = 0.92f, onClick = onClick),
                 shape = softCardShape,
                 border = softCardBorder()
             ) {

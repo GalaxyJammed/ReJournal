@@ -2,6 +2,7 @@ package com.example.rejournal.data
 
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import kotlin.math.sqrt
 
 enum class StatsPeriod { WEEK, MONTH, YEAR }
@@ -11,6 +12,8 @@ data class ActivityFrequency(val tag: String, val count: Int)
 
 data class PeriodStats(
     val totalEntries: Int,
+    val totalDaysInPeriod: Int,
+    val loggingRatePercentage: Int,
     val moodCounts: Map<Int, Int>,
     val averageMood: Double,
     val averageEnergy: Double,
@@ -28,7 +31,11 @@ data class PeriodStats(
     val sleepMoodCorrelation: Double?,
     val mostLoggedActivities: List<ActivityFrequency>,
     val bestDayActivities: List<ActivityFrequency>,
-    val worstDayActivities: List<ActivityFrequency>
+    val worstDayActivities: List<ActivityFrequency>,
+    val totalWordsLogged: Int,
+    val avgWordsPerEntry: Int,
+    val dominantMood: Int?,
+    val dominantMoodCount: Int
 )
 
 object StatsCalculator {
@@ -58,7 +65,20 @@ object StatsCalculator {
         val (start, end) = rangeFor(period, referenceDate)
         val periodEntries = entries.filter { it.date >= start && it.date <= end }
 
+        val totalDaysInPeriod = (ChronoUnit.DAYS.between(start, end) + 1).toInt()
+        val loggingRatePercentage = if (totalDaysInPeriod > 0) ((periodEntries.size.toDouble() / totalDaysInPeriod) * 100).toInt() else 0
+
+        val totalWordsLogged = periodEntries.sumOf { entry ->
+            if (entry.note.isBlank()) 0
+            else entry.note.trim().split("\\s+".toRegex()).count { it.isNotBlank() }
+        }
+        val avgWordsPerEntry = if (periodEntries.isNotEmpty()) totalWordsLogged / periodEntries.size else 0
+
         val moodCounts = (1..5).associateWith { moodValue -> periodEntries.count { it.mood == moodValue } }
+        val maxMoodEntry = moodCounts.maxByOrNull { it.value }
+        val dominantMood = if (periodEntries.isNotEmpty() && (maxMoodEntry?.value ?: 0) > 0) maxMoodEntry?.key else null
+        val dominantMoodCount = maxMoodEntry?.value ?: 0
+
         val averageMood = if (periodEntries.isNotEmpty()) periodEntries.map { it.mood }.average() else 0.0
         val averageEnergy = if (periodEntries.isNotEmpty()) periodEntries.map { it.energy }.average() else 0.0
         val averageProductivity = if (periodEntries.isNotEmpty()) periodEntries.map { it.productivity }.average() else 0.0
@@ -120,6 +140,8 @@ object StatsCalculator {
 
         return PeriodStats(
             totalEntries = periodEntries.size,
+            totalDaysInPeriod = totalDaysInPeriod,
+            loggingRatePercentage = loggingRatePercentage,
             moodCounts = moodCounts,
             averageMood = averageMood,
             averageEnergy = averageEnergy,
@@ -137,7 +159,11 @@ object StatsCalculator {
             sleepMoodCorrelation = sleepCorrelation,
             mostLoggedActivities = mostLoggedActivities,
             bestDayActivities = bestDayActivities,
-            worstDayActivities = worstDayActivities
+            worstDayActivities = worstDayActivities,
+            totalWordsLogged = totalWordsLogged,
+            avgWordsPerEntry = avgWordsPerEntry,
+            dominantMood = dominantMood,
+            dominantMoodCount = dominantMoodCount
         )
     }
 

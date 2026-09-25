@@ -1,9 +1,9 @@
 package com.example.rejournal.ui
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -45,13 +45,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.rejournal.ui.components.PastelIcon
+import com.example.rejournal.ui.components.bouncyClick
+import com.example.rejournal.ui.components.pressScale
 
 @Composable
 fun MainBottomBar(
@@ -64,16 +68,44 @@ fun MainBottomBar(
     onExtrasClick: () -> Unit
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
+    var popupVisible by remember { mutableStateOf(false) }
+    var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
 
-    val fabRotation by animateFloatAsState(
-        targetValue = if (isExpanded) 135f else 0f,
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "fabRotation"
-    )
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
+            popupVisible = true
+        }
+    }
 
     LaunchedEffect(currentRoute) {
+        popupVisible = false
         isExpanded = false
     }
+
+    val dismissPopup = remember {
+        { action: (() -> Unit)? ->
+            pendingAction = action
+            popupVisible = false
+        }
+    }
+
+    val animProgress by animateFloatAsState(
+        targetValue = if (popupVisible) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = 0.68f,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "fabExpandProgress",
+        finishedListener = { finalVal ->
+            if (finalVal == 0f && !popupVisible) {
+                isExpanded = false
+                pendingAction?.invoke()
+                pendingAction = null
+            }
+        }
+    )
+
+    val fabRotation = 135f * animProgress
 
     val extrasSelected = currentRoute == Screen.Extras.route ||
             currentRoute == Screen.Goals.route ||
@@ -94,12 +126,12 @@ fun MainBottomBar(
 
     if (isExpanded) {
         BackHandler(enabled = true) {
-            isExpanded = false
+            dismissPopup(null)
         }
 
         Popup(
             alignment = Alignment.BottomCenter,
-            onDismissRequest = { isExpanded = false },
+            onDismissRequest = { dismissPopup(null) },
             properties = PopupProperties(
                 focusable = true,
                 dismissOnBackPress = true,
@@ -111,12 +143,12 @@ fun MainBottomBar(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.65f))
+                    .background(Color.Black.copy(alpha = 0.65f * animProgress))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        isExpanded = false
+                        dismissPopup(null)
                     }
             ) {
                 Box(
@@ -131,42 +163,67 @@ fun MainBottomBar(
                             .height(64.dp)
                     )
 
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .offset(y = (-136).dp),
-                        horizontalArrangement = Arrangement.spacedBy(36.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OptionButton(
-                            icon = Icons.AutoMirrored.Filled.MenuBook,
-                            label = "Log Today",
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            onClick = {
-                                isExpanded = false
-                                onLogTodayClick()
-                            }
-                        )
+                    val density = LocalDensity.current
+                    val logTodayDx = remember(density) { with(density) { (-78).dp.toPx() } }
+                    val logTodayDy = remember(density) { with(density) { (-120).dp.toPx() } }
+                    val microWinDx = remember(density) { with(density) { 78.dp.toPx() } }
+                    val microWinDy = remember(density) { with(density) { (-120).dp.toPx() } }
 
-                        OptionButton(
-                            icon = Icons.Filled.EmojiEvents,
-                            label = "Micro-Win",
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            onClick = {
-                                isExpanded = false
-                                onMicroWinClick()
-                            }
-                        )
-                    }
-
-                    FloatingActionButton(
-                        onClick = { isExpanded = false },
+                    OptionButton(
+                        icon = Icons.AutoMirrored.Filled.MenuBook,
+                        label = "Log Today",
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        onClick = {
+                            dismissPopup(onLogTodayClick)
+                        },
                         modifier = Modifier
                             .align(Alignment.TopCenter)
                             .offset(y = (-16).dp)
-                            .size(56.dp),
+                            .graphicsLayer {
+                                val progress = animProgress.coerceIn(0f, 1f)
+                                translationX = logTodayDx * progress
+                                translationY = logTodayDy * progress
+                                scaleX = 0.2f + 0.8f * progress
+                                scaleY = 0.2f + 0.8f * progress
+                                alpha = progress
+                                rotationZ = -15f * (1f - progress)
+                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                            }
+                    )
+
+                    OptionButton(
+                        icon = Icons.Filled.EmojiEvents,
+                        label = "Micro-Win",
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        onClick = {
+                            dismissPopup(onMicroWinClick)
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .offset(y = (-16).dp)
+                            .graphicsLayer {
+                                val progress = animProgress.coerceIn(0f, 1f)
+                                translationX = microWinDx * progress
+                                translationY = microWinDy * progress
+                                scaleX = 0.2f + 0.8f * progress
+                                scaleY = 0.2f + 0.8f * progress
+                                alpha = progress
+                                rotationZ = 15f * (1f - progress)
+                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                            }
+                    )
+
+                    val cancelFabInteraction = remember { MutableInteractionSource() }
+                    FloatingActionButton(
+                        onClick = { dismissPopup(null) },
+                        interactionSource = cancelFabInteraction,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .offset(y = (-16).dp)
+                            .size(56.dp)
+                            .pressScale(cancelFabInteraction, pressedScale = 0.88f),
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ) {
@@ -241,12 +298,15 @@ fun MainBottomBar(
             }
         }
 
+        val mainFabInteraction = remember { MutableInteractionSource() }
         FloatingActionButton(
             onClick = { isExpanded = true },
+            interactionSource = mainFabInteraction,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = (-16).dp)
-                .size(56.dp),
+                .size(56.dp)
+                .pressScale(mainFabInteraction, pressedScale = 0.88f),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
@@ -267,12 +327,13 @@ private fun OptionButton(
     label: String,
     containerColor: Color,
     contentColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = modifier.bouncyClick(pressedScale = 0.90f, onClick = onClick)
     ) {
         Surface(
             shape = CircleShape,
@@ -315,17 +376,32 @@ private fun BottomBarIcon(
     onClick: () -> Unit
 ) {
     val tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    val scale by animateFloatAsState(
+        targetValue = if (selected) 1.15f else 1.0f,
+        animationSpec = spring(dampingRatio = 0.55f, stiffness = 300f),
+        label = "bottomIconScale"
+    )
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clickable(onClick = onClick)
+            .bouncyClick(pressedScale = 0.85f, onClick = onClick)
             .padding(4.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
     ) {
         if (selected) {
             PastelIcon(icon, contentDescription = label)
         } else {
             Icon(icon, contentDescription = label, tint = tint)
         }
-        Text(label, style = MaterialTheme.typography.labelSmall, color = tint)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = tint
+        )
     }
 }

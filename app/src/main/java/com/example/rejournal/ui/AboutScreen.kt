@@ -1,6 +1,5 @@
 package com.example.rejournal.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -28,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.example.rejournal.ui.components.bouncyClick
 import com.example.rejournal.ui.components.ButterflyCardWrapper
 import com.example.rejournal.ui.components.IconPill
 import com.example.rejournal.ui.components.PastelIcon
@@ -98,7 +98,7 @@ private fun AboutRow(icon: ImageVector, label: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .bouncyClick(pressedScale = 0.95f, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
