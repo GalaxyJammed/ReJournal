@@ -22,5 +22,9 @@ data class MoodEntry(
     val sleep: Int = 3,
     val photoPaths: List<String> = emptyList(),
     val audioPaths: List<String> = emptyList(),
-    val isFavorite: Boolean = false
-)
+    val isFavorite: Boolean = false,
+    val stickersJson: String = ""
+) {
+    val stickers: List<NoteSticker>
+        get() = StickerSerializer.deserialize(stickersJson)
+}

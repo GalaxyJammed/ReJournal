@@ -75,6 +75,10 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.rejournal.data.ActivityTagsPrefs
 import com.example.rejournal.data.MediaFileHelper
 import com.example.rejournal.data.MoodEntry
+import com.example.rejournal.data.NoteSticker
+import com.example.rejournal.data.StickerSerializer
+import com.example.rejournal.ui.components.StickerCanvas
+import com.example.rejournal.ui.components.StickerPickerDialog
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
@@ -123,7 +127,10 @@ fun QuestionnaireScreen(
     var sleep by remember { mutableStateOf(3f) }
     var selectedActivities by remember { mutableStateOf(setOf<String>()) }
     var noteValue by remember { mutableStateOf(RichNoteValue()) }
+    var noteStickers by remember { mutableStateOf<List<NoteSticker>>(emptyList()) }
     var showExpandedNote by remember { mutableStateOf(false) }
+    var showStickerPicker by remember { mutableStateOf(false) }
+    var selectedStickerId by remember { mutableStateOf<String?>(null) }
     var availableTags by remember { mutableStateOf(ActivityTagsPrefs.getAllTags(context)) }
     var showAddTagDialog by remember { mutableStateOf(false) }
     var tagPendingDeletion by remember { mutableStateOf<String?>(null) }
@@ -156,6 +163,7 @@ fun QuestionnaireScreen(
             sleep = entry.sleep.toFloat()
             selectedActivities = entry.activities.toSet()
             noteValue = richNoteValueFromRaw(entry.note)
+            noteStickers = entry.stickers
             photoPaths = entry.photoPaths
             audioPaths = entry.audioPaths
             isFavorite = entry.isFavorite
@@ -434,7 +442,8 @@ fun QuestionnaireScreen(
                                 sleep = sleep.toInt(),
                                 photoPaths = photoPaths,
                                 audioPaths = audioPaths,
-                                isFavorite = isFavorite
+                                isFavorite = isFavorite,
+                                stickersJson = StickerSerializer.serialize(noteStickers)
                             )
                             if (mood <= 2) {
                                 showToolkit = true
@@ -460,6 +469,14 @@ fun QuestionnaireScreen(
                     TopAppBar(
                         title = { Text("Edit Note") },
                         actions = {
+                            TextButton(onClick = { showStickerPicker = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.AddReaction,
+                                    contentDescription = "Add Sticker",
+                                    modifier = Modifier.padding(end = 4.dp).size(18.dp)
+                                )
+                                Text("Add Sticker")
+                            }
                             TextButton(onClick = { showExpandedNote = false }) { Text("Done") }
                         }
                     )
@@ -471,16 +488,37 @@ fun QuestionnaireScreen(
                         .padding(dialogPadding)
                         .padding(16.dp)
                 ) {
-                    RichNoteEditor(
-                        value = noteValue,
-                        onValueChange = { noteValue = it },
-                        modifier = Modifier.fillMaxSize(),
-                        fillAvailableSpace = true,
-                        placeholder = soulfulHint
-                    )
+                    StickerCanvas(
+                        stickers = noteStickers,
+                        onStickersChange = { noteStickers = it },
+                        isEditable = true,
+                        selectedStickerId = selectedStickerId,
+                        onSelectSticker = { selectedStickerId = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        RichNoteEditor(
+                            value = noteValue,
+                            onValueChange = { noteValue = it },
+                            modifier = Modifier.fillMaxSize(),
+                            fillAvailableSpace = true,
+                            placeholder = soulfulHint
+                        )
+                    }
                 }
             }
         }
+    }
+
+    if (showStickerPicker) {
+        StickerPickerDialog(
+            onDismissRequest = { showStickerPicker = false },
+            onStickerSelected = { newSticker ->
+                noteStickers = noteStickers + newSticker
+                selectedStickerId = newSticker.id
+            }
+        )
     }
 
     if (showAddTagDialog) {

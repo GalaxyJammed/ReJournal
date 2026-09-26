@@ -32,6 +32,9 @@ import com.example.rejournal.data.CalendarSyncHelper
 import com.example.rejournal.data.CalendarSyncPrefs
 import com.example.rejournal.data.GoalProgressCalculator
 import com.example.rejournal.data.GoalProgressPrefs
+import com.example.rejournal.data.HealthConnectSyncHelper
+import com.example.rejournal.data.HealthConnectSyncPrefs
+import com.example.rejournal.data.HealthConnectSyncWorker
 import com.example.rejournal.data.MediaItem
 import com.example.rejournal.data.MicroWin
 import java.time.YearMonth
@@ -170,14 +173,16 @@ class MoodViewModel(
         sleep: Int = 3,
         photoPaths: List<String> = emptyList(),
         audioPaths: List<String> = emptyList(),
-        isFavorite: Boolean = false
+        isFavorite: Boolean = false,
+        stickersJson: String = ""
     ) {
         viewModelScope.launch {
             repository.saveEntry(
                 MoodEntry(
                     date = date, mood = mood, activities = activities, note = note,
                     energy = energy, productivity = productivity, stress = stress, sleep = sleep,
-                    photoPaths = photoPaths, audioPaths = audioPaths, isFavorite = isFavorite
+                    photoPaths = photoPaths, audioPaths = audioPaths, isFavorite = isFavorite,
+                    stickersJson = stickersJson
                 )
             )
             checkMoodCapsules(mood)
@@ -324,6 +329,32 @@ class MoodViewModel(
         val selectedIds = CalendarSyncPrefs.getSelectedCalendarIds(appContext)
         if (selectedIds.isEmpty() || !hasCalendarPermission()) return
         syncCalendarNow(selectedIds) { }
+    }
+
+    fun getHealthConnectSdkStatus(): Int = HealthConnectSyncHelper.getSdkStatus(appContext)
+
+    fun isHealthConnectAvailable(): Boolean = HealthConnectSyncHelper.isSdkAvailable(appContext)
+
+    fun checkHealthConnectPermissions(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val hasPerms = HealthConnectSyncHelper.hasPermissions(appContext)
+            onResult(hasPerms)
+        }
+    }
+
+    fun syncHealthConnectNow(onResult: (Int) -> Unit) {
+        viewModelScope.launch {
+            val added = withContext(Dispatchers.IO) {
+                HealthConnectSyncHelper.syncHealthData(appContext, repository)
+            }
+            onResult(added)
+        }
+    }
+
+    fun autoSyncHealthConnect() {
+        if (!HealthConnectSyncPrefs.isEnabled(appContext)) return
+        HealthConnectSyncWorker.schedulePeriodicSync(appContext)
+        syncHealthConnectNow { }
     }
 
     class Factory(

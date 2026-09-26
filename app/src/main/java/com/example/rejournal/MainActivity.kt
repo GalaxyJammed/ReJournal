@@ -159,6 +159,7 @@ fun AppNavHost(repository: MoodRepository, activity: FragmentActivity) {
 
     LaunchedEffect(Unit) {
         viewModel.autoSyncCalendar()
+        viewModel.autoSyncHealthConnect()
     }
 
     LaunchedEffect(activity.intent) {

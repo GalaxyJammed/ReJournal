@@ -58,6 +58,7 @@ object BackupHelper {
                     }
                 }
                 obj.put("audioPaths", audioNames)
+                obj.put("stickersJson", entry.stickersJson)
 
                 entriesJson.put(obj)
             }
@@ -125,7 +126,8 @@ object BackupHelper {
                     stress = obj.optInt("stress", 3),
                     sleep = obj.optInt("sleep", 3),
                     photoPaths = photoPaths,
-                    audioPaths = audioPaths
+                    audioPaths = audioPaths,
+                    stickersJson = obj.optString("stickersJson", "")
                 )
             )
         }

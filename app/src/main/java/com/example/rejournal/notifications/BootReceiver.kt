@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import com.example.rejournal.data.AppDatabase
 import com.example.rejournal.data.CapsuleType
+import com.example.rejournal.data.HealthConnectSyncPrefs
+import com.example.rejournal.data.HealthConnectSyncWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,6 +26,10 @@ class BootReceiver : BroadcastReceiver() {
 
         if (MicroWinNotificationPrefs.isEnabled(context)) {
             MicroWinNotificationScheduler.schedule(context)
+        }
+
+        if (HealthConnectSyncPrefs.isEnabled(context)) {
+            HealthConnectSyncWorker.schedulePeriodicSync(context)
         }
 
         val pendingResult = goAsync()

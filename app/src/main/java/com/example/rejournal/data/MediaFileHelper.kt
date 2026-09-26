@@ -12,6 +12,22 @@ object MediaFileHelper {
 
     private const val PHOTOS_DIR = "photos"
     private const val AUDIO_DIR = "audio"
+    private const val STICKERS_DIR = "stickers"
+
+    fun saveStickerImage(context: Context, uri: Uri): String? {
+        return try {
+            val dir = File(context.filesDir, STICKERS_DIR).apply { mkdirs() }
+            val file = File(dir, "sticker_${UUID.randomUUID()}.png")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                file.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            file.absolutePath
+        } catch (e: Exception) {
+            null
+        }
+    }
 
 
     fun createPhotoFile(context: Context): Pair<File, Uri> {

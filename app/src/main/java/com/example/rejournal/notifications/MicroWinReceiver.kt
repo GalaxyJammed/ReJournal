@@ -10,6 +10,8 @@ import androidx.core.app.NotificationCompat
 import com.example.rejournal.MainActivity
 import com.example.rejournal.R
 import com.example.rejournal.data.AppDatabase
+import com.example.rejournal.data.HealthConnectSyncHelper
+import com.example.rejournal.data.MoodRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,6 +28,14 @@ class MicroWinReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val db = AppDatabase.getDatabase(context)
+                val repository = MoodRepository(
+                    dao = db.moodDao(),
+                    importantDayDao = db.importantDayDao(),
+                    timeCapsuleDao = db.timeCapsuleDao(),
+                    microWinDao = db.microWinDao()
+                )
+                HealthConnectSyncHelper.syncHealthData(context, repository)
+
                 val countToday = db.microWinDao().getCountForDate(today)
 
                 MicroWinNotificationPrefs.setLastNotificationDate(context, todayStr)
@@ -61,7 +71,7 @@ class MicroWinReceiver : BroadcastReceiver() {
             "The day passed quite a bit. Would you like to log a tiny Micro-Win for the day?",
             "Day's winding down! Take a quick moment to celebrate a small win.",
             "Spot any Micro-Wins today? Log a tiny victory to boost your morale!",
-            "Take a gentle pause—got a small Micro-Win to log for today?"
+            "Take a gentle pause, got a small Micro-Win to log for today?"
         )
         val message = notificationMessages.random()
 

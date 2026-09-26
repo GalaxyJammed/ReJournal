@@ -9,14 +9,13 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "3.5.0",
-            date = "26/9/2026",
+            version = "3.6.0",
+            date = "27/9/2026",
             highlights = listOf(
-                "Made the Stats screen prettier",
-                "Added a 'Journaling Highlights' in 'Additional Stats' shows statistics about the notes written",
-                "Changed App Logo to a more friendly one",
-                "Added some more quality of life animations to make the app more lively",
-                "Fixed Achievements and Goals not tracking properly"
+                "Added a sync with Health Connect that allows users to set goals and log them as Micro-Wins automatically",
+                "Changed the notification icon to also include the face",
+                "Added stickers when expanding the Note in the day logger to let you add more customization in your notes (including customs from your gallery)"
+
 
             )
         )
