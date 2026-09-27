@@ -7,7 +7,8 @@ data class GoalState(
     val isActive: Boolean,
     val startDate: LocalDate?,
     val completions: Int,
-    val attempts: Int
+    val attempts: Int,
+    val startMicroWinId: Int = -1
 )
 
 object GoalProgressPrefs {
@@ -18,17 +19,24 @@ object GoalProgressPrefs {
     private fun keyStart(id: String) = "${id}_start"
     private fun keyCompletions(id: String) = "${id}_completions"
     private fun keyAttempts(id: String) = "${id}_attempts"
+    private fun keyStartMicroWinId(id: String) = "${id}_start_microwin_id"
 
     fun getState(context: Context, id: String): GoalState {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isActive = prefs.getBoolean(keyActive(id), false)
         val startEpoch = prefs.getLong(keyStart(id), -1L)
         val startDate = if (startEpoch >= 0) LocalDate.ofEpochDay(startEpoch) else null
+        val startMicroWinId = if (prefs.contains(keyStartMicroWinId(id))) {
+            prefs.getInt(keyStartMicroWinId(id), -1)
+        } else {
+            -1
+        }
         return GoalState(
             isActive = isActive,
             startDate = startDate,
             completions = prefs.getInt(keyCompletions(id), 0),
-            attempts = prefs.getInt(keyAttempts(id), 0)
+            attempts = prefs.getInt(keyAttempts(id), 0),
+            startMicroWinId = startMicroWinId
         )
     }
 
@@ -39,11 +47,16 @@ object GoalProgressPrefs {
 
     fun canStartNewGoal(context: Context): Boolean = activeCount(context) < MAX_ACTIVE_GOALS
 
-    fun startGoal(context: Context, id: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+    fun startGoal(context: Context, id: String, initialMicroWinId: Int = -1) {
+        val editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
             .putBoolean(keyActive(id), true)
             .putLong(keyStart(id), LocalDate.now().toEpochDay())
-            .apply()
+        if (initialMicroWinId >= 0) {
+            editor.putInt(keyStartMicroWinId(id), initialMicroWinId)
+        } else {
+            editor.remove(keyStartMicroWinId(id))
+        }
+        editor.apply()
     }
 
     fun cancelGoal(context: Context, id: String) {
@@ -52,6 +65,7 @@ object GoalProgressPrefs {
         prefs.edit()
             .putBoolean(keyActive(id), false)
             .remove(keyStart(id))
+            .remove(keyStartMicroWinId(id))
             .putInt(keyAttempts(id), attempts + 1)
             .apply()
     }
@@ -63,6 +77,7 @@ object GoalProgressPrefs {
         prefs.edit()
             .putBoolean(keyActive(id), false)
             .remove(keyStart(id))
+            .remove(keyStartMicroWinId(id))
             .putInt(keyCompletions(id), completions + 1)
             .putInt(keyAttempts(id), attempts + 1)
             .apply()

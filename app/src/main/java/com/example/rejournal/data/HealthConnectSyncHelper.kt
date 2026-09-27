@@ -90,7 +90,6 @@ object HealthConnectSyncHelper {
 
         var newWinsCount = 0
 
-        // 1. Sync Step Count Milestones
         if (HealthConnectSyncPrefs.isStepsSyncEnabled(context)) {
             try {
                 val stepRequest = AggregateRequest(
@@ -117,7 +116,6 @@ object HealthConnectSyncHelper {
             }
         }
 
-        // 2. Sync Workouts / Exercise Sessions
         if (HealthConnectSyncPrefs.isWorkoutsSyncEnabled(context)) {
             try {
                 val startTime = now.minus(Duration.ofDays(7))
@@ -133,6 +131,8 @@ object HealthConnectSyncHelper {
                     if (syncedRecordIds.contains(id)) continue
 
                     val durationMinutes = Duration.between(record.startTime, record.endTime).toMinutes()
+                    if (durationMinutes <= 0) continue
+
                     val activityName = getExerciseName(record.exerciseType)
                     val recordDate = record.startTime.atZone(zone).toLocalDate()
 
@@ -152,7 +152,6 @@ object HealthConnectSyncHelper {
             }
         }
 
-        // 3. Sync Sleep Sessions
         if (HealthConnectSyncPrefs.isSleepSyncEnabled(context)) {
             try {
                 val startTime = now.minus(Duration.ofDays(7))
@@ -162,17 +161,20 @@ object HealthConnectSyncHelper {
                 )
                 val response = client.readRecords(sleepRequest)
                 val syncedRecordIds = HealthConnectSyncPrefs.getSyncedRecordIds(context)
+                val sleepGoalHours = HealthConnectSyncPrefs.getSleepGoalHours(context)
 
                 for (record in response.records) {
                     val id = record.metadata.id
                     if (syncedRecordIds.contains(id)) continue
 
                     val sleepDuration = Duration.between(record.startTime, record.endTime)
+                    if (sleepDuration.toMinutes() < sleepGoalHours * 60L) continue
+
                     val hours = sleepDuration.toHours()
                     val minutes = sleepDuration.toMinutes() % 60
                     val sleepDate = record.endTime.atZone(zone).toLocalDate()
 
-                    val titleText = "😴 Logged ${hours}h ${minutes}m of sleep"
+                    val titleText = "😴 Reached $sleepGoalHours-hour sleep goal (${hours}h ${minutes}m)"
 
                     repository.saveMicroWin(MicroWin(title = titleText, date = sleepDate))
                     HealthConnectSyncPrefs.addSyncedRecordId(context, id)
@@ -184,7 +186,6 @@ object HealthConnectSyncHelper {
             }
         }
 
-        // 4. Sync Active Calories Burned
         if (HealthConnectSyncPrefs.isCaloriesSyncEnabled(context)) {
             try {
                 val calorieRequest = AggregateRequest(

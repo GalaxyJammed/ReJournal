@@ -68,7 +68,8 @@ fun GoalSuggestionsScreen(
                         border = softCardBorder(),
                         onClick = {
                             if (GoalProgressPrefs.canStartNewGoal(context)) {
-                                GoalProgressPrefs.startGoal(context, definition.id)
+                                val maxWinId = viewModel.allMicroWins.value.maxOfOrNull { it.id } ?: 0
+                                GoalProgressPrefs.startGoal(context, definition.id, maxWinId)
                                 viewModel.refreshGoalStatus()
                                 onGoalSelected()
                             } else {

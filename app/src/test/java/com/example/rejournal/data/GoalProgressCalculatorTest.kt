@@ -60,4 +60,41 @@ class GoalProgressCalculatorTest {
 
         assertEquals(1, progress)
     }
+
+    @Test
+    fun `microwins metric should only count wins added after startMicroWinId`() {
+        val today = LocalDate.now()
+        val microWins = listOf(
+            MicroWin(id = 1, title = "Old Win 1", date = today.minusDays(1)),
+            MicroWin(id = 2, title = "Old Win 2", date = today),
+            MicroWin(id = 3, title = "New Win 1", date = today),
+            MicroWin(id = 4, title = "New Win 2", date = today)
+        )
+
+        val definition = GoalDefinition(
+            id = "growth_microwins_5",
+            title = "Log 5 Micro-Wins",
+            description = "Collect 5 micro-wins",
+            category = GoalCategory.GROWTH,
+            metric = GoalMetric.MICRO_WINS,
+            target = 5
+        )
+
+        val stateStartedAfterWin2 = GoalState(
+            isActive = true,
+            startDate = today,
+            completions = 0,
+            attempts = 0,
+            startMicroWinId = 2
+        )
+
+        val progress = GoalProgressCalculator.currentProgress(
+            definition = definition,
+            state = stateStartedAfterWin2,
+            entries = emptyList(),
+            microWins = microWins
+        )
+
+        assertEquals(2, progress)
+    }
 }

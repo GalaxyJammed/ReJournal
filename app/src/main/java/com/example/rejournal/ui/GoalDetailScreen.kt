@@ -116,7 +116,8 @@ fun GoalDetailScreen(
                     if (state.isActive) {
                         GoalProgressPrefs.cancelGoal(context, goalId)
                     } else {
-                        GoalProgressPrefs.startGoal(context, goalId)
+                        val maxWinId = microWins.maxOfOrNull { it.id } ?: 0
+                        GoalProgressPrefs.startGoal(context, goalId, maxWinId)
                     }
                     state = GoalProgressPrefs.getState(context, goalId)
                     viewModel.refreshGoalStatus()

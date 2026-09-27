@@ -67,14 +67,12 @@ import java.util.Locale
 fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
 
-    // Calendar sync state
     var hasCalendarPermission by remember { mutableStateOf(viewModel.hasCalendarPermission()) }
     var calendars by remember { mutableStateOf<List<CalendarInfo>>(emptyList()) }
     var selectedIds by remember { mutableStateOf(CalendarSyncPrefs.getSelectedCalendarIds(context)) }
     var lastSyncedMonth by remember { mutableStateOf(CalendarSyncPrefs.getLastSyncedMonth(context)) }
     var syncMessage by remember { mutableStateOf<String?>(null) }
 
-    // Health Connect sync state
     val isSdkAvailable = remember { HealthConnectSyncHelper.isSdkAvailable(context) }
     var isHealthSyncEnabled by remember { mutableStateOf(HealthConnectSyncPrefs.isEnabled(context)) }
     var hasHealthPermissions by remember { mutableStateOf(false) }
@@ -91,7 +89,6 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     var lastHealthSyncedTime by remember { mutableStateOf(HealthConnectSyncPrefs.getLastSyncedTime(context)) }
     var healthSyncMessage by remember { mutableStateOf<String?>(null) }
 
-    // Dialog state for custom goals
     var showCustomStepDialog by remember { mutableStateOf(false) }
     var showCustomSleepDialog by remember { mutableStateOf(false) }
     var showCustomCalorieDialog by remember { mutableStateOf(false) }
@@ -150,7 +147,6 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Calendar Sync Section
             Text("Calendar Sync", style = MaterialTheme.typography.titleLarge)
 
             ButterflyCardWrapper(seed = "SyncInfo", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
@@ -234,7 +230,6 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
 
             HorizontalDivider()
 
-            // Health Connect Sync Section
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -317,7 +312,6 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         }
                     }
                 } else {
-                    // Settings for Health Connect
                     ButterflyCardWrapper(seed = "HealthSettingsCard", modifier = Modifier.fillMaxWidth()) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -330,7 +324,6 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                             ) {
                                 Text("Target Goals & Categories", style = MaterialTheme.typography.titleMedium)
 
-                                // 1. Steps Category
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
@@ -366,7 +359,6 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                     }
                                 }
 
-                                // 2. Workouts Category
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
@@ -381,7 +373,6 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                     Text("🏃 Workouts & Strava Activities", style = MaterialTheme.typography.bodyMedium)
                                 }
 
-                                // 3. Sleep Category
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
@@ -417,7 +408,6 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                     }
                                 }
 
-                                // 4. Active Calories Category
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically

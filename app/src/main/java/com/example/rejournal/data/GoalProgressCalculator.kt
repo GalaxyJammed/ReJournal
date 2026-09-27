@@ -28,7 +28,13 @@ object GoalProgressCalculator {
             GoalMetric.HIGH_ENERGY_DAYS -> sinceStart.filter { it.energy >= 4 }.map { it.date }.distinct().size
             GoalMetric.LOW_STRESS_DAYS -> sinceStart.filter { it.stress <= 2 }.map { it.date }.distinct().size
             GoalMetric.GOOD_SLEEP_DAYS -> sinceStart.filter { it.sleep >= 4 }.map { it.date }.distinct().size
-            GoalMetric.MICRO_WINS -> microWins.count { !it.date.isBefore(startDate) }
+            GoalMetric.MICRO_WINS -> {
+                if (state.startMicroWinId >= 0) {
+                    microWins.count { it.id > state.startMicroWinId }
+                } else {
+                    microWins.count { !it.date.isBefore(startDate) }
+                }
+            }
             GoalMetric.EARN_MIXTAPES -> {
                 val years = MixtapeCalculator.getAvailableYears(sinceStart)
                 years.sumOf { yr -> MixtapeCalculator.calculateForYear(sinceStart, yr).count { it.hasEntries } }
