@@ -1,31 +1,565 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ReJournal - Free Mood Logger for Android</title>
-  
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "ReJournal",
-    "operatingSystem": "Android",
-    "applicationCategory": "LifestyleApplication",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "A free, open-source mood logger and mental health journal app for Android.",
-    "license": "https://opensource.org/licenses/MIT",
-    "downloadUrl": "https://github.com/GalaxyJammed/ReJournal/releases"
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReJournal — Free Mood Logger & Mental Health Journal for Android</title>
+<meta name="description" content="ReJournal is a free, open-source, ad-free mood tracker and mental health journal for Android. Log moods, track habits, visualize patterns — all stored locally on your device.">
+<meta property="og:title" content="ReJournal — Free Mood Logger for Android">
+<meta property="og:description" content="A free, open-source, private mood tracker and mental health journal for Android.">
+<meta property="og:image" content="assets/icon.png">
+<meta property="og:type" content="website">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ReJournal",
+  "operatingSystem": "Android",
+  "applicationCategory": "LifestyleApplication",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "A free, open-source mood logger and mental health journal app for Android with local data storage.",
+  "license": "https://opensource.org/licenses/MIT",
+  "downloadUrl": "https://github.com/GalaxyJammed/ReJournal/releases",
+  "image": "assets/icon.png",
+  "applicationVersion": "latest",
+  "author": { "@type": "Organization", "name": "GalaxyJammed" }
+}
+</script>
+
+<style>
+  :root {
+    /* Dark theme (default) */
+    --bg: #14101f;
+    --bg-soft: #1a1530;
+    --card: #1e1834;
+    --card-hover: #251d3f;
+    --text: #f0edfa;
+    --muted: #a29cc0;
+    --border: #2c2547;
+    --accent: #9b8bf5;
+    --accent-soft: #7c68e0;
+    --warm: #f0855f;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --glow: rgba(155, 139, 245, 0.25);
   }
-  </script>
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #fdfbff;
+      --bg-soft: #f4f0fb;
+      --card: #ffffff;
+      --card-hover: #faf7ff;
+      --text: #241d3a;
+      --muted: #6b6188;
+      --border: #e8e2f4;
+      --accent: #6b5ce0;
+      --accent-soft: #8a7cf0;
+      --warm: #e8683f;
+      --shadow: rgba(60, 40, 120, 0.08);
+      --glow: rgba(107, 92, 224, 0.15);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: var(--accent); }
+  img { max-width: 100%; display: block; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* Butterfly decoration (uses mask so it takes theme color) */
+  .butterfly {
+    position: absolute;
+    width: var(--size, 32px);
+    height: var(--size, 32px);
+    background-color: var(--color, var(--accent));
+    opacity: var(--opacity, 0.5);
+    -webkit-mask-image: var(--src);
+    mask-image: var(--src);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    pointer-events: none;
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+    50% { transform: translateY(-8px) rotate(var(--rot, 0deg)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .butterfly { animation: none; }
+  }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .container { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  nav .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em; }
+  nav .brand img { width: 36px; height: 36px; border-radius: 10px; }
+  nav .links { display: flex; align-items: center; gap: 28px; }
+  nav .links a {
+    color: var(--muted); text-decoration: none; font-size: 0.95rem;
+    transition: color 0.15s ease;
+  }
+  nav .links a:hover { color: var(--text); }
+  nav .gh {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 10px;
+    color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 600;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  nav .gh:hover { border-color: var(--accent); background: var(--card-hover); }
+  @media (max-width: 760px) { nav .links a:not(.gh) { display: none; } }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    padding: 90px 0 80px;
+    text-align: center;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 18% 0%, var(--glow) 0%, transparent 42%),
+      radial-gradient(circle at 82% 8%, color-mix(in srgb, var(--warm) 12%, transparent) 0%, transparent 42%);
+  }
+  .hero .icon {
+    width: 108px; height: 108px;
+    border-radius: 26px;
+    margin: 0 auto 26px;
+    box-shadow: 0 16px 48px var(--glow), 0 0 0 1px var(--border);
+  }
+  .hero h1 {
+    font-size: clamp(2.1rem, 5.2vw, 3.6rem);
+    margin: 0 0 16px;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    font-weight: 800;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero .tagline {
+    font-size: clamp(1.02rem, 2vw, 1.2rem);
+    color: var(--muted);
+    max-width: 620px;
+    margin: 0 auto 36px;
+  }
+  .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--accent);
+    color: white;
+    padding: 14px 26px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    box-shadow: 0 10px 30px var(--glow);
+  }
+  .cta:hover { transform: translateY(-2px); background: var(--accent-soft); box-shadow: 0 14px 36px var(--glow); }
+  .cta.secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .cta.secondary:hover { border-color: var(--accent); background: var(--card); transform: translateY(-2px); }
+
+  .hero .badges {
+    margin-top: 40px;
+    display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  }
+  .hero .badges img { height: 22px; }
+
+  .hero-screenshot-wrap {
+    position: relative;
+    margin: 70px auto 0;
+    max-width: 320px;
+  }
+  .hero-screenshot-wrap::before {
+    content: "";
+    position: absolute;
+    inset: -30px -20px;
+    background: radial-gradient(circle at center, var(--glow) 0%, transparent 65%);
+    z-index: -1;
+    filter: blur(20px);
+  }
+  .hero-screenshot {
+    border-radius: 28px;
+    box-shadow: 0 30px 80px var(--shadow), 0 0 0 1px var(--border);
+    display: block;
+    width: 100%;
+  }
+
+  /* Sections */
+  section { padding: 90px 0; position: relative; }
+  section h2 {
+    font-size: clamp(1.65rem, 3.4vw, 2.3rem);
+    text-align: center;
+    margin: 0 0 14px;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+  section .lede {
+    text-align: center;
+    color: var(--muted);
+    max-width: 620px;
+    margin: 0 auto 60px;
+    font-size: 1.05rem;
+  }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .feature {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 26px;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  }
+  .feature:hover { transform: translateY(-4px); border-color: var(--accent); background: var(--card-hover); }
+  .feature .emoji {
+    font-size: 1.5rem;
+    margin-bottom: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+  .feature h3 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 700; }
+  .feature p { margin: 0; color: var(--muted); font-size: 0.94rem; }
+
+  /* Screenshots */
+  .shots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 32px;
+    align-items: start;
+  }
+  .shot {
+    text-align: center;
+    margin: 0;
+  }
+  .shot .frame {
+    padding: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 18px 50px var(--shadow);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    display: inline-block;
+    max-width: 100%;
+  }
+  .shot:hover .frame {
+    transform: translateY(-6px);
+    box-shadow: 0 26px 60px var(--shadow), 0 0 0 1px var(--accent);
+    border-color: transparent;
+  }
+  .shot img {
+    border-radius: 14px;
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+  }
+  .shot figcaption {
+    margin-top: 18px;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .shot .desc {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-top: 4px;
+  }
+  @media (max-width: 640px) {
+    .shots { grid-template-columns: 1fr; }
+  }
+
+  /* Privacy callout */
+  .privacy-wrap { position: relative; }
+  .privacy {
+    position: relative;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 60px 40px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .privacy h2 { margin-bottom: 16px; }
+  .privacy p { max-width: 640px; margin: 0 auto; color: var(--muted); font-size: 1.02rem; }
+
+  /* FAQ */
+  .faq { max-width: 760px; margin: 0 auto; }
+  .faq details {
+    border-bottom: 1px solid var(--border);
+    padding: 22px 0;
+  }
+  .faq details:first-of-type { border-top: 1px solid var(--border); }
+  .faq summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.05rem;
+    list-style: none;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px;
+    color: var(--text);
+    transition: color 0.15s ease;
+  }
+  .faq summary:hover { color: var(--accent); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "";
+    width: 14px; height: 14px;
+    flex-shrink: 0;
+    background: currentColor;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1v12M1 7h12' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1v12M1 7h12' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain; mask-size: contain;
+    transition: transform 0.25s ease;
+  }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { margin: 14px 0 0; color: var(--muted); }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 50px 0 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+  }
+  footer .brand-row {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 12px;
+    color: var(--text);
+    font-weight: 700;
+  }
+  footer .brand-row img { width: 26px; height: 26px; border-radius: 8px; }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+</style>
 </head>
 <body>
-  <h1>ReJournal</h1>
-  <p>A free, open-source mood logger and mental health journal app for Android.</p>
-  <p><a href="https://github.com/GalaxyJammed/ReJournal">View on GitHub</a></p>
+
+<nav>
+  <div class="container">
+    <div class="brand">
+      <img src="assets/icon.png" alt="ReJournal app icon — a heart-shaped book">
+      ReJournal
+    </div>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="#faq">FAQ</a>
+      <a class="gh" href="https://github.com/GalaxyJammed/ReJournal">
+        ★ GitHub
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <!-- Floating butterflies -->
+  <div class="butterfly" style="--src: url(assets/butterfly.svg); --size: 40px; --color: var(--accent); --opacity: 0.35; top: 12%; left: 8%; --rot: -12deg;"></div>
+  <div class="butterfly" style="--src: url(assets/butterfly-grass.svg); --size: 56px; --color: var(--warm); --opacity: 0.28; top: 22%; right: 10%; --rot: 14deg; animation-delay: -2s;"></div>
+  <div class="butterfly" style="--src: url(assets/butterfly-cloud.svg); --size: 48px; --color: var(--accent); --opacity: 0.22; top: 60%; left: 5%; --rot: 8deg; animation-delay: -4s;"></div>
+  <div class="butterfly" style="--src: url(assets/butterfly.svg); --size: 36px; --color: var(--warm); --opacity: 0.3; top: 70%; right: 7%; --rot: -10deg; animation-delay: -1s;"></div>
+
+  <div class="container">
+    <img class="icon" src="assets/icon.png" alt="ReJournal app icon">
+    <h1>Your soul will feel<br><span class="accent">rejuvenated</span></h1>
+    <p class="tagline">
+      A free, open-source mood logger and mental health journal for Android.
+      No ads. No subscriptions. Your data stays on your device.
+    </p>
+    <div class="ctas">
+      <a class="cta" href="https://github.com/GalaxyJammed/ReJournal/releases">
+        ⬇ Download for Android
+      </a>
+      <a class="cta secondary" href="https://github.com/GalaxyJammed/ReJournal">
+        View on GitHub
+      </a>
+    </div>
+    <div class="badges">
+      <img src="https://img.shields.io/badge/Kotlin-100%25-7F52FF?logo=kotlin&logoColor=white" alt="Written in Kotlin">
+      <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white" alt="Android">
+      <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="MIT License">
+      <img src="https://img.shields.io/badge/Price-Free-brightgreen" alt="Free">
+    </div>
+
+    <div class="hero-screenshot-wrap">
+      <img class="hero-screenshot" src="assets/hero.png" alt="ReJournal calendar view showing mood colors across the month">
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="container">
+    <h2>Everything you need, nothing you don't</h2>
+    <p class="lede">A calm, focused toolkit for building a daily journaling habit.</p>
+    <div class="features">
+      <div class="feature">
+        <span class="emoji">🔔</span>
+        <h3>Daily Check-ins</h3>
+        <p>Log mood, energy, productivity, stress, and sleep. Add activities, rich-text notes, photos, and voice memos.</p>
+      </div>
+      <div class="feature">
+        <span class="emoji">📊</span>
+        <h3>Mood Visualization</h3>
+        <p>Month calendar, year pixel view, trend chart, and a Mood Constellation you can save as art.</p>
+      </div>
+      <div class="feature">
+        <span class="emoji">🎯</span>
+        <h3>Goals &amp; Achievements</h3>
+        <p>Work toward personal goals, unlock tiered achievements, and write time capsules to your future self.</p>
+      </div>
+      <div class="feature">
+        <span class="emoji">🔄</span>
+        <h3>Habit Building</h3>
+        <p>Streak tracking, daily reminders, important days, and rotating supportive messages.</p>
+      </div>
+      <div class="feature">
+        <span class="emoji">🔒</span>
+        <h3>Privacy-First</h3>
+        <p>All data stored locally. App lock with fingerprint or PIN. No usage tracking, ever.</p>
+      </div>
+      <div class="feature">
+        <span class="emoji">💾</span>
+        <h3>Your Data, Your Control</h3>
+        <p>Export to CSV, full backup and restore including photos and voice memos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="screenshots" style="position: relative;">
+  <div class="butterfly" style="--src: url(assets/butterfly.svg); --size: 44px; --color: var(--accent); --opacity: 0.18; top: 60px; left: 4%; --rot: -14deg;"></div>
+  <div class="butterfly" style="--src: url(assets/butterfly-cloud.svg); --size: 52px; --color: var(--warm); --opacity: 0.18; bottom: 60px; right: 3%; --rot: 12deg; animation-delay: -3s;"></div>
+
+  <div class="container">
+    <h2>See it in action</h2>
+    <p class="lede">Themes and mood styles are fully customizable. These are the defaults.</p>
+    <div class="shots">
+      <figure class="shot">
+        <div class="frame">
+          <img src="assets/hero.png" alt="ReJournal calendar view with mood colors and streak counter">
+        </div>
+        <figcaption>Calendar</figcaption>
+        <div class="desc">Your month at a glance — colored by mood</div>
+      </figure>
+      <figure class="shot">
+        <div class="frame">
+          <img src="assets/stats.png" alt="ReJournal stats screen showing average mood, energy, and mood breakdown chart">
+        </div>
+        <figcaption>Stats</figcaption>
+        <div class="desc">Averages, breakdowns, and weekly insights</div>
+      </figure>
+      <figure class="shot">
+        <div class="frame">
+          <img src="assets/trend.png" alt="ReJournal mood trend line chart across the month">
+        </div>
+        <figcaption>Trend</figcaption>
+        <div class="desc">A mood line graph across the month</div>
+      </figure>
+      <figure class="shot">
+        <div class="frame">
+          <img src="assets/log-1.png" alt="ReJournal day logger showing mood picker, energy, productivity, stress, and sleep sliders">
+        </div>
+        <figcaption>Log — Mood &amp; Sliders</figcaption>
+        <div class="desc">Track five signals in under a minute</div>
+      </figure>
+      <figure class="shot">
+        <div class="frame">
+          <img src="assets/log-2.png" alt="ReJournal day logger showing activities, photos, voice memos, and rich-text notes">
+        </div>
+        <figcaption>Log — Activities &amp; Notes</figcaption>
+        <div class="desc">Tag your day, attach photos and voice</div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="privacy-wrap">
+      <div class="butterfly" style="--src: url(assets/butterfly-grass.svg); --size: 68px; --color: var(--warm); --opacity: 0.35; top: -20px; left: 30px; --rot: -8deg;"></div>
+      <div class="butterfly" style="--src: url(assets/butterfly.svg); --size: 56px; --color: var(--accent); --opacity: 0.35; bottom: -20px; right: 40px; --rot: 12deg; animation-delay: -2s;"></div>
+      <div class="privacy">
+        <h2>🔒 Private by design</h2>
+        <p>
+          ReJournal never uploads your data to any server. Everything — entries, photos, voice memos —
+          is stored locally on your Android device. No accounts, no analytics, no ads. Just you and your journal.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <h2>Frequently asked questions</h2>
+    <p class="lede">Common questions about ReJournal.</p>
+    <div class="faq">
+      <details>
+        <summary>Is ReJournal really free?</summary>
+        <p>Yes. ReJournal is completely free, open-source, and subscription-free. There are no ads, no premium tiers, and no hidden costs.</p>
+      </details>
+      <details>
+        <summary>Does ReJournal work offline?</summary>
+        <p>Yes. All data is stored locally on your Android device. The app works fully offline and never requires an internet connection.</p>
+      </details>
+      <details>
+        <summary>Is my mood data private?</summary>
+        <p>Yes. ReJournal never uploads your data to any server. Everything is stored locally, and you control exports and backups. You can also lock the app with a fingerprint or PIN.</p>
+      </details>
+      <details>
+        <summary>What is the minimum Android version?</summary>
+        <p>ReJournal requires Android 8.0 (API level 26) or higher.</p>
+      </details>
+      <details>
+        <summary>Can I export my mood data?</summary>
+        <p>Yes. You can export all entries to CSV for Excel or Google Sheets, and perform full backups that include photos and voice memos.</p>
+      </details>
+      <details>
+        <summary>How is ReJournal different from other mood loggers?</summary>
+        <p>ReJournal is free and open-source, stores everything locally, has no ads or subscriptions, and includes features like voice memos, time capsules, and personality tests that many paid apps lack.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="brand-row">
+      <img src="assets/icon.png" alt="">
+      ReJournal
+    </div>
+    <p>MIT Licensed · Made with care · <a href="https://github.com/GalaxyJammed/ReJournal">GitHub</a></p>
+  </div>
+</footer>
+
 </body>
 </html>
