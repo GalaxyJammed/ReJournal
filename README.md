@@ -11,6 +11,8 @@
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?logo=mit)
 ![Project Status](https://img.shields.io/badge/Project%20Status-WIP-blue)
 
+⭐ **If ReJournal helps you, please star this repository. It helps other users in need find the project.**
+
 </div>
 
 ## What is ReJournal?
@@ -32,9 +34,9 @@ ReJournal is a free, open-source mood logger and mental health journal app for A
 
 ---
 
-## Features
+## Mood Tracking Features
 
-### 🔔 Daily check-ins
+### 🔔 Daily Mood and Habit Logging
 - Log your **mood** (1–5 scale) along with **Energy**, **Productivity**, **Stress**, and **Sleep** sliders
 - Tag your day with **activities** - pick from defaults, add your own custom tags, and give each one its own icon
 - **Rich text notes**: bold, italic, underline, strikethrough, bullet/numbered lists, and custom text colors, plus a full-screen "Expand Note" mode
@@ -60,7 +62,7 @@ ReJournal is a free, open-source mood logger and mental health journal app for A
 </table>
 </div>
 
-### 😌 Visualize your mood
+### 😌 Mood Tracking Charts and Visualization
 - **Month calendar view** - each day colored by mood, depending on the emoji/color you picked, with small icons marking Important and Favorite days
 - **Year pixel view** - your entire year at a glance, one tiny colored square per day
 - **Trend chart** - a mood line graph for the current month, properly spaced by real calendar dates, with filters for mood, sliders, and activities. Tap it to expand into a full, swipeable view of the entire month
@@ -91,7 +93,7 @@ ReJournal is a free, open-source mood logger and mental health journal app for A
 </table>
 </div>
 
-### 📊 Stats & Insights
+### 📊 Mood Statistics and Mental Health Insights
 - Switch between **Week / Month / Year** views
 - Mood breakdown chart, average mood/energy/productivity/stress/sleep
 - Best & toughest day of the week/month/year (based on your averages)
@@ -121,12 +123,12 @@ ReJournal is a free, open-source mood logger and mental health journal app for A
 - **Mood Appearance**: switch between emoji or colored circles to represent mood, choose from preset color palettes or set your own custom hex colors, and even swap in your own custom emoji
 - **Profile**: set a nickname (and optional age) for a more personal touch, including time-of-day greetings on the day logger
 
-### 🔒 Privacy & Security
+### 🔒 Privacy-First Local Data Storage
 - Everything is stored **locally** - nothing leaves your device unless you choose to
 - **App Lock**: protect the app with fingerprint, a 4-digit PIN, or both
 - This app will never ask for any usage data. Everything from logging is only available to the user that downloaded the app. Nothing is shared.
 
-### 💾 Your data, your control
+### 💾 Export, Backup, and Restore Mood Data
 - **Export to CSV** anytime, ready to open in Excel/Sheets or attach to an email/back it up to cloud storage of your choice
 - **Full backup & restore**: export everything (entries, photos, and voice memos) as a single file, and import it back on this device or a new one
 - **Calendar Sync**: automatically mark this month's device calendar events as Important Days
@@ -139,7 +141,7 @@ ReJournal is a free, open-source mood logger and mental health journal app for A
 
 ---
 
-## Setup
+## 🛠️ Setup
 
 1. Download the APK from [Releases](../../releases)
 2. Click on the **+** or any day you'd like to log an entry
@@ -148,7 +150,30 @@ Simple and easy!
 
 ---
 
+## ❓ Frequently Asked Questions
+
+### Is ReJournal free?
+Yes. ReJournal is completely free, open-source, and subscription-free. There are no ads, no premium tiers, and no hidden costs.
+
+### Does ReJournal work offline?
+Yes. All data is stored locally on your Android device. The app works fully offline and never requires an internet connection.
+
+### Is my mood data private?
+Yes. ReJournal never uploads your data to any server. Everything is stored locally, and you control exports and backups.
+
+### What is the minimum Android version?
+ReJournal requires Android 8.0 (API level 26) or higher.
+
+### Can I export my mood data?
+Yes. You can export all entries to CSV for Excel or Google Sheets, and perform full backups that include photos and voice memos.
+
+### How is ReJournal different from other mood loggers?
+ReJournal is free and open-source, stores everything locally, has no ads or subscriptions, and includes features like voice memos, time capsules, personality tests and even unique ideas that many paid apps lack/put behind a paywall.
+
+---
+
 ## Bug Reports/Suggestions
 - Feel free to report any bug reports/suggestions by opening an [issue](https://github.com/GalaxyJammed/ReJournal/issues) or [discussion](https://github.com/GalaxyJammed/ReJournal/discussions) thread!
+- You can even report any bugs/give feedback inside of the app in 'More' -> 'About' -> 'Contact Us'!
 
 ---
