@@ -257,11 +257,6 @@ fun SettingsScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         IconPill(icon = Icons.Filled.Star)
                         Column(modifier = Modifier.padding(start = 16.dp)) {
                             Text("Micro-Win reminder", style = MaterialTheme.typography.titleMedium)
-                            Text(
-                                "Random daily reminder if not logged yet",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                     Switch(

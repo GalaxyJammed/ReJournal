@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.QuestionAnswer
@@ -38,6 +39,7 @@ fun AboutScreen(
     onWhatsNewClick: () -> Unit,
     onFaqClick: () -> Unit,
     onNotificationTroubleshootClick: () -> Unit,
+    onFeedbackClick: () -> Unit,
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -64,6 +66,8 @@ fun AboutScreen(
                 CategoryLabelPublic("Troubleshooting")
                 AboutCard {
                     AboutRow(Icons.Filled.NotificationsActive, "Notifications not working?", onNotificationTroubleshootClick)
+                    HorizontalDivider()
+                    AboutRow(Icons.Filled.Feedback, "Contact Us", onFeedbackClick)
                 }
             }
         }

@@ -78,6 +78,7 @@ import com.example.rejournal.BuildConfig
 import com.example.rejournal.data.AvailableUpdate
 import com.example.rejournal.data.VersionCheckHelper
 import com.example.rejournal.data.VersionCheckPrefs
+import com.example.rejournal.notifications.UpdateNotificationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -186,12 +187,25 @@ fun LogScreen(
     var availableUpdate by remember { mutableStateOf(VersionCheckPrefs.getCachedUpdate(context)) }
 
     LaunchedEffect(Unit) {
+        availableUpdate?.let { update ->
+            if (!VersionCheckPrefs.hasNotifiedVersion(context, update.version)) {
+                VersionCheckPrefs.markVersionNotified(context, update.version)
+                UpdateNotificationHelper.showNotification(context, update)
+            }
+        }
+
         if (!VersionCheckPrefs.hasCheckedToday(context)) {
             val result = withContext(Dispatchers.IO) {
                 VersionCheckHelper.checkForUpdate(BuildConfig.VERSION_NAME)
             }
             VersionCheckPrefs.saveResult(context, result)
             availableUpdate = result
+            result?.let { update ->
+                if (!VersionCheckPrefs.hasNotifiedVersion(context, update.version)) {
+                    VersionCheckPrefs.markVersionNotified(context, update.version)
+                    UpdateNotificationHelper.showNotification(context, update)
+                }
+            }
         }
     }
 

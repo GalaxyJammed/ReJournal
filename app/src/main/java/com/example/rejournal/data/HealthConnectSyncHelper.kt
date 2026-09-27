@@ -5,10 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -25,7 +25,7 @@ object HealthConnectSyncHelper {
         HealthPermission.getReadPermission(StepsRecord::class),
         HealthPermission.getReadPermission(ExerciseSessionRecord::class),
         HealthPermission.getReadPermission(SleepSessionRecord::class),
-        HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
+        HealthPermission.getReadPermission(ActiveCaloriesBurnedRecord::class),
         HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
     )
 
@@ -70,7 +70,13 @@ object HealthConnectSyncHelper {
         if (!isSdkAvailable(context)) return false
         val client = HealthConnectClient.getOrCreate(context)
         val granted = client.permissionController.getGrantedPermissions()
-        return granted.containsAll(REQUIRED_PERMISSIONS)
+        val basicPermissions = setOf(
+            HealthPermission.getReadPermission(StepsRecord::class),
+            HealthPermission.getReadPermission(ExerciseSessionRecord::class),
+            HealthPermission.getReadPermission(SleepSessionRecord::class),
+            HealthPermission.getReadPermission(ActiveCaloriesBurnedRecord::class)
+        )
+        return granted.containsAll(basicPermissions)
     }
 
     suspend fun syncHealthData(context: Context, repository: MoodRepository): Int {
@@ -84,6 +90,7 @@ object HealthConnectSyncHelper {
 
         var newWinsCount = 0
 
+        // 1. Sync Step Count Milestones
         if (HealthConnectSyncPrefs.isStepsSyncEnabled(context)) {
             try {
                 val stepRequest = AggregateRequest(
@@ -110,6 +117,7 @@ object HealthConnectSyncHelper {
             }
         }
 
+        // 2. Sync Workouts / Exercise Sessions
         if (HealthConnectSyncPrefs.isWorkoutsSyncEnabled(context)) {
             try {
                 val startTime = now.minus(Duration.ofDays(7))
@@ -144,6 +152,7 @@ object HealthConnectSyncHelper {
             }
         }
 
+        // 3. Sync Sleep Sessions
         if (HealthConnectSyncPrefs.isSleepSyncEnabled(context)) {
             try {
                 val startTime = now.minus(Duration.ofDays(7))
@@ -175,23 +184,24 @@ object HealthConnectSyncHelper {
             }
         }
 
+        // 4. Sync Active Calories Burned
         if (HealthConnectSyncPrefs.isCaloriesSyncEnabled(context)) {
             try {
                 val calorieRequest = AggregateRequest(
-                    metrics = setOf(TotalCaloriesBurnedRecord.ENERGY_TOTAL),
+                    metrics = setOf(ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL),
                     timeRangeFilter = TimeRangeFilter.between(startOfToday, now)
                 )
                 val response = client.aggregate(calorieRequest)
-                val totalEnergy = response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]
-                val totalCalories = totalEnergy?.inKilocalories?.toInt() ?: 0
+                val activeEnergy = response[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]
+                val activeCalories = activeEnergy?.inKilocalories?.toInt() ?: 0
                 val calorieGoal = HealthConnectSyncPrefs.getCalorieGoal(context)
 
                 val milestoneKey = "${today}_${calorieGoal}"
                 val syncedMilestones = HealthConnectSyncPrefs.getSyncedCalorieMilestones(context)
 
-                if (totalCalories >= calorieGoal && !syncedMilestones.contains(milestoneKey)) {
-                    val formattedCalories = String.format(Locale.getDefault(), "%,d", totalCalories)
-                    val winTitle = "🔥 Burned $formattedCalories kcal today!"
+                if (activeCalories >= calorieGoal && !syncedMilestones.contains(milestoneKey)) {
+                    val formattedCalories = String.format(Locale.getDefault(), "%,d", activeCalories)
+                    val winTitle = "🔥 Burned $formattedCalories active kcal today!"
                     repository.saveMicroWin(MicroWin(title = winTitle, date = today))
                     HealthConnectSyncPrefs.addSyncedCalorieMilestone(context, milestoneKey)
                     HealthConnectNotificationHelper.showGoalReachedNotification(context, winTitle)

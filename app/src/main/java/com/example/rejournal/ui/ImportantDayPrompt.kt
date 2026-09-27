@@ -32,6 +32,10 @@ import androidx.compose.ui.unit.dp
 import com.example.rejournal.data.ImportantDay
 import java.time.LocalDate
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+
 @Composable
 fun ImportantDayPrompt(
     date: LocalDate,
@@ -40,7 +44,23 @@ fun ImportantDayPrompt(
     onRemove: () -> Unit,
     onCancel: () -> Unit
 ) {
-    var message by remember(existing) { mutableStateOf(existing?.message ?: "") }
+    val initialMessage = existing?.message ?: ""
+    var message by remember(existing) { mutableStateOf(initialMessage) }
+    var showUnsavedChangesDialog by remember { mutableStateOf(false) }
+
+    val hasUnsavedChanges = message != initialMessage
+
+    val handleCancel = {
+        if (hasUnsavedChanges) {
+            showUnsavedChangesDialog = true
+        } else {
+            onCancel()
+        }
+    }
+
+    BackHandler(enabled = hasUnsavedChanges) {
+        showUnsavedChangesDialog = true
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -109,7 +129,7 @@ fun ImportantDayPrompt(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
+                        OutlinedButton(onClick = handleCancel, modifier = Modifier.weight(1f)) {
                             Text("Close")
                         }
                         if (existing != null) {
@@ -121,5 +141,26 @@ fun ImportantDayPrompt(
                 }
             }
         }
+    }
+
+    if (showUnsavedChangesDialog) {
+        AlertDialog(
+            onDismissRequest = { showUnsavedChangesDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    showUnsavedChangesDialog = false
+                    onCancel()
+                }) {
+                    Text("Exit")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnsavedChangesDialog = false }) {
+                    Text("Keep Editing")
+                }
+            },
+            title = { Text("Unsaved Changes") },
+            text = { Text("Are you sure you want to exit? You have unsaved changes.") }
+        )
     }
 }

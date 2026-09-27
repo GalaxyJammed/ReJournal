@@ -29,4 +29,17 @@ object VersionCheckPrefs {
         val url = prefs.getString(KEY_CACHED_URL, null) ?: return null
         return AvailableUpdate(version, url)
     }
+
+    private const val KEY_NOTIFIED_VERSION = "notified_version"
+
+    fun hasNotifiedVersion(context: Context, version: String): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_NOTIFIED_VERSION, null) == version
+    }
+
+    fun markVersionNotified(context: Context, version: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putString(KEY_NOTIFIED_VERSION, version)
+            .apply()
+    }
 }

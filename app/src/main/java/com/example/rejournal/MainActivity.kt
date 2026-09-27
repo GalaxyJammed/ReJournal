@@ -78,6 +78,7 @@ import com.example.rejournal.ui.SyncScreen
 import com.example.rejournal.ui.WhatsNewScreen
 import com.example.rejournal.ui.FaqScreen
 import com.example.rejournal.ui.AboutScreen
+import com.example.rejournal.ui.FeedbackScreen
 import com.example.rejournal.ui.NotificationTroubleshootScreen
 import com.example.rejournal.ui.theme.MoodVisualsState
 import com.example.rejournal.ui.SplashGate
@@ -394,8 +395,9 @@ fun AppNavHost(repository: MoodRepository, activity: FragmentActivity) {
             composable(Screen.Profile.route) { Box(Modifier.fillMaxSize()) { ProfileScreen(onBack = { navController.popBackStack() }) } }
             composable(Screen.Sync.route) { Box(Modifier.fillMaxSize()) { SyncScreen(viewModel = viewModel, onBack = { navController.popBackStack() }) } }
             composable(Screen.About.route) {
-                Box(Modifier.fillMaxSize()) { AboutScreen(onWhatsNewClick = { navController.navigate(Screen.WhatsNew.route) }, onFaqClick = { navController.navigate(Screen.Faq.route) }, onNotificationTroubleshootClick = { navController.navigate(Screen.NotificationTroubleshoot.route) }, onBack = { navController.popBackStack() }) }
+                Box(Modifier.fillMaxSize()) { AboutScreen(onWhatsNewClick = { navController.navigate(Screen.WhatsNew.route) }, onFaqClick = { navController.navigate(Screen.Faq.route) }, onNotificationTroubleshootClick = { navController.navigate(Screen.NotificationTroubleshoot.route) }, onFeedbackClick = { navController.navigate(Screen.Feedback.route) }, onBack = { navController.popBackStack() }) }
             }
+            composable(Screen.Feedback.route) { Box(Modifier.fillMaxSize()) { FeedbackScreen(onBack = { navController.popBackStack() }) } }
             composable(Screen.NotificationTroubleshoot.route) { Box(Modifier.fillMaxSize()) { NotificationTroubleshootScreen(onBack = { navController.popBackStack() }) } }
             composable(Screen.Tests.route) {
                 Box(Modifier.fillMaxSize()) { TestsScreen(onMbtiClick = { navController.navigate(Screen.MbtiTest.route) }, onNpiClick = { navController.navigate(Screen.NpiTest.route) }, onDarkTriadClick = { navController.navigate(Screen.DarkTriadTest.route) }, onBigFiveClick = { navController.navigate(Screen.BigFiveTest.route) }, onSelfEsteemClick = { navController.navigate(Screen.SelfEsteemTest.route) }, onResilienceClick = { navController.navigate(Screen.ResilienceTest.route) }, onBack = { navController.popBackStack() }) }

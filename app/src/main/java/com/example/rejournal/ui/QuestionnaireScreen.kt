@@ -7,6 +7,7 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import com.example.rejournal.ui.components.PastelIcon
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -141,6 +142,20 @@ fun QuestionnaireScreen(
     var audioPaths by remember { mutableStateOf(listOf<String>()) }
     var pendingPhotoFile by remember { mutableStateOf<File?>(null) }
 
+    var initialSelectedMood by remember { mutableStateOf<Int?>(null) }
+    var initialEnergy by remember { mutableStateOf(3f) }
+    var initialProductivity by remember { mutableStateOf(3f) }
+    var initialStress by remember { mutableStateOf(3f) }
+    var initialSleep by remember { mutableStateOf(3f) }
+    var initialSelectedActivities by remember { mutableStateOf(setOf<String>()) }
+    var initialNoteRawText by remember { mutableStateOf("") }
+    var initialNoteStickers by remember { mutableStateOf<List<NoteSticker>>(emptyList()) }
+    var initialPhotoPaths by remember { mutableStateOf(listOf<String>()) }
+    var initialAudioPaths by remember { mutableStateOf(listOf<String>()) }
+    var initialIsFavorite by remember { mutableStateOf(false) }
+
+    var showUnsavedChangesDialog by remember { mutableStateOf(false) }
+
     val isFutureDate = date.isAfter(LocalDate.now())
     var existingImportantDay by remember { mutableStateOf<ImportantDay?>(null) }
 
@@ -162,11 +177,48 @@ fun QuestionnaireScreen(
             stress = entry.stress.toFloat()
             sleep = entry.sleep.toFloat()
             selectedActivities = entry.activities.toSet()
-            noteValue = richNoteValueFromRaw(entry.note)
+            val parsedNote = richNoteValueFromRaw(entry.note)
+            noteValue = parsedNote
             noteStickers = entry.stickers
             photoPaths = entry.photoPaths
             audioPaths = entry.audioPaths
             isFavorite = entry.isFavorite
+
+            initialSelectedMood = entry.mood
+            initialEnergy = entry.energy.toFloat()
+            initialProductivity = entry.productivity.toFloat()
+            initialStress = entry.stress.toFloat()
+            initialSleep = entry.sleep.toFloat()
+            initialSelectedActivities = entry.activities.toSet()
+            initialNoteRawText = parsedNote.toRawText()
+            initialNoteStickers = entry.stickers
+            initialPhotoPaths = entry.photoPaths
+            initialAudioPaths = entry.audioPaths
+            initialIsFavorite = entry.isFavorite
+        } else {
+            selectedMood = null
+            energy = 3f
+            productivity = 3f
+            stress = 3f
+            sleep = 3f
+            selectedActivities = emptySet()
+            noteValue = RichNoteValue()
+            noteStickers = emptyList()
+            photoPaths = emptyList()
+            audioPaths = emptyList()
+            isFavorite = false
+
+            initialSelectedMood = null
+            initialEnergy = 3f
+            initialProductivity = 3f
+            initialStress = 3f
+            initialSleep = 3f
+            initialSelectedActivities = emptySet()
+            initialNoteRawText = ""
+            initialNoteStickers = emptyList()
+            initialPhotoPaths = emptyList()
+            initialAudioPaths = emptyList()
+            initialIsFavorite = false
         }
         hasLoaded = true
         if (isFutureDate) {
@@ -205,6 +257,44 @@ fun QuestionnaireScreen(
         cameraLauncher.launch(uri)
     }
 
+    val hasUnsavedChanges = remember(
+        selectedMood, initialSelectedMood,
+        energy, initialEnergy,
+        productivity, initialProductivity,
+        stress, initialStress,
+        sleep, initialSleep,
+        selectedActivities, initialSelectedActivities,
+        noteValue, initialNoteRawText,
+        noteStickers, initialNoteStickers,
+        photoPaths, initialPhotoPaths,
+        audioPaths, initialAudioPaths,
+        isFavorite, initialIsFavorite
+    ) {
+        selectedMood != initialSelectedMood ||
+                energy != initialEnergy ||
+                productivity != initialProductivity ||
+                stress != initialStress ||
+                sleep != initialSleep ||
+                selectedActivities != initialSelectedActivities ||
+                noteValue.toRawText() != initialNoteRawText ||
+                noteStickers != initialNoteStickers ||
+                photoPaths != initialPhotoPaths ||
+                audioPaths != initialAudioPaths ||
+                isFavorite != initialIsFavorite
+    }
+
+    val handleBack = {
+        if (hasUnsavedChanges) {
+            showUnsavedChangesDialog = true
+        } else {
+            onBack()
+        }
+    }
+
+    BackHandler(enabled = hasUnsavedChanges) {
+        showUnsavedChangesDialog = true
+    }
+
     if (!hasLoaded) return
 
     if (isFutureDate) {
@@ -212,7 +302,7 @@ fun QuestionnaireScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("$date") },
-                    navigationIcon = { BackButton(onBack) }
+                    navigationIcon = { BackButton(handleBack) }
                 )
             }
         ) { padding: PaddingValues ->
@@ -228,7 +318,7 @@ fun QuestionnaireScreen(
                         existingImportantDay?.let { viewModel.deleteImportantDay(it) }
                         onDone()
                     },
-                    onCancel = onDone
+                    onCancel = handleBack
                 )
             }
         }
@@ -239,7 +329,7 @@ fun QuestionnaireScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("$date") },
-                navigationIcon = { BackButton(onBack) },
+                navigationIcon = { BackButton(handleBack) },
                 actions = {
                     IconButton(onClick = { isFavorite = !isFavorite }) {
                         PastelIcon(
@@ -424,7 +514,7 @@ fun QuestionnaireScreen(
                 }
 
                 Button(
-                    onClick = onDone,
+                    onClick = handleBack,
                     modifier = Modifier.weight(1f)
                 ) { Text("Cancel") }
 
@@ -577,6 +667,26 @@ fun QuestionnaireScreen(
             showToolkit = false
             onDone()
         })
+    }
+    if (showUnsavedChangesDialog) {
+        AlertDialog(
+            onDismissRequest = { showUnsavedChangesDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    showUnsavedChangesDialog = false
+                    onBack()
+                }) {
+                    Text("Exit")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnsavedChangesDialog = false }) {
+                    Text("Keep Editing")
+                }
+            },
+            title = { Text("Unsaved Changes") },
+            text = { Text("Are you sure you want to exit? You have unsaved changes.") }
+        )
     }
 }
 

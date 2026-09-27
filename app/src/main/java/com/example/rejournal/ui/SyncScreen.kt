@@ -6,9 +6,8 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,15 +19,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -58,17 +62,19 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
 
+    // Calendar sync state
     var hasCalendarPermission by remember { mutableStateOf(viewModel.hasCalendarPermission()) }
     var calendars by remember { mutableStateOf<List<CalendarInfo>>(emptyList()) }
     var selectedIds by remember { mutableStateOf(CalendarSyncPrefs.getSelectedCalendarIds(context)) }
     var lastSyncedMonth by remember { mutableStateOf(CalendarSyncPrefs.getLastSyncedMonth(context)) }
     var syncMessage by remember { mutableStateOf<String?>(null) }
 
+    // Health Connect sync state
     val isSdkAvailable = remember { HealthConnectSyncHelper.isSdkAvailable(context) }
     var isHealthSyncEnabled by remember { mutableStateOf(HealthConnectSyncPrefs.isEnabled(context)) }
     var hasHealthPermissions by remember { mutableStateOf(false) }
@@ -85,6 +91,7 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     var lastHealthSyncedTime by remember { mutableStateOf(HealthConnectSyncPrefs.getLastSyncedTime(context)) }
     var healthSyncMessage by remember { mutableStateOf<String?>(null) }
 
+    // Dialog state for custom goals
     var showCustomStepDialog by remember { mutableStateOf(false) }
     var showCustomSleepDialog by remember { mutableStateOf(false) }
     var showCustomCalorieDialog by remember { mutableStateOf(false) }
@@ -143,6 +150,7 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            // Calendar Sync Section
             Text("Calendar Sync", style = MaterialTheme.typography.titleLarge)
 
             ButterflyCardWrapper(seed = "SyncInfo", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
@@ -226,6 +234,7 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
 
             HorizontalDivider()
 
+            // Health Connect Sync Section
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -283,7 +292,7 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         ) {
                             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 Text(
-                                    "Grant Health Connect access to read steps, workouts, sleep, and calorie stats.",
+                                    "Grant Health Connect access to read steps, workouts, sleep, and active calorie stats.",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Button(
@@ -308,6 +317,7 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                         }
                     }
                 } else {
+                    // Settings for Health Connect
                     ButterflyCardWrapper(seed = "HealthSettingsCard", modifier = Modifier.fillMaxWidth()) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -320,6 +330,7 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                             ) {
                                 Text("Target Goals & Categories", style = MaterialTheme.typography.titleMedium)
 
+                                // 1. Steps Category
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
@@ -338,41 +349,24 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                     Column(modifier = Modifier.padding(start = 32.dp)) {
                                         Text("Daily Step Goal Target:", style = MaterialTheme.typography.bodySmall)
                                         Spacer(modifier = Modifier.height(4.dp))
-                                        FlowRow(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            stepPresets.forEach { preset ->
-                                                FilterChip(
-                                                    selected = stepGoal == preset,
-                                                    onClick = {
-                                                        stepGoal = preset
-                                                        HealthConnectSyncPrefs.setStepGoal(context, preset)
-                                                    },
-                                                    label = { Text("%,d steps".format(Locale.getDefault(), preset)) }
-                                                )
+                                        GoalDropdownMenu(
+                                            label = "Step Goal",
+                                            selectedValue = stepGoal,
+                                            presets = stepPresets,
+                                            formatValue = { "%,d steps".format(Locale.getDefault(), it) },
+                                            onSelectPreset = { preset ->
+                                                stepGoal = preset
+                                                HealthConnectSyncPrefs.setStepGoal(context, preset)
+                                            },
+                                            onSelectCustom = {
+                                                customStepInput = stepGoal.toString()
+                                                showCustomStepDialog = true
                                             }
-                                            val isCustomStep = stepGoal !in stepPresets
-                                            FilterChip(
-                                                selected = isCustomStep,
-                                                onClick = {
-                                                    customStepInput = stepGoal.toString()
-                                                    showCustomStepDialog = true
-                                                },
-                                                label = {
-                                                    Text(
-                                                        if (isCustomStep) {
-                                                            "+ Custom (%,d steps)".format(Locale.getDefault(), stepGoal)
-                                                        } else {
-                                                            "+ Custom"
-                                                        }
-                                                    )
-                                                }
-                                            )
-                                        }
+                                        )
                                     }
                                 }
 
+                                // 2. Workouts Category
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
@@ -387,6 +381,7 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                     Text("🏃 Workouts & Strava Activities", style = MaterialTheme.typography.bodyMedium)
                                 }
 
+                                // 3. Sleep Category
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
@@ -405,41 +400,24 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                     Column(modifier = Modifier.padding(start = 32.dp)) {
                                         Text("Sleep Hours Target:", style = MaterialTheme.typography.bodySmall)
                                         Spacer(modifier = Modifier.height(4.dp))
-                                        FlowRow(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            sleepPresets.forEach { preset ->
-                                                FilterChip(
-                                                    selected = sleepGoalHours == preset,
-                                                    onClick = {
-                                                        sleepGoalHours = preset
-                                                        HealthConnectSyncPrefs.setSleepGoalHours(context, preset)
-                                                    },
-                                                    label = { Text("${preset} hours") }
-                                                )
+                                        GoalDropdownMenu(
+                                            label = "Sleep Goal",
+                                            selectedValue = sleepGoalHours,
+                                            presets = sleepPresets,
+                                            formatValue = { "$it hours" },
+                                            onSelectPreset = { preset ->
+                                                sleepGoalHours = preset
+                                                HealthConnectSyncPrefs.setSleepGoalHours(context, preset)
+                                            },
+                                            onSelectCustom = {
+                                                customSleepInput = sleepGoalHours.toString()
+                                                showCustomSleepDialog = true
                                             }
-                                            val isCustomSleep = sleepGoalHours !in sleepPresets
-                                            FilterChip(
-                                                selected = isCustomSleep,
-                                                onClick = {
-                                                    customSleepInput = sleepGoalHours.toString()
-                                                    showCustomSleepDialog = true
-                                                },
-                                                label = {
-                                                    Text(
-                                                        if (isCustomSleep) {
-                                                            "+ Custom (${sleepGoalHours} hrs)"
-                                                        } else {
-                                                            "+ Custom"
-                                                        }
-                                                    )
-                                                }
-                                            )
-                                        }
+                                        )
                                     }
                                 }
 
+                                // 4. Active Calories Category
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
@@ -451,45 +429,27 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                             HealthConnectSyncPrefs.setCaloriesSyncEnabled(context, checked)
                                         }
                                     )
-                                    Text("🔥 Daily Calories Burned", style = MaterialTheme.typography.bodyMedium)
+                                    Text("🔥 Active Calories Burned", style = MaterialTheme.typography.bodyMedium)
                                 }
 
                                 if (syncCalories) {
                                     Column(modifier = Modifier.padding(start = 32.dp)) {
-                                        Text("Daily Calorie Target:", style = MaterialTheme.typography.bodySmall)
+                                        Text("Daily Active Calorie Target:", style = MaterialTheme.typography.bodySmall)
                                         Spacer(modifier = Modifier.height(4.dp))
-                                        FlowRow(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            caloriePresets.forEach { preset ->
-                                                FilterChip(
-                                                    selected = calorieGoal == preset,
-                                                    onClick = {
-                                                        calorieGoal = preset
-                                                        HealthConnectSyncPrefs.setCalorieGoal(context, preset)
-                                                    },
-                                                    label = { Text("%,d kcal".format(Locale.getDefault(), preset)) }
-                                                )
+                                        GoalDropdownMenu(
+                                            label = "Calorie Goal",
+                                            selectedValue = calorieGoal,
+                                            presets = caloriePresets,
+                                            formatValue = { "%,d active kcal".format(Locale.getDefault(), it) },
+                                            onSelectPreset = { preset ->
+                                                calorieGoal = preset
+                                                HealthConnectSyncPrefs.setCalorieGoal(context, preset)
+                                            },
+                                            onSelectCustom = {
+                                                customCalorieInput = calorieGoal.toString()
+                                                showCustomCalorieDialog = true
                                             }
-                                            val isCustomCalorie = calorieGoal !in caloriePresets
-                                            FilterChip(
-                                                selected = isCustomCalorie,
-                                                onClick = {
-                                                    customCalorieInput = calorieGoal.toString()
-                                                    showCustomCalorieDialog = true
-                                                },
-                                                label = {
-                                                    Text(
-                                                        if (isCustomCalorie) {
-                                                            "+ Custom (%,d kcal)".format(Locale.getDefault(), calorieGoal)
-                                                        } else {
-                                                            "+ Custom"
-                                                        }
-                                                    )
-                                                }
-                                            )
-                                        }
+                                        )
                                     }
                                 }
 
@@ -627,12 +587,12 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     if (showCustomCalorieDialog) {
         AlertDialog(
             onDismissRequest = { showCustomCalorieDialog = false },
-            title = { Text("Custom Calorie Target") },
+            title = { Text("Custom Active Calorie Target") },
             text = {
                 OutlinedTextField(
                     value = customCalorieInput,
                     onValueChange = { customCalorieInput = it.filter { char -> char.isDigit() } },
-                    label = { Text("Calories (kcal) Goal") },
+                    label = { Text("Active Calories (kcal) Goal") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -658,5 +618,66 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 }
             }
         )
+    }
+}
+
+@Composable
+fun <T> GoalDropdownMenu(
+    label: String,
+    selectedValue: T,
+    presets: List<T>,
+    formatValue: (T) -> String,
+    onSelectPreset: (T) -> Unit,
+    onSelectCustom: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val isCustom = selectedValue !in presets
+
+    val displayText = if (isCustom) {
+        "${formatValue(selectedValue)} (Custom)"
+    } else {
+        formatValue(selectedValue)
+    }
+
+    Box(modifier = modifier) {
+        OutlinedButton(
+            onClick = { expanded = true },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(displayText, style = MaterialTheme.typography.bodyMedium)
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Select $label"
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            presets.forEach { preset ->
+                DropdownMenuItem(
+                    text = { Text(formatValue(preset)) },
+                    onClick = {
+                        onSelectPreset(preset)
+                        expanded = false
+                    }
+                )
+            }
+            DropdownMenuItem(
+                text = { Text("+ Custom...") },
+                onClick = {
+                    expanded = false
+                    onSelectCustom()
+                }
+            )
+        }
     }
 }

@@ -41,6 +41,10 @@ class RejournalApplication : Application() {
                 NotificationChannel("time_capsules", "Time Capsules", NotificationManager.IMPORTANCE_HIGH)
                     .apply { description = "Notifies you when a scheduled time capsule arrives" }
             )
+            manager.createNotificationChannel(
+                NotificationChannel("app_updates", "App Updates", NotificationManager.IMPORTANCE_DEFAULT)
+                    .apply { description = "Notifies you when a new version of ReJournal is available on GitHub" }
+            )
         }
     }
 }

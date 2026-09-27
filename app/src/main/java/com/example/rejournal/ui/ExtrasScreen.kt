@@ -90,8 +90,6 @@ fun ExtrasScreen(
             ExtrasCard(titleSeed = "Goals", index = 0) {
                 ExtrasRow(Icons.Filled.EmojiEvents, "Goals", onGoalsClick, count = activeGoalsCount)
                 HorizontalDivider()
-                ExtrasRow(Icons.Filled.History, "Time Capsules", onTimeCapsulesClick, count = timeCapsulesCount)
-                HorizontalDivider()
                 ExtrasRow(Icons.Filled.MilitaryTech, "Achievements", onAchievementsClick)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.Quiz, "Tests", onTestsClick)
@@ -99,6 +97,8 @@ fun ExtrasScreen(
 
             ExtrasCard(titleSeed = "Media", index = 1) {
                 ExtrasRow(Icons.Filled.Album, "Emotional Mixtapes", onEmotionalMixtapesClick, count = mixtapesCount)
+                HorizontalDivider()
+                ExtrasRow(Icons.Filled.History, "Time Capsules", onTimeCapsulesClick, count = timeCapsulesCount)
                 HorizontalDivider()
                 ExtrasRow(Icons.Filled.PhotoLibrary, "Photo Album", onPhotoAlbumClick, count = photoAlbumCount)
                 HorizontalDivider()
