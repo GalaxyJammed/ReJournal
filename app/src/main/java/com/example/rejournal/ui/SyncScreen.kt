@@ -67,6 +67,7 @@ import java.util.Locale
 fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
 
+    var isCalendarSyncEnabled by remember { mutableStateOf(CalendarSyncPrefs.isEnabled(context)) }
     var hasCalendarPermission by remember { mutableStateOf(viewModel.hasCalendarPermission()) }
     var calendars by remember { mutableStateOf<List<CalendarInfo>>(emptyList()) }
     var selectedIds by remember { mutableStateOf(CalendarSyncPrefs.getSelectedCalendarIds(context)) }
@@ -82,6 +83,7 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     var syncCalories by remember { mutableStateOf(HealthConnectSyncPrefs.isCaloriesSyncEnabled(context)) }
 
     var stepGoal by remember { mutableStateOf(HealthConnectSyncPrefs.getStepGoal(context)) }
+    var workoutMinMinutes by remember { mutableStateOf(HealthConnectSyncPrefs.getWorkoutMinMinutes(context)) }
     var sleepGoalHours by remember { mutableStateOf(HealthConnectSyncPrefs.getSleepGoalHours(context)) }
     var calorieGoal by remember { mutableStateOf(HealthConnectSyncPrefs.getCalorieGoal(context)) }
 
@@ -90,14 +92,17 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
     var healthSyncMessage by remember { mutableStateOf<String?>(null) }
 
     var showCustomStepDialog by remember { mutableStateOf(false) }
+    var showCustomWorkoutMinDialog by remember { mutableStateOf(false) }
     var showCustomSleepDialog by remember { mutableStateOf(false) }
     var showCustomCalorieDialog by remember { mutableStateOf(false) }
 
     var customStepInput by remember { mutableStateOf("") }
+    var customWorkoutMinInput by remember { mutableStateOf("") }
     var customSleepInput by remember { mutableStateOf("") }
     var customCalorieInput by remember { mutableStateOf("") }
 
     val stepPresets = listOf(5000, 8000, 10000, 12000, 15000)
+    val workoutMinPresets = listOf(30, 45, 60, 90, 120)
     val sleepPresets = listOf(6, 7, 8, 9, 10, 12)
     val caloriePresets = listOf(300, 500, 800, 1000, 1200)
 
@@ -147,81 +152,116 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text("Calendar Sync", style = MaterialTheme.typography.titleLarge)
-
-            ButterflyCardWrapper(seed = "SyncInfo", indexOffset = 0, modifier = Modifier.fillMaxWidth()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = softCardShape,
-                    border = softCardBorder()
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Calendar Sync", style = MaterialTheme.typography.titleLarge)
                     Text(
                         "Sync your device calendar to automatically mark upcoming events this month as Important Days.",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
+                Switch(
+                    checked = isCalendarSyncEnabled,
+                    onCheckedChange = { enabled ->
+                        isCalendarSyncEnabled = enabled
+                        CalendarSyncPrefs.setEnabled(context, enabled)
+                    }
+                )
             }
 
-            if (!hasCalendarPermission) {
-                Button(
-                    onClick = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Grant Calendar Access")
-                }
-            } else {
-                if (calendars.isEmpty()) {
-                    Text("No calendars found on this device.", style = MaterialTheme.typography.bodyMedium)
-                } else {
-                    Text("Calendars to sync", style = MaterialTheme.typography.titleMedium)
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        calendars.forEach { calendar ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = calendar.id in selectedIds,
-                                    onCheckedChange = { checked ->
-                                        selectedIds = if (checked) selectedIds + calendar.id else selectedIds - calendar.id
-                                        CalendarSyncPrefs.setSelectedCalendarIds(context, selectedIds)
-                                    }
+            if (isCalendarSyncEnabled) {
+                if (!hasCalendarPermission) {
+                    ButterflyCardWrapper(seed = "CalendarPermsCard", modifier = Modifier.fillMaxWidth()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = softCardShape,
+                            border = softCardBorder()
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Text(
+                                    "Grant calendar access to select which calendars to sync.",
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
-                                Column {
-                                    Text(calendar.displayName, style = MaterialTheme.typography.bodyMedium)
-                                    if (calendar.accountName.isNotBlank()) {
-                                        Text(calendar.accountName, style = MaterialTheme.typography.bodySmall)
-                                    }
+                                Button(
+                                    onClick = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Grant Calendar Access")
                                 }
                             }
                         }
                     }
-
-                    Button(
-                        onClick = {
-                            viewModel.syncCalendarNow(selectedIds) { count ->
-                                syncMessage = "Added $count new important day${if (count == 1) "" else "s"}."
-                                lastSyncedMonth = CalendarSyncPrefs.getLastSyncedMonth(context)
-                            }
-                        },
-                        enabled = selectedIds.isNotEmpty(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Sync Calendar Now")
-                    }
-
-                    lastSyncedMonth?.let {
-                        Text("Last synced: $it", style = MaterialTheme.typography.bodySmall)
-                    }
-                    syncMessage?.let { msg ->
-                        ButterflyCardWrapper(seed = "SyncMessageCard_$msg", modifier = Modifier.fillMaxWidth()) {
+                } else {
+                    if (calendars.isEmpty()) {
+                        Text("No calendars found on this device.", style = MaterialTheme.typography.bodyMedium)
+                    } else {
+                        ButterflyCardWrapper(seed = "CalendarSettingsCard", modifier = Modifier.fillMaxWidth()) {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = softCardShape,
                                 border = softCardBorder()
                             ) {
-                                Text(msg, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Text("Calendars to sync", style = MaterialTheme.typography.titleMedium)
+                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        calendars.forEach { calendar ->
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Checkbox(
+                                                    checked = calendar.id in selectedIds,
+                                                    onCheckedChange = { checked ->
+                                                        selectedIds = if (checked) selectedIds + calendar.id else selectedIds - calendar.id
+                                                        CalendarSyncPrefs.setSelectedCalendarIds(context, selectedIds)
+                                                    }
+                                                )
+                                                Column {
+                                                    Text(calendar.displayName, style = MaterialTheme.typography.bodyMedium)
+                                                    if (calendar.accountName.isNotBlank()) {
+                                                        Text(calendar.accountName, style = MaterialTheme.typography.bodySmall)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Button(
+                            onClick = {
+                                viewModel.syncCalendarNow(selectedIds) { count ->
+                                    syncMessage = "Added $count new important day${if (count == 1) "" else "s"}."
+                                    lastSyncedMonth = CalendarSyncPrefs.getLastSyncedMonth(context)
+                                }
+                            },
+                            enabled = selectedIds.isNotEmpty(),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Sync Calendar Now")
+                        }
+
+                        lastSyncedMonth?.let {
+                            Text("Last synced: $it", style = MaterialTheme.typography.bodySmall)
+                        }
+
+                        syncMessage?.let { msg ->
+                            ButterflyCardWrapper(seed = "SyncMessageCard_$msg", modifier = Modifier.fillMaxWidth()) {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = softCardShape,
+                                    border = softCardBorder()
+                                ) {
+                                    Text(msg, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)
+                                }
                             }
                         }
                     }
@@ -371,6 +411,27 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
                                         }
                                     )
                                     Text("🏃 Workouts & Strava Activities", style = MaterialTheme.typography.bodyMedium)
+                                }
+
+                                if (syncWorkouts) {
+                                    Column(modifier = Modifier.padding(start = 32.dp)) {
+                                        Text("Minimum Workout Duration Target:", style = MaterialTheme.typography.bodySmall)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        GoalDropdownMenu(
+                                            label = "Workout Duration",
+                                            selectedValue = workoutMinMinutes,
+                                            presets = workoutMinPresets,
+                                            formatValue = { "$it mins" },
+                                            onSelectPreset = { preset ->
+                                                workoutMinMinutes = preset
+                                                HealthConnectSyncPrefs.setWorkoutMinMinutes(context, preset)
+                                            },
+                                            onSelectCustom = {
+                                                customWorkoutMinInput = workoutMinMinutes.toString()
+                                                showCustomWorkoutMinDialog = true
+                                            }
+                                        )
+                                    }
                                 }
 
                                 Row(
@@ -532,6 +593,42 @@ fun SyncScreen(viewModel: MoodViewModel, onBack: () -> Unit) {
             },
             dismissButton = {
                 TextButton(onClick = { showCustomStepDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showCustomWorkoutMinDialog) {
+        AlertDialog(
+            onDismissRequest = { showCustomWorkoutMinDialog = false },
+            title = { Text("Custom Minimum Workout Duration") },
+            text = {
+                OutlinedTextField(
+                    value = customWorkoutMinInput,
+                    onValueChange = { customWorkoutMinInput = it.filter { char -> char.isDigit() } },
+                    label = { Text("Duration Goal (minutes)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val value = customWorkoutMinInput.toIntOrNull()
+                        if (value != null && value > 0) {
+                            workoutMinMinutes = value
+                            HealthConnectSyncPrefs.setWorkoutMinMinutes(context, value)
+                        }
+                        showCustomWorkoutMinDialog = false
+                    }
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCustomWorkoutMinDialog = false }) {
                     Text("Cancel")
                 }
             }

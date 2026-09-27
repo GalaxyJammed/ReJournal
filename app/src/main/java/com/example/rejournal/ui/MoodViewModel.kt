@@ -326,6 +326,7 @@ class MoodViewModel(
     }
 
     fun autoSyncCalendar() {
+        if (!CalendarSyncPrefs.isEnabled(appContext)) return
         val selectedIds = CalendarSyncPrefs.getSelectedCalendarIds(appContext)
         if (selectedIds.isEmpty() || !hasCalendarPermission()) return
         syncCalendarNow(selectedIds) { }

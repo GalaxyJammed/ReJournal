@@ -125,13 +125,14 @@ object HealthConnectSyncHelper {
                 )
                 val response = client.readRecords(exerciseRequest)
                 val syncedRecordIds = HealthConnectSyncPrefs.getSyncedRecordIds(context)
+                val workoutMinMinutes = HealthConnectSyncPrefs.getWorkoutMinMinutes(context)
 
                 for (record in response.records) {
                     val id = record.metadata.id
                     if (syncedRecordIds.contains(id)) continue
 
                     val durationMinutes = Duration.between(record.startTime, record.endTime).toMinutes()
-                    if (durationMinutes <= 0) continue
+                    if (durationMinutes < workoutMinMinutes) continue
 
                     val activityName = getExerciseName(record.exerciseType)
                     val recordDate = record.startTime.atZone(zone).toLocalDate()

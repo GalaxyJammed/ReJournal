@@ -5,8 +5,18 @@ import java.time.YearMonth
 
 object CalendarSyncPrefs {
     private const val PREFS_NAME = "calendar_sync_prefs"
+    private const val KEY_ENABLED = "calendar_sync_enabled"
     private const val KEY_SELECTED_IDS = "selected_ids"
     private const val KEY_LAST_SYNCED_MONTH = "last_synced_month"
+
+    fun isEnabled(context: Context): Boolean =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getBoolean(KEY_ENABLED, true)
+
+    fun setEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putBoolean(KEY_ENABLED, enabled)
+            .apply()
+    }
 
     fun getSelectedCalendarIds(context: Context): Set<Long> {
         val stored = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

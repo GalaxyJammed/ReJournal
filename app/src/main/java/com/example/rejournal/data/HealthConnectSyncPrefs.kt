@@ -11,6 +11,7 @@ object HealthConnectSyncPrefs {
     private const val KEY_SYNC_SLEEP = "sync_sleep"
     private const val KEY_SYNC_CALORIES = "sync_calories"
     private const val KEY_STEP_GOAL = "step_goal"
+    private const val KEY_WORKOUT_MIN_MINUTES = "workout_min_minutes"
     private const val KEY_SLEEP_GOAL_HOURS = "sleep_goal_hours"
     private const val KEY_CALORIE_GOAL = "calorie_goal"
     private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
@@ -70,6 +71,15 @@ object HealthConnectSyncPrefs {
     fun setStepGoal(context: Context, goal: Int) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
             putInt(KEY_STEP_GOAL, goal)
+        }
+    }
+
+    fun getWorkoutMinMinutes(context: Context): Int =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(KEY_WORKOUT_MIN_MINUTES, 30)
+
+    fun setWorkoutMinMinutes(context: Context, minutes: Int) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
+            putInt(KEY_WORKOUT_MIN_MINUTES, minutes)
         }
     }
 
