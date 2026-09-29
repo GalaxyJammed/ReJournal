@@ -9,7 +9,7 @@
 ![Min SDK](https://img.shields.io/badge/Min%20SDK-26-blue)
 ![GitHub release](https://img.shields.io/github/v/release/GalaxyJammed/ReJournal?logo=github&label=GitHub%20release)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?logo=mit)
-![Project Status](https://img.shields.io/badge/Project%20Status-WIP-blue)
+![Project Status](https://img.shields.io/badge/Project%20Status-Finished-blue)
 
 ⭐ **If ReJournal helps you, please star this repository. It helps other users in need find the project.**
 
@@ -17,14 +17,8 @@
 
 ## What is ReJournal?
 
+
 ReJournal is a **free, open-source mood tracker and journaling app for Android**. Unlike subscription-based mental health apps, it stores all data locally on your device, nothing is uploaded to the cloud. It is designed for anyone who wants a **private, ad-free way to track daily mood, build habits, and identify emotional patterns**.
-
----
-
-## Introduction
-<div align="center">
-ReJournal is a free, open-source mood logger and mental health journal app for Android. It is a completely subscription-free, ad-free, and privacy-first alternative to apps like Daylio and Pixels. Log your daily mood, track energy, productivity, stress, and sleep, and visualize patterns over time, all with your data stored locally on your device.
-</div>
 
 <div align="center">
   <img width="100" height="100" alt="monarch-butterfly" src="https://github.com/user-attachments/assets/5a51f79f-a130-4f1a-9a08-0cf18d6acfab" />
