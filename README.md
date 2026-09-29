@@ -17,11 +17,10 @@
 
 ## What is ReJournal?
 
-
 ReJournal is a **free, open-source mood tracker and journaling app for Android**. Unlike subscription-based mental health apps, it stores all data locally on your device, nothing is uploaded to the cloud. It is designed for anyone who wants a **private, ad-free way to track daily mood, build habits, and identify emotional patterns**.
 
 <div align="center">
-  <img width="100" height="100" alt="monarch-butterfly" src="https://github.com/user-attachments/assets/5a51f79f-a130-4f1a-9a08-0cf18d6acfab" />
+  <img width="100" height="100" alt="app_logo" src="https://github.com/user-attachments/assets/5a51f79f-a130-4f1a-9a08-0cf18d6acfab" />
   <br>
   <em>"Your soul will feel rejuvenated"</em>
 </div>
