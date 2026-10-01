@@ -9,11 +9,11 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "3.7.2",
+            version = "3.7.3",
             date = "27/9/2026",
             highlights = listOf(
-                "Fixed Google Fit not working properly with Health Connect sync and logging every small walk as a 'Micro-Win'",
-                "Made the sync screen prettier"
+                "Fixed Micro-Win screen getting cluttered if there were 2+ months logged with Micro-Wins",
+                "Fixed Health Connect sync sometimes giving duplicated Micro-Wins"
 
 
             )

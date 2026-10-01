@@ -35,4 +35,6 @@ class MoodRepository(
 
     suspend fun saveMicroWin(microWin: MicroWin) = microWinDao.insert(microWin)
     suspend fun deleteMicroWin(microWin: MicroWin) = microWinDao.delete(microWin)
+    suspend fun hasMicroWin(date: LocalDate, title: String): Boolean =
+        microWinDao.getCountForDateAndTitle(date, title) > 0
 }

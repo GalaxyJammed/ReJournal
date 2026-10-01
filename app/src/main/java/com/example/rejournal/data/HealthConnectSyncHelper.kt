@@ -13,6 +13,8 @@ import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.example.rejournal.notifications.HealthConnectNotificationHelper
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -28,6 +30,8 @@ object HealthConnectSyncHelper {
         HealthPermission.getReadPermission(ActiveCaloriesBurnedRecord::class),
         HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
     )
+
+    private val mutex = Mutex()
 
     fun getSdkStatus(context: Context): Int {
         return HealthConnectClient.getSdkStatus(context)
@@ -79,7 +83,7 @@ object HealthConnectSyncHelper {
         return granted.containsAll(basicPermissions)
     }
 
-    suspend fun syncHealthData(context: Context, repository: MoodRepository): Int {
+    suspend fun syncHealthData(context: Context, repository: MoodRepository): Int = mutex.withLock {
         if (!HealthConnectSyncPrefs.isEnabled(context) || !hasPermissions(context)) return 0
 
         val client = HealthConnectClient.getOrCreate(context)
@@ -106,10 +110,12 @@ object HealthConnectSyncHelper {
                 if (totalSteps >= stepGoal && !syncedMilestones.contains(milestoneKey)) {
                     val formattedSteps = String.format(Locale.getDefault(), "%,d", totalSteps)
                     val winTitle = "👟 Reached $formattedSteps steps today!"
-                    repository.saveMicroWin(MicroWin(title = winTitle, date = today))
+                    if (!repository.hasMicroWin(today, winTitle)) {
+                        repository.saveMicroWin(MicroWin(title = winTitle, date = today))
+                        HealthConnectNotificationHelper.showGoalReachedNotification(context, winTitle)
+                        newWinsCount++
+                    }
                     HealthConnectSyncPrefs.addSyncedStepMilestone(context, milestoneKey)
-                    HealthConnectNotificationHelper.showGoalReachedNotification(context, winTitle)
-                    newWinsCount++
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -143,10 +149,12 @@ object HealthConnectSyncHelper {
                         "${activityName} completed (${durationMinutes} mins)"
                     }
 
-                    repository.saveMicroWin(MicroWin(title = titleText, date = recordDate))
+                    if (!repository.hasMicroWin(recordDate, titleText)) {
+                        repository.saveMicroWin(MicroWin(title = titleText, date = recordDate))
+                        HealthConnectNotificationHelper.showGoalReachedNotification(context, titleText)
+                        newWinsCount++
+                    }
                     HealthConnectSyncPrefs.addSyncedRecordId(context, id)
-                    HealthConnectNotificationHelper.showGoalReachedNotification(context, titleText)
-                    newWinsCount++
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -177,10 +185,12 @@ object HealthConnectSyncHelper {
 
                     val titleText = "😴 Reached $sleepGoalHours-hour sleep goal (${hours}h ${minutes}m)"
 
-                    repository.saveMicroWin(MicroWin(title = titleText, date = sleepDate))
+                    if (!repository.hasMicroWin(sleepDate, titleText)) {
+                        repository.saveMicroWin(MicroWin(title = titleText, date = sleepDate))
+                        HealthConnectNotificationHelper.showGoalReachedNotification(context, titleText)
+                        newWinsCount++
+                    }
                     HealthConnectSyncPrefs.addSyncedRecordId(context, id)
-                    HealthConnectNotificationHelper.showGoalReachedNotification(context, titleText)
-                    newWinsCount++
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -204,10 +214,12 @@ object HealthConnectSyncHelper {
                 if (activeCalories >= calorieGoal && !syncedMilestones.contains(milestoneKey)) {
                     val formattedCalories = String.format(Locale.getDefault(), "%,d", activeCalories)
                     val winTitle = "🔥 Burned $formattedCalories active kcal today!"
-                    repository.saveMicroWin(MicroWin(title = winTitle, date = today))
+                    if (!repository.hasMicroWin(today, winTitle)) {
+                        repository.saveMicroWin(MicroWin(title = winTitle, date = today))
+                        HealthConnectNotificationHelper.showGoalReachedNotification(context, winTitle)
+                        newWinsCount++
+                    }
                     HealthConnectSyncPrefs.addSyncedCalorieMilestone(context, milestoneKey)
-                    HealthConnectNotificationHelper.showGoalReachedNotification(context, winTitle)
-                    newWinsCount++
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

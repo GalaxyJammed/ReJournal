@@ -21,4 +21,7 @@ interface MicroWinDao {
 
     @Query("SELECT COUNT(*) FROM micro_wins WHERE date = :date")
     suspend fun getCountForDate(date: LocalDate): Int
+
+    @Query("SELECT COUNT(*) FROM micro_wins WHERE date = :date AND title = :title")
+    suspend fun getCountForDateAndTitle(date: LocalDate, title: String): Int
 }

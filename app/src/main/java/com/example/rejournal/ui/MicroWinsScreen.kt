@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -26,6 +27,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.EmojiEvents
@@ -38,11 +41,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -89,6 +92,7 @@ fun MicroWinsScreen(
     var winInputText by remember { mutableStateOf("") }
     var showAddedFeedback by remember { mutableStateOf(false) }
     var selectedMonthFilter by remember { mutableStateOf<YearMonth?>(null) }
+    var showFilterDialog by remember { mutableStateOf(false) }
 
     var quickAdditions by remember { mutableStateOf(MicroWinPrefs.getQuickAdditions(context)) }
     var showAddCustomDialog by remember { mutableStateOf(false) }
@@ -377,40 +381,44 @@ fun MicroWinsScreen(
                                     color = MaterialTheme.colorScheme.primaryContainer
                                 ) {
                                     Text(
-                                        text = "${microWins.size}",
+                                        text = "${filteredWins.size}${if (selectedMonthFilter != null) " / ${microWins.size}" else ""}",
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                     )
                                 }
                             }
-                        }
 
-                        if (availableMonths.size > 1) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Filled.FilterList,
-                                    contentDescription = "Filter",
-                                    modifier = Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                FilterChip(
-                                    selected = selectedMonthFilter == null,
-                                    onClick = { selectedMonthFilter = null },
-                                    label = { Text("All Months") }
-                                )
-                                availableMonths.take(3).forEach { yearMonth ->
-                                    val labelText = yearMonth.format(DateTimeFormatter.ofPattern("MMM yyyy"))
-                                    FilterChip(
-                                        selected = selectedMonthFilter == yearMonth,
-                                        onClick = {
-                                            selectedMonthFilter = if (selectedMonthFilter == yearMonth) null else yearMonth
-                                        },
-                                        label = { Text(labelText) }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (selectedMonthFilter != null) {
+                                    TextButton(
+                                        onClick = { selectedMonthFilter = null },
+                                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                                    ) {
+                                        Text(
+                                            text = selectedMonthFilter!!.format(DateTimeFormatter.ofPattern("MMM yyyy")),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(2.dp))
+                                        Icon(
+                                            Icons.Filled.Close,
+                                            contentDescription = "Clear filter",
+                                            modifier = Modifier.size(14.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                }
+                                IconButton(
+                                    onClick = { showFilterDialog = true },
+                                    modifier = Modifier.size(36.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Filled.FilterList,
+                                        contentDescription = "Filter micro-wins by month",
+                                        tint = if (selectedMonthFilter != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
@@ -518,6 +526,122 @@ fun MicroWinsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showAddCustomDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showFilterDialog) {
+        val months = remember(availableMonths) { availableMonths.sorted() }
+        var dialogSelectedMonth by remember { mutableStateOf(selectedMonthFilter) }
+        var dialogIndex by remember(dialogSelectedMonth, months) {
+            mutableStateOf(
+                if (dialogSelectedMonth != null) months.indexOf(dialogSelectedMonth).coerceAtLeast(0) else 0
+            )
+        }
+
+        AlertDialog(
+            onDismissRequest = { showFilterDialog = false },
+            title = { Text("Filter by Month", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedButton(
+                        onClick = { dialogSelectedMonth = null },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (dialogSelectedMonth == null) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else Color.Transparent
+                        )
+                    ) {
+                        Text("Show All Months (${microWins.size})")
+                    }
+
+                    if (months.isNotEmpty()) {
+                        HorizontalDivider()
+
+                        val currentYM = months[dialogIndex]
+                        val countInMonth = microWins.count { YearMonth.from(it.date) == currentYM }
+
+                        Text(
+                            "Navigate months with micro-wins:",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(
+                                onClick = { if (dialogIndex > 0) dialogIndex-- },
+                                enabled = dialogIndex > 0
+                            ) {
+                                Icon(Icons.Filled.ChevronLeft, contentDescription = "Previous month")
+                            }
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = currentYM.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "$countInMonth win${if (countInMonth == 1) "" else "s"}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            IconButton(
+                                onClick = { if (dialogIndex < months.size - 1) dialogIndex++ },
+                                enabled = dialogIndex < months.size - 1
+                            ) {
+                                Icon(Icons.Filled.ChevronRight, contentDescription = "Next month")
+                            }
+                        }
+
+                        Button(
+                            onClick = {
+                                dialogSelectedMonth = currentYM
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (dialogSelectedMonth == currentYM)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Text(
+                                if (dialogSelectedMonth == currentYM)
+                                    "✓ Selected: ${currentYM.format(DateTimeFormatter.ofPattern("MMM yyyy"))}"
+                                else
+                                    "Select ${currentYM.format(DateTimeFormatter.ofPattern("MMM yyyy"))}"
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        selectedMonthFilter = dialogSelectedMonth
+                        showFilterDialog = false
+                    }
+                ) {
+                    Text("Apply")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showFilterDialog = false }) {
                     Text("Cancel")
                 }
             }
