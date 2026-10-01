@@ -25,8 +25,6 @@ ReJournal is a **free, open-source mood tracker and journaling app for Android**
   <em>"Your soul will feel rejuvenated"</em>
 </div>
 
----
-
 ## Mood Tracking Features
 
 ### 🔔 Daily Mood and Habit Logging
@@ -132,16 +130,12 @@ ReJournal is a **free, open-source mood tracker and journaling app for Android**
 - **Troubleshooting**: a built-in checklist for notification issues (permissions, battery optimization, autostart) to help track down why reminders might not be arriving
 - **Update checker**: a friendly heads-up on the main screen when a newer version is available on GitHub
 
----
-
 ## 🛠️ Setup
 
 1. Download the APK from [Releases](../../releases)
 2. Click on the **+** or any day you'd like to log an entry
 
 Simple and easy!
-
----
 
 ## ❓ Frequently Asked Questions
 
@@ -163,10 +157,6 @@ Yes. You can export all entries to CSV for Excel or Google Sheets, and perform f
 ### How is ReJournal different from other mood loggers?
 ReJournal is free and open-source, stores everything locally, has no ads or subscriptions, and includes features like voice memos, time capsules, personality tests and even unique ideas that many paid apps lack/put behind a paywall.
 
----
-
 ## Bug Reports/Suggestions
 - Feel free to report any bug reports/suggestions by opening an [issue](https://github.com/GalaxyJammed/ReJournal/issues) or [discussion](https://github.com/GalaxyJammed/ReJournal/discussions) thread!
 - You can even report any bugs/give feedback inside of the app in 'More' -> 'About' -> 'Contact Us'!
-
----
