@@ -61,7 +61,7 @@ fun FeedbackScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text(
-                text = "We'd love to hear from you! Report a bug or suggest a feature below. This will open your email app to send feedback directly to rejournalfeedback@gmail.com.",
+                text = "We'd love to hear from you! Report a bug or suggest a feature below. This will open your email app to send feedback directly to galaxyjammed@gmail.com.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -127,7 +127,7 @@ fun FeedbackScreen(onBack: () -> Unit) {
 
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "message/rfc822"
-                        putExtra(Intent.EXTRA_EMAIL, arrayOf("rejournalfeedback@gmail.com"))
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf("galaxyjammed@gmail.com"))
                         putExtra(Intent.EXTRA_SUBJECT, "[ReJournal Feedback - $feedbackType]")
                         putExtra(Intent.EXTRA_TEXT, emailBody)
                     }

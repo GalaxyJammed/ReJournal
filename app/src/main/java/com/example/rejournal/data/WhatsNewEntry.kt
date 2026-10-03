@@ -9,11 +9,10 @@ data class WhatsNewEntry(
 object WhatsNewEntries {
     val all = listOf(
         WhatsNewEntry(
-            version = "3.7.3",
+            version = "3.7.4",
             date = "27/9/2026",
             highlights = listOf(
-                "Fixed Micro-Win screen getting cluttered if there were 2+ months logged with Micro-Wins",
-                "Fixed Health Connect sync sometimes giving duplicated Micro-Wins"
+                "Changed Contact Us email to a more 'professional' one"
 
 
             )
